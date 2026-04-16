@@ -1,0 +1,17 @@
+# ── Dependencias de la app (manejadas dentro del contenedor Docker)
+app/node_modules/
+app/.angular/
+app/www/
+app/dist/
+
+# ── Archivos de sistema operativo
+.DS_Store
+Thumbs.db
+
+# ── Contexto de build (no necesario en la imagen Docker)
+docs/
+.git/
+.gitignore
+.env
+.env.*
+!.env.example

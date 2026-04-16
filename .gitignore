@@ -1,0 +1,25 @@
+# ── Dependencias (NUNCA subir a Git)
+# NOTA: En Windows con Docker Desktop, node_modules puede aparecer en el host.
+# Esto es normal — solo ejecutar `npm install` DENTRO del contenedor.
+app/node_modules/
+app/.angular/
+app/www/
+app/dist/
+app/.ionic/
+
+# ── Variables de entorno con secretos
+.env
+.env.*
+!.env.example
+
+# ── Archivos de sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# ── Docker
+docker-compose.override.yml
+
+# ── IDE
+.vscode/settings.json
+.idea/

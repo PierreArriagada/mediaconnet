@@ -1,0 +1,45 @@
+services:
+  # ─────────────────────────────────────────────
+  # Contenedor de la aplicación móvil Ionic/Angular
+  # ─────────────────────────────────────────────
+  mediconnect-mobile:
+    build: .
+    container_name: mediconnect-app
+    volumes:
+      # Solo monta la subcarpeta app/ → el código fuente
+      - ./app:/workspace
+      # Volumen anónimo: node_modules vive SOLO dentro del contenedor
+      # Esto evita que aparezca en tu explorador de Windows
+      - /workspace/node_modules
+    ports:
+      - "8100:8100"   # Ionic Dev Server
+      - "4200:4200"   # Angular CLI alternativo
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    depends_on:
+      - mediconnect-db
+
+  # ─────────────────────────────────────────────
+  # Contenedor de base de datos PostgreSQL (local Supabase)
+  # ─────────────────────────────────────────────
+  mediconnect-db:
+    image: postgres:18-alpine
+    container_name: mediconnect-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mediconnect
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
