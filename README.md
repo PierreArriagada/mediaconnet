@@ -41,13 +41,6 @@ Cuando veas `Compiled successfully`, abre:
 http://localhost:8100
 ```
 
-## Credenciales actuales de acceso
-
-| Correo | Contraseña | Rol |
-|---|---|---|
-| `paciente1@mediconnect.cl` | `mediconnect2026` | Paciente |
-| `medico1@mediconnect.cl` | `mediconnect2026` | Médico |
-| `admin@mediconnect.cl` | `mediconnect2026` | Administrador |
 
 ## Infraestructura actual
 
