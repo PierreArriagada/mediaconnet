@@ -16,6 +16,7 @@ app/.ionic/
 .DS_Store
 Thumbs.db
 *.log
+README.md
 
 # ── Docker
 docker-compose.override.yml
