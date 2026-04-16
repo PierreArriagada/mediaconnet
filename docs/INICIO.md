@@ -124,11 +124,6 @@ Redirige automáticamente al login.
 
 El login funciona en modo mock (sin backend). Usa cualquiera de estas cuentas:
 
-| Correo | Contraseña | Rol |
-|---|---|---|
-| `paciente1@mediconnect.cl` | `mediconnect2026` | Paciente |
-| `medico1@mediconnect.cl` | `mediconnect2026` | Médico |
-| `admin@mediconnect.cl` | `mediconnect2026` | Administrador |
 
 ---
 

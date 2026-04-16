@@ -12,11 +12,7 @@ La URL `http://localhost:3000/api` sigue configurada como destino del backend fu
 
 Estas credenciales corresponden a usuarios presentes en el seed de [database/01_init.sql](../database/01_init.sql):
 
-| Email | Contraseña | Rol | Nombre |
-|---|---|---|---|
-| `paciente1@mediconnect.cl` | `mediconnect2026` | Paciente | Laura Mora |
-| `medico1@mediconnect.cl` | `mediconnect2026` | Médico | Carlos Rojas |
-| `admin@mediconnect.cl` | `mediconnect2026` | Administrador | Eduardo Guerrero |
+
 
 Cualquier otra combinación devuelve error de autenticación.
 
@@ -26,11 +22,7 @@ Cualquier otra combinación devuelve error de autenticación.
 
 Los roles se originan en la tabla `roles`:
 
-| ID | Nombre | Mapeo frontend |
-|---|---|---|
-| 1 | Administrador | `admin` |
-| 2 | Paciente | `patient` |
-| 3 | Médico | `doctor` |
+
 
 ---
 
