@@ -31,11 +31,7 @@ Configurado en `app/src/environments/environment.ts` y reservado para cuando exi
 
 `AuthService.login()` acepta actualmente estas credenciales:
 
-| Email | Contraseña | Rol |
-|---|---|---|
-| `paciente1@mediconnect.cl` | `mediconnect2026` | `patient` |
-| `medico1@mediconnect.cl` | `mediconnect2026` | `doctor` |
-| `admin@mediconnect.cl` | `mediconnect2026` | `admin` |
+
 
 En éxito, el servicio guarda en `localStorage`:
 
