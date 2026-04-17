@@ -1,0 +1,494 @@
+// ── Material Symbols ─────────────────────────────────────────────────────────
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  font-size: 1.5rem;
+  line-height: 1;
+  display: inline-block;
+  user-select: none;
+}
+
+// ── Page shell ───────────────────────────────────────────────────────────────
+ion-content {
+  --background: var(--mc-surface);
+}
+
+.reg-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--mc-surface);
+  color: var(--mc-on-surface);
+  font-family: var(--mc-font-utility);
+}
+
+// ── Glass header ─────────────────────────────────────────────────────────────
+.reg-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 50;
+  background: var(--mc-glass-bg);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  border-bottom: none;
+
+  &__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    max-width: 80rem;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  &__logo {
+    font-family: var(--mc-font-authority);
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.03em;
+    color: var(--mc-primary);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__icon-btn {
+    padding: 0.5rem;
+    border-radius: 9999px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--mc-primary);
+    display: flex;
+    align-items: center;
+    transition: background 0.15s ease;
+
+    &:hover { background: var(--mc-surface-container-low); }
+
+    .material-symbols-outlined { font-size: 1.375rem; }
+  }
+}
+
+// ── Main layout ───────────────────────────────────────────────────────────────
+.reg-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 6rem;   // clear fixed header
+  padding-bottom: 3rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  gap: 3rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+// ── Left editorial panel ─────────────────────────────────────────────────────
+.reg-left {
+  display: none;
+
+  @media (min-width: 768px) {
+    display: flex;
+    flex: 1;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 32rem;
+  }
+
+  &__headline {
+    font-family: var(--mc-font-authority);
+    font-size: var(--mc-type-display-lg);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--mc-on-surface);
+    margin: 0;
+
+    &--accent { color: var(--mc-primary); }
+  }
+
+  &__body {
+    font-family: var(--mc-font-utility);
+    font-size: 1.125rem;
+    line-height: var(--mc-leading-body);
+    color: var(--mc-on-surface-variant);
+    margin: 0;
+  }
+}
+
+// ── Feature cards ─────────────────────────────────────────────────────────────
+.reg-features {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.reg-feature-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: var(--mc-radius-lg);
+  background: var(--mc-surface-container-low);
+  border: 1px solid var(--mc-border-ghost);
+
+  &__icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &--primary {
+      background: var(--mc-primary-fixed);
+      color: var(--mc-primary);
+    }
+
+    &--tertiary {
+      background: var(--mc-tertiary-fixed);
+      color: var(--mc-tertiary);
+    }
+
+    .material-symbols-outlined { font-size: 1.375rem; }
+  }
+
+  &__label {
+    font-family: var(--mc-font-utility);
+    font-weight: 600;
+    color: var(--mc-on-surface-variant);
+    margin: 0;
+    font-size: 0.9375rem;
+  }
+}
+
+// ── Register card ─────────────────────────────────────────────────────────────
+.reg-right {
+  width: 100%;
+  max-width: 31.25rem;   // 500px
+  flex-shrink: 0;
+}
+
+.reg-card {
+  background: var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-xl);
+  padding: 2rem;
+  box-shadow: var(--mc-shadow-fab);
+  border: 1px solid var(--mc-border-ghost);
+
+  @media (min-width: 640px) {
+    padding: 2.5rem;
+  }
+
+  &__header {
+    margin-bottom: 2rem;
+  }
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--mc-on-surface);
+    letter-spacing: var(--mc-tracking-headline);
+    margin: 0 0 0.5rem;
+  }
+
+  &__subtitle {
+    font-size: 0.875rem;
+    color: var(--mc-on-surface-variant);
+    margin: 0;
+  }
+
+  &__footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--mc-border-ghost);
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--mc-on-surface-variant);
+
+    p { margin: 0; }
+  }
+
+  &__footer-link {
+    color: var(--mc-primary);
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// ── Form ─────────────────────────────────────────────────────────────────────
+.reg-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  &__submit {
+    padding-top: 1rem;
+  }
+}
+
+// ── Field grid ────────────────────────────────────────────────────────────────
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+
+  @media (min-width: 480px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+// ── Fields ───────────────────────────────────────────────────────────────────
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  &__label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--mc-outline);
+    padding-left: 0.25rem;
+
+    &--optional {
+      font-weight: 400;
+      text-transform: none;
+      color: rgba(114, 120, 122, 0.5);
+      font-size: 0.7rem;
+    }
+  }
+
+  &__input-wrapper {
+    position: relative;
+  }
+
+  &__input {
+    width: 100%;
+    background: var(--mc-surface-container-high);
+    border: none;
+    border-radius: var(--mc-radius-md);
+    padding: 1rem 1.25rem;
+    font-family: var(--mc-font-utility);
+    font-size: 0.9375rem;
+    color: var(--mc-on-surface);
+    outline: none;
+    box-sizing: border-box;
+    transition: box-shadow 0.2s ease, background 0.2s ease;
+
+    &::placeholder {
+      color: var(--mc-outline);
+      opacity: 0.6;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 2px rgba(0, 94, 164, 0.2);
+    }
+
+    &--with-toggle {
+      padding-right: 3.25rem;
+    }
+
+    &--error {
+      background: var(--mc-error-container);
+
+      &:focus {
+        box-shadow: 0 0 0 2px var(--mc-error);
+      }
+    }
+  }
+
+  &__toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--mc-outline);
+    display: flex;
+    align-items: center;
+
+    .material-symbols-outlined { font-size: 1.25rem; }
+  }
+
+  &__error {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding-left: 0.25rem;
+    color: var(--mc-error);
+    font-size: 0.75rem;
+    font-weight: 500;
+
+    &--indent {
+      padding-left: 1.75rem;
+    }
+  }
+
+  &__error-icon {
+    font-size: 0.875rem !important;
+    flex-shrink: 0;
+  }
+}
+
+// ── Terms checkbox ────────────────────────────────────────────────────────────
+.field-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+
+  &__checkbox {
+    margin-top: 0.125rem;
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+    accent-color: var(--mc-primary);
+    cursor: pointer;
+  }
+
+  &__label {
+    font-size: 0.875rem;
+    color: var(--mc-on-surface-variant);
+    line-height: 1.5;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  &__link {
+    color: var(--mc-primary);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// ── Primary button ────────────────────────────────────────────────────────────
+.btn-primary {
+  width: 100%;
+  background: var(--mc-gradient-primary);
+  color: var(--mc-on-primary);
+  font-family: var(--mc-font-utility);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 1rem 2rem;
+  border-radius: var(--mc-radius-xl);
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--mc-shadow-fab);
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 40px 0 rgba(26, 28, 28, 0.08);
+  }
+
+  &:active:not(:disabled) { transform: scale(0.97); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  &__arrow {
+    font-size: 1.25rem !important;
+  }
+}
+
+.btn-spinner {
+  --color: var(--mc-on-primary);
+  width: 24px;
+  height: 24px;
+}
+
+// ── Floating assistant (desktop) ─────────────────────────────────────────────
+.reg-assistant {
+  display: none;
+
+  @media (min-width: 768px) {
+    display: block;
+    position: fixed;
+    bottom: 3rem;
+    right: 3rem;
+    z-index: 40;
+  }
+
+  &__card {
+    background: var(--mc-surface-container-lowest);
+    padding: 0.25rem;
+    border-radius: var(--mc-radius-lg);
+    box-shadow: 0 8px 32px 0 rgba(26, 28, 28, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid var(--mc-border-ghost);
+    transition: box-shadow 0.2s ease;
+
+    &:hover {
+      box-shadow: 0 12px 40px 0 rgba(26, 28, 28, 0.12);
+    }
+  }
+
+  &__avatar {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 9999px;
+    overflow: hidden;
+    background: var(--mc-surface-container);
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__text {
+    padding-right: 1.5rem;
+  }
+
+  &__tag {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--mc-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0;
+  }
+
+  &__msg {
+    font-size: 0.875rem;
+    color: var(--mc-on-surface);
+    font-weight: 500;
+    margin: 0;
+  }
+}

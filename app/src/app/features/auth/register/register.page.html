@@ -1,0 +1,307 @@
+<ion-content [fullscreen]="true">
+  <div class="reg-page">
+
+    <!-- ── Floating glass header ─────────────────────────────────────────── -->
+    <header class="reg-header">
+      <div class="reg-header__inner">
+        <span class="reg-header__logo">MediConnect</span>
+        <div class="reg-header__actions">
+          <button class="reg-header__icon-btn" type="button" aria-label="Idioma">
+            <span class="material-symbols-outlined">language</span>
+          </button>
+          <button class="reg-header__icon-btn" type="button" aria-label="Ayuda">
+            <span class="material-symbols-outlined">help_outline</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Main two-column layout ─────────────────────────────────────────── -->
+    <main class="reg-main">
+
+      <!-- Left editorial panel (desktop only) -->
+      <section class="reg-left">
+        <div class="reg-left__content">
+          <h1 class="reg-left__headline">
+            Tu bienestar, <span class="reg-left__headline--accent">conectado</span>.
+          </h1>
+          <p class="reg-left__body">
+            Únete a la plataforma líder en gestión médica editorial. Diseñada para ofrecerte la precisión que tu salud merece con la empatía que necesitas.
+          </p>
+
+          <div class="reg-features">
+            <div class="reg-feature-card">
+              <div class="reg-feature-card__icon reg-feature-card__icon--primary">
+                <span class="material-symbols-outlined">history</span>
+              </div>
+              <p class="reg-feature-card__label">Historial médico centralizado</p>
+            </div>
+            <div class="reg-feature-card">
+              <div class="reg-feature-card__icon reg-feature-card__icon--tertiary">
+                <span class="material-symbols-outlined">monitoring</span>
+              </div>
+              <p class="reg-feature-card__label">Seguimiento de solicitudes en tiempo real</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Register form -->
+      <section class="reg-right">
+        <div class="reg-card">
+
+          <header class="reg-card__header">
+            <h2 class="reg-card__title">Crear cuenta</h2>
+            <p class="reg-card__subtitle">Con tu cuenta podrás ver historial y seguimiento de solicitudes</p>
+          </header>
+
+          <form [formGroup]="form" (ngSubmit)="onRegister()" class="reg-form" novalidate autocomplete="off">
+
+            <!-- Nombre -->
+            <div class="field">
+              <label class="field__label" for="nombre">Nombre completo</label>
+              <input
+                class="field__input"
+                id="nombre"
+                type="text"
+                formControlName="nombre"
+                placeholder="Ej. Juan"
+                autocomplete="given-name"
+                [class.field__input--error]="hasError('nombre')"
+              />
+              @if (hasError('nombre', 'required')) {
+                <span class="field__error">
+                  <span class="material-symbols-outlined field__error-icon">error</span>El nombre es obligatorio
+                </span>
+              } @else if (hasError('nombre', 'pattern')) {
+                <span class="field__error">
+                  <span class="material-symbols-outlined field__error-icon">error</span>Solo letras, espacios y guiones
+                </span>
+              }
+            </div>
+
+            <!-- Apellido -->
+            <div class="field">
+              <label class="field__label" for="apellido">Apellido</label>
+              <input
+                class="field__input"
+                id="apellido"
+                type="text"
+                formControlName="apellido"
+                placeholder="Ej. Pérez"
+                autocomplete="family-name"
+                [class.field__input--error]="hasError('apellido')"
+              />
+              @if (hasError('apellido', 'required')) {
+                <span class="field__error">
+                  <span class="material-symbols-outlined field__error-icon">error</span>El apellido es obligatorio
+                </span>
+              } @else if (hasError('apellido', 'pattern')) {
+                <span class="field__error">
+                  <span class="material-symbols-outlined field__error-icon">error</span>Solo letras, espacios y guiones
+                </span>
+              }
+            </div>
+
+            <!-- RUT (opcional) -->
+            <div class="field">
+              <label class="field__label" for="rut">
+                RUT <span class="field__label--optional">(opcional)</span>
+              </label>
+              <input
+                class="field__input"
+                id="rut"
+                type="text"
+                formControlName="rut"
+                placeholder="12.345.678-9"
+                autocomplete="off"
+                inputmode="numeric"
+                maxlength="12"
+                (input)="onRutInput($event)"
+                [class.field__input--error]="hasError('rut')"
+              />
+              @if (hasError('rut', 'rutFormat')) {
+                <span class="field__error">
+                  <span class="material-symbols-outlined field__error-icon">error</span>Formato inválido (ej: 12.345.678-9)
+                </span>
+              } @else if (hasError('rut', 'rutInvalid')) {
+                <span class="field__error">
+                  <span class="material-symbols-outlined field__error-icon">error</span>El dígito verificador no coincide
+                </span>
+              }
+            </div>
+
+            <!-- Correo -->
+            <div class="field">
+              <label class="field__label" for="correo">Correo electrónico</label>
+              <input
+                class="field__input"
+                id="correo"
+                type="email"
+                formControlName="correo"
+                placeholder="nombre@ejemplo.com"
+                autocomplete="email"
+                inputmode="email"
+                [class.field__input--error]="hasError('correo')"
+              />
+              @if (hasError('correo', 'required')) {
+                <span class="field__error">
+                  <span class="material-symbols-outlined field__error-icon">error</span>El correo es obligatorio
+                </span>
+              } @else if (hasError('correo', 'email') || hasError('correo', 'maxlength')) {
+                <span class="field__error">
+                  <span class="material-symbols-outlined field__error-icon">error</span>Ingresa un correo válido
+                </span>
+              }
+            </div>
+
+            <!-- Teléfono (opcional) -->
+            <div class="field">
+              <label class="field__label" for="telefono">Teléfono <span class="field__label--optional">(opcional)</span></label>
+              <input
+                class="field__input"
+                id="telefono"
+                type="tel"
+                formControlName="telefono"
+                placeholder="+56 9 1234 5678"
+                autocomplete="tel"
+                inputmode="tel"
+                [class.field__input--error]="hasError('telefono')"
+              />
+              @if (hasError('telefono', 'pattern')) {
+                <span class="field__error">
+                  <span class="material-symbols-outlined field__error-icon">error</span>Formato de teléfono inválido
+                </span>
+              }
+            </div>
+
+            <!-- Contraseñas (grid 2 col) -->
+            <div class="field-row">
+              <!-- Contraseña -->
+              <div class="field">
+                <label class="field__label" for="password">Contraseña</label>
+                <div class="field__input-wrapper">
+                  <input
+                    class="field__input field__input--with-toggle"
+                    id="password"
+                    [type]="showPassword ? 'text' : 'password'"
+                    formControlName="password"
+                    placeholder="••••••••"
+                    autocomplete="new-password"
+                    [class.field__input--error]="hasError('password')"
+                  />
+                  <button class="field__toggle" type="button"
+                    (click)="showPassword = !showPassword"
+                    [attr.aria-label]="showPassword ? 'Ocultar' : 'Mostrar'">
+                    <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+                  </button>
+                </div>
+                @if (hasError('password', 'required')) {
+                  <span class="field__error">
+                    <span class="material-symbols-outlined field__error-icon">error</span>Obligatorio
+                  </span>
+                } @else if (hasError('password', 'minLength')) {
+                  <span class="field__error">
+                    <span class="material-symbols-outlined field__error-icon">error</span>Mínimo 8 caracteres
+                  </span>
+                } @else if (hasError('password', 'noUppercase')) {
+                  <span class="field__error">
+                    <span class="material-symbols-outlined field__error-icon">error</span>Al menos 1 mayúscula
+                  </span>
+                } @else if (hasError('password', 'noNumber')) {
+                  <span class="field__error">
+                    <span class="material-symbols-outlined field__error-icon">error</span>Al menos 1 número
+                  </span>
+                }
+              </div>
+
+              <!-- Confirmar -->
+              <div class="field">
+                <label class="field__label" for="confirmPassword">Confirmar</label>
+                <div class="field__input-wrapper">
+                  <input
+                    class="field__input field__input--with-toggle"
+                    id="confirmPassword"
+                    [type]="showConfirm ? 'text' : 'password'"
+                    formControlName="confirmPassword"
+                    placeholder="••••••••"
+                    autocomplete="new-password"
+                    [class.field__input--error]="hasError('confirmPassword') || groupHasError('passwordMismatch')"
+                  />
+                  <button class="field__toggle" type="button"
+                    (click)="showConfirm = !showConfirm"
+                    [attr.aria-label]="showConfirm ? 'Ocultar' : 'Mostrar'">
+                    <span class="material-symbols-outlined">{{ showConfirm ? 'visibility_off' : 'visibility' }}</span>
+                  </button>
+                </div>
+                @if (groupHasError('passwordMismatch')) {
+                  <span class="field__error">
+                    <span class="material-symbols-outlined field__error-icon">error</span>No coinciden
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Términos y condiciones -->
+            <div class="field-terms">
+              <input
+                class="field-terms__checkbox"
+                id="terms"
+                type="checkbox"
+                formControlName="terms"
+              />
+              <label class="field-terms__label" for="terms">
+                Acepto los
+                <a class="field-terms__link" href="#" (click)="$event.preventDefault()">términos y condiciones</a>
+                de privacidad y uso de datos médicos.
+              </label>
+            </div>
+            @if (hasError('terms', 'required') || (form.get('terms')?.touched && form.get('terms')?.value === false)) {
+              <span class="field__error field__error--indent">
+                <span class="material-symbols-outlined field__error-icon">error</span>Debes aceptar los términos para continuar
+              </span>
+            }
+
+            <!-- Submit -->
+            <div class="reg-form__submit">
+              <button class="btn-primary" type="submit" [disabled]="isLoading">
+                @if (isLoading) {
+                  <ion-spinner name="crescent" class="btn-spinner" />
+                } @else {
+                  Crear cuenta
+                  <span class="material-symbols-outlined btn-primary__arrow">arrow_forward</span>
+                }
+              </button>
+            </div>
+
+          </form>
+
+          <footer class="reg-card__footer">
+            <p>¿Ya tienes una cuenta?
+              <a class="reg-card__footer-link" (click)="navigateToLogin()">Inicia sesión</a>
+            </p>
+          </footer>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Floating assistant widget (desktop) -->
+    <div class="reg-assistant">
+      <div class="reg-assistant__card">
+        <div class="reg-assistant__avatar">
+          <img
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDc4U_7zwofv3DoiHuIljcXFeV2xBRKV2QhK4_dXLGOyw-XKJ2xbqlIMJg0LVi1e8Q7YnM_7J5pAQoTvY2u5fqDek0CSEIKwM4R3CELye2AUeL5X7fHHWKp0feHka_LHOetZrZer8i7I3OLs0kDSDNx1GBUj-yuu9JFGBDsQAQQs5iiYykXJvM0M6EtxivF2V66e04xv90kqZt_2TfYvqKI79E-vxosQIbhkGEQ8hkrzt1XZzpwsVnUBK8kLU6Tw5mBxwxXx4JqYjm7"
+            alt="Asistente virtual MediConnect"
+          />
+        </div>
+        <div class="reg-assistant__text">
+          <p class="reg-assistant__tag">Asistente Virtual</p>
+          <p class="reg-assistant__msg">¿Necesitas ayuda con tu registro?</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

@@ -1,133 +1,113 @@
-# Plan del Backend — MediConnect
+# Backend — Estado actual y roadmap
 
-Este documento define los requisitos que debe cumplir el backend para integrarse con el frontend actual ya actualizado a Angular 21.
+Este documento ya no describe un backend hipotético. Resume lo que existe hoy en `backend/` y lo que todavía falta construir.
 
----
+## Estado actual implementado
 
-## Requisitos generales
+La API REST está levantada en `http://localhost:3000/api` dentro del contenedor `mediconnect-api`.
 
-| Aspecto | Decisión sugerida |
+Stack actual:
+
+| Aspecto | Estado actual |
 |---|---|
 | Runtime | Node.js 24 LTS |
-| Framework | Express, Fastify, NestJS u otro compatible con Node 24 |
+| Framework | Express 4.21 |
 | Base de datos | PostgreSQL 18 |
 | Autenticación | JWT |
+| Hash de contraseñas | `pgcrypto` con `crypt(..., gen_salt('bf', 12))` |
 | Puerto | `3000` |
-| Base URL esperada por frontend | `http://localhost:3000/api` |
+| Hot reload | `node --watch` |
 
----
-
-## Endpoints mínimos de fase 1
-
-### Autenticación
+## Estructura actual del backend
 
 ```text
-POST /api/auth/login
-  Body:    { "email": string, "password": string }
-  200 OK:  { "token": string, "user": { "id": string, "email": string, "name": string, "role": string } }
-  401:     { "message": string }
+backend/
+├── Dockerfile
+├── package.json
+└── src/
+    ├── config/
+    │   └── jwt.config.js
+    ├── controllers/
+    │   └── auth.controller.js
+    ├── db/
+    │   └── pool.js
+    ├── middleware/
+    │   ├── auth.middleware.js
+    │   └── error.middleware.js
+    ├── routes/
+    │   └── auth.routes.js
+    └── server.js
 ```
 
-Ver contrato completo en `docs/API_CONTRACT.md`.
+## Endpoints disponibles hoy
 
-### Registro
+| Método | Ruta | Estado | Descripción |
+|---|---|---|---|
+| `POST` | `/api/auth/login` | Activo | Valida credenciales contra PostgreSQL y devuelve JWT + usuario |
+| `POST` | `/api/auth/register` | Activo | Crea cuenta en `usuarios` con rol `Paciente` |
+| `POST` | `/api/auth/forgot-password` | Activo | Responde siempre `200` con mensaje genérico |
 
-```text
-POST /api/auth/register
-  Body:    { "name": string, "email": string, "password": string, "rut": string, ... }
-  201:     { "token": string, "user": { ... } }
-  409:     { "message": "El correo ya está registrado" }
-```
+## Seguridad actual
 
----
+El backend ya aplica estas capas:
 
-## Endpoints de fase 2
-
-| Método | Ruta | Descripción |
-|---|---|---|
-| `GET` | `/api/especialidades` | Listar especialidades activas |
-| `GET` | `/api/medicos?especialidad=:id` | Médicos filtrados por especialidad |
-| `GET` | `/api/disponibilidad/:medicoId?fecha=YYYY-MM-DD` | Bloques disponibles |
-| `POST` | `/api/citas` | Crear cita médica |
-| `GET` | `/api/citas/paciente/:id` | Historial de citas del paciente |
-| `PATCH` | `/api/citas/:id` | Cancelar o reprogramar |
-
----
-
-## Endpoints de fase 3
-
-| Método | Ruta | Descripción |
-|---|---|---|
-| `GET` | `/api/notificaciones` | Notificaciones del usuario autenticado |
-| `PATCH` | `/api/notificaciones/:id/leer` | Marcar como leída |
-
----
-
-## Conexión a base de datos
-
-El servicio PostgreSQL ya existe en `docker-compose.yml`:
-
-```text
-Host:     mediconnect-db
-Puerto:   5432
-Usuario:  postgres
-Password: postgres
-Base:     mediconnect
-```
-
-Desde fuera de Docker: `localhost:5432`.
-
----
+- `helmet`
+- `cors` restringido a orígenes locales del frontend
+- `express-rate-limit` global y por autenticación
+- `express-validator` para payloads
+- límite de cuerpo JSON de `10kb`
+- consultas parametrizadas con `pg`
+- JWT con secreto obligatorio
+- middleware de autenticación y autorización por rol
 
 ## Integración con Docker
 
-Para agregar el backend al proyecto:
+`docker-compose.yml` ya levanta el servicio `mediconnect-api` con estas condiciones:
 
-1. Crear carpeta `api/` o `backend/` en la raíz.
-2. Agregar un `Dockerfile` para el servicio backend.
-3. Agregar un servicio `mediconnect-api` en `docker-compose.yml`.
+- build desde `./backend`
+- `DATABASE_URL` apuntando a `mediconnect-postgres`
+- `JWT_SECRET` definido por entorno
+- puerto expuesto `3000:3000`
+- dependencia a PostgreSQL con `healthcheck`
 
-Ejemplo:
+## Limitaciones actuales
 
-```yaml
-mediconnect-api:
-  build: ./api
-  container_name: mediconnect-api
-  ports:
-    - "3000:3000"
-  environment:
-    DATABASE_URL: postgresql://postgres:postgres@mediconnect-db:5432/mediconnect
-    JWT_SECRET: cambiar-en-produccion
-  depends_on:
-    mediconnect-db:
-      condition: service_healthy
-```
+1. El backend solo cubre autenticación; el resto del dominio médico aún no está expuesto por API.
+2. El registro crea la cuenta en `usuarios`, pero todavía no crea el perfil de `pacientes`.
+3. `forgot-password` no envía correo todavía; solo mantiene el comportamiento seguro de no revelar si el correo existe.
+4. No hay refresh tokens ni lista de revocación.
+5. No existe separación por módulos de negocio más allá de autenticación.
 
-El frontend ya apunta a `http://localhost:3000/api`, así que no requiere cambios estructurales al conectar el backend.
+## Roadmap sugerido
 
----
+### Fase 2 — Perfil de paciente
 
-## Seguridad mínima
+- extender la vista de registro con campos requeridos por `pacientes`
+- crear el `INSERT` transaccional en `usuarios` + `pacientes`
+- devolver al frontend el identificador funcional del paciente
 
-- Hash de contraseñas con bcrypt.
-- JWT firmado con `JWT_SECRET` desde variables de entorno.
-- CORS habilitado para `http://localhost:8100` y `http://localhost:4200` en desarrollo.
-- Rate limiting en `/api/auth/login`.
-- Validación y sanitización de payloads en todos los endpoints.
+### Fase 3 — Catálogos clínicos
 
----
+- `GET /api/especialidades`
+- `GET /api/medicos?especialidad=:id`
+- `GET /api/disponibilidad/:medicoId?fecha=YYYY-MM-DD`
 
-## Mapeo BD ↔ API
+### Fase 4 — Citas médicas
 
-La tabla `usuarios` usa `contrasena_hash`. El backend debe:
+- `POST /api/citas`
+- `GET /api/citas/paciente/:id`
+- `PATCH /api/citas/:id`
 
-1. Recibir `password` en texto plano.
-2. Comparar con `bcrypt.compare(password, usuario.contrasena_hash)`.
-3. Generar JWT con `{ id, email, role }`.
-4. Devolver el JWT más los datos del usuario sin hash.
+### Fase 5 — Notificaciones y backoffice
 
-El campo `role` se obtiene desde la tabla `roles`:
+- `GET /api/notificaciones`
+- `PATCH /api/notificaciones/:id/leer`
+- endpoints administrativos protegidos por `requireRole('Administrador')`
 
-- `id_rol = 1` → `admin`
-- `id_rol = 2` → `patient`
-- `id_rol = 3` → `doctor`
+## Mapeo canónico de roles
+
+Los roles deben tratarse exactamente como existen en la base de datos:
+
+- `id_rol = 1` → `Administrador`
+- `id_rol = 2` → `Paciente`
+- `id_rol = 3` → `Medico`

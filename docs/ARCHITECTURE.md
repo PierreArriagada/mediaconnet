@@ -1,28 +1,35 @@
 # Arquitectura — MediConnect
 
-## Decisiones de arquitectura
+## 1. Monorepo por servicios
 
-### 1. Frontend standalone
+La raíz del proyecto separa cada responsabilidad técnica en una carpeta propia:
 
-Todo el proyecto usa Angular standalone. No hay `NgModule` en la aplicación activa. Los providers globales se configuran en `app.config.ts` mediante `bootstrapApplication()`.
+```text
+MediConnect/
+├── app/        frontend Ionic/Angular
+├── backend/    API REST Express
+├── database/   esquema, seeds y extensiones PostgreSQL
+├── docs/       documentación funcional y técnica
+└── docker-compose.yml
+```
 
-Razones principales:
+Esta separación es la estructura correcta para 2026 en un proyecto full-stack grande porque evita mezclar código que corre en el navegador con código que corre en el servidor.
 
-- lazy loading simple con `loadChildren()` y `loadComponent()`
-- menor sobrecarga estructural que un árbol de módulos
-- alineación con la dirección actual de Angular 21
+## 2. Frontend standalone
 
-### 2. Estructura de carpetas
+Todo el frontend usa Angular standalone. No hay `NgModule` en la aplicación activa. Los providers globales se configuran en `app.config.ts` mediante `bootstrapApplication()`.
+
+Estructura principal:
 
 ```text
 app/src/app/
 ├── core/             servicios singleton, guards, interceptors y modelos
 ├── shared/           componentes, pipes y directivas reutilizables
 ├── features/
-│   ├── auth/         login y registro
+│   ├── auth/         login, registro y restablecimiento de contraseña
 │   ├── dashboard/    vista principal protegida
 │   └── appointments/ feature reservada para citas
-├── layouts/          shells futuros, por ahora placeholders documentados
+├── layouts/          shells reutilizables
 ├── app.routes.ts     rutas raíz con lazy loading
 ├── app.config.ts     providers globales
 └── app.component.ts  shell raíz mínima
@@ -30,59 +37,87 @@ app/src/app/
 
 Convención: cada feature expone su propio array `*_ROUTES` y se carga de forma diferida desde `app.routes.ts`.
 
-### 3. Autenticación
+## 3. Backend Express modular
 
-- `authGuard` protege rutas privadas revisando el token en `localStorage`.
-- `tokenInterceptor` agrega `Authorization: Bearer <token>` a peticiones HTTP futuras.
-- `AuthService` mantiene el estado de sesión y hoy resuelve el login en modo mock.
-- No existe todavía expiración de token, refresh token ni validación contra backend real.
+El backend ya existe dentro de `backend/` y está organizado por capas simples y explícitas:
 
-### 4. Entorno Docker
+```text
+backend/src/
+├── config/       configuración centralizada (JWT)
+├── controllers/  lógica HTTP de cada endpoint
+├── db/           conexión PostgreSQL
+├── middleware/   autenticación, autorización y manejo de errores
+├── routes/       definición de rutas Express
+└── server.js     bootstrap del servidor
+```
+
+Esta estructura es suficiente para crecer sin convertir el backend en un archivo único difícil de mantener.
+
+## 4. Autenticación y sesión
+
+- `AuthService` consume el backend real vía `http://localhost:3000/api/auth`.
+- `tokenInterceptor` agrega `Authorization: Bearer <token>` a peticiones autenticadas.
+- `authGuard` protege rutas privadas revisando el token local.
+- El backend valida credenciales contra `usuarios` + `roles` usando PostgreSQL y `pgcrypto`.
+- El JWT actual contiene `{ id, email, name, role }`.
+- Los valores de rol vienen desde la base de datos y se tratan en español: `Administrador`, `Paciente`, `Medico`.
+
+Estado actual:
+
+- login real implementado
+- registro real implementado
+- recuperación de contraseña con respuesta genérica implementada
+- refresh token, revocación y expiración persistida todavía no implementados
+
+## 5. Entorno Docker
 
 Todo el desarrollo local corre dentro de Docker:
 
-- `mediconnect-app`: Node 24 Alpine con Angular CLI 21.2.7, Ionic CLI y Capacitor CLI 8.3.1.
+- `mediconnect-app`: frontend Ionic/Angular.
+- `mediconnect-api`: backend Node.js + Express con `node --watch` en desarrollo.
 - `mediconnect-postgres`: PostgreSQL 18 Alpine con inicialización automática desde `database/01_init.sql`.
 
-No se requiere instalar Node, Angular CLI ni Ionic CLI en la máquina host.
+No se requiere instalar Node, Angular CLI, Ionic CLI ni PostgreSQL en la máquina host.
 
-### 5. Base de datos
+## 6. Base de datos
 
 - Motor actual: PostgreSQL 18.
-- El esquema se crea automáticamente al primer `docker compose up` sobre un volumen vacío.
-- `database/01_init.sql` define tablas, índices, triggers y datos semilla.
-- El seed mantiene coherencia con las credenciales mock disponibles en el frontend.
+- `database/01_init.sql` crea esquema, índices, triggers, datos semilla y la extensión `pgcrypto`.
+- Las contraseñas semilla ya no son placeholders: se generan con `crypt(..., gen_salt('bf', 12))`.
+- El endpoint de registro inserta en `usuarios` con `id_rol = 2` (`Paciente`).
+- El perfil en `pacientes` aún no se crea automáticamente porque la tabla exige datos que la vista de registro todavía no solicita, como `fecha_nacimiento`.
 
-### 6. Backend futuro
+## 7. Seguridad aplicada
 
-El frontend conserva `http://localhost:3000/api` como base esperada para el backend, pero el backend todavía no está incluido en este repositorio.
+Controles ya implementados en el backend:
 
-Requisitos mínimos del servicio futuro:
+- `helmet` para cabeceras HTTP seguras.
+- `cors` restringido a `http://localhost:8100` y `http://localhost:4200`.
+- límite global de requests y límite específico en `/api/auth/*`.
+- límite de `10kb` para cuerpos JSON.
+- validación y sanitización básica con `express-validator`.
+- consultas parametrizadas con `pg`.
+- `JWT_SECRET` obligatorio al iniciar la API.
+- middleware `requireAuth` y `requireRole` listos para rutas protegidas.
+- respuesta genérica en login fallido y recuperación de contraseña para evitar enumeración de usuarios.
 
-- endpoint `POST /api/auth/login` que devuelva `{ token, user }`
-- autenticación JWT
-- conexión a la misma base PostgreSQL expuesta por `mediconnect-postgres`
+## 8. Stack verificado
 
-Ver [API_CONTRACT.md](./API_CONTRACT.md) y [BACKEND_PLAN.md](./BACKEND_PLAN.md).
-
----
-
-## Stack verificado
-
-Estado validado en abril de 2026 dentro del contenedor Docker del proyecto:
+Estado validado en abril de 2026 dentro del entorno Docker del proyecto:
 
 | Componente | Versión activa | Observación |
 |---|---|---|
-| Angular | 21.2.x | build verificado |
+| Angular | 21.2.x | frontend standalone |
 | Ionic Angular | 8.8.x | integrado con standalone |
 | Capacitor | 8.3.x | CLI y core alineados |
-| TypeScript | 5.9.3 | última rama compatible con `@angular-devkit/build-angular` 21 |
-| ESLint | 9.39.4 | última versión compatible con `eslint-plugin-import` 2.32.0 |
-| Node.js | 24 LTS | usado en Docker |
-| PostgreSQL | 18 | usado en Docker Compose |
+| TypeScript | 5.9.3 | toolchain frontend |
+| Node.js | 24 LTS | frontend y backend |
+| Express | 4.21.x | API REST actual |
+| PostgreSQL | 18 | motor de base de datos |
+| ESLint | 9.39.4 | validado en frontend |
 
-## Notas de toolchain
+## 9. Pendientes de arquitectura
 
-- El build sigue usando `@angular-devkit/build-angular:browser` en `angular.json` y compila correctamente en Angular 21.
-- El lint quedó actualizado al máximo conjunto compatible del ecosistema actual. ESLint 10 no se usa porque `eslint-plugin-import` todavía declara peer dependency hasta ESLint 9.
-- Las pruebas unitarias siguen sobre Jasmine y Karma 6.4.x. La imagen Docker incluye Chromium para ejecutar `npm run test:ci` dentro del contenedor.
+1. Completar el módulo de pacientes para que el registro cree también el perfil clínico en `pacientes`.
+2. Agregar módulos de especialidades, médicos, disponibilidad, citas y notificaciones al backend.
+3. Incorporar expiración gestionada, refresh token y revocación de JWT si el alcance del proyecto lo requiere.

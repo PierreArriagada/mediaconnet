@@ -1,51 +1,57 @@
 # Seguridad de Contraseñas — MediConnect
 
-**Fecha de registro:** Abril 2026
+**Fecha de revisión:** Abril 2026
 
 ---
 
-## Resumen del cambio
+## Resumen actual
 
-Se formalizó y documentó el contrato de seguridad para el manejo de contraseñas en el flujo de registro de usuarios. No se realizaron cambios funcionales en el frontend; el código ya operaba de forma correcta. El cambio consistió en hacer explícito y auditado el principio de seguridad, tanto en el código fuente como en la documentación del contrato de API.
+La seguridad de contraseñas ya no es solo una decisión documentada: está implementada en el backend real de `backend/` y respaldada por PostgreSQL con `pgcrypto`.
 
 ---
 
 ## Qué se realizó
 
-* **Qué se realizó:** Documentación explícita del contrato de seguridad para hashing de contraseñas en `auth.service.ts` y en `docs/API_CONTRACT.md`; creación de este archivo como registro permanente de la decisión de arquitectura de seguridad.
-* **Qué se modificó:** Incorporación de bloque de advertencia de seguridad en el método `register()` del servicio de autenticación del frontend; adición de la sección "Seguridad: Manejo de Contraseñas" y el contrato completo de `POST /api/auth/register` en el documento de contrato de API.
+* **Qué se realizó:** Implementación real del registro y login contra PostgreSQL utilizando hash de contraseña gestionado por la base de datos; actualización del contrato de API y de la documentación técnica para reflejar el flujo activo.
+* **Qué se modificó:** El frontend dejó de usar mocks de autenticación; el backend ahora inserta contraseñas hasheadas en `usuarios.contrasena_hash` y valida login con `crypt(password, contrasena_hash)`.
 
 ---
 
 ## Principio de seguridad aplicado
 
-La contraseña del usuario **nunca es hasheada en el frontend**. El formulario de registro captura la contraseña y la envía en texto plano a través de HTTPS hacia el backend. Es el backend el único componente autorizado para generar el hash antes de persistirlo en la base de datos.
+La contraseña del usuario **nunca se hashea en el frontend**. El cliente envía `password` en texto plano por HTTPS y el backend delega el hash a PostgreSQL mediante `pgcrypto`.
 
-Esta decisión protege contra el ataque conocido como "hash como contraseña": si el hash se generara en el cliente y un atacante obtuviera acceso a la base de datos, podría autenticarse directamente enviando el valor almacenado en `contrasena_hash`, sin necesidad de conocer la contraseña original.
+Esto evita el problema de "usar el hash como contraseña". Si el hash se generara en el cliente, cualquier actor con acceso al valor almacenado podría reutilizarlo directamente como credencial.
 
 ---
 
 ## Responsabilidades por capa
 
-* **Frontend (actual):** Valida formato de contraseña a nivel de experiencia de usuario (longitud mínima, mayúscula, número). Esta validación es únicamente de UX, no de seguridad.
-* **Canal de transmisión:** HTTPS garantiza que la contraseña en texto plano no pueda ser interceptada en tránsito.
-* **Backend (obligatorio al implementar):** Recibe la contraseña, genera el hash con bcrypt (salt rounds mínimo 12) y almacena únicamente el hash en la columna `usuarios.contrasena_hash`. Nunca registra la contraseña en logs.
-* **Base de datos (PostgreSQL):** Almacena exclusivamente el hash en `usuarios.contrasena_hash VARCHAR(255)`. Nunca almacena la contraseña en texto plano.
+* **Frontend:** Valida reglas de formato para mejorar la experiencia de usuario. No genera hash ni persiste contraseñas.
+* **Canal de transmisión:** La contraseña viaja en texto plano solo dentro de un canal HTTPS.
+* **Backend:** Recibe el payload, valida formato, ejecuta el `INSERT` con `crypt($password, gen_salt('bf', 12))` y nunca devuelve ni registra la contraseña.
+* **Base de datos:** Almacena exclusivamente el hash en `usuarios.contrasena_hash VARCHAR(255)` y realiza también la comparación segura durante el login.
 
 ---
 
-## Flujo de registro completo (referencia)
+## Flujo actual de registro y login
 
-* El usuario completa el formulario; el frontend valida reglas de formato.
-* El frontend envía los datos por HTTPS; la contraseña viaja en texto plano dentro del canal cifrado.
-* El backend valida reglas de negocio, aplica bcrypt al campo de contraseña y realiza el INSERT en la tabla `usuarios` con `id_rol = 2` (Paciente).
-* Si el campo RUT está presente, el backend realiza el INSERT correspondiente en la tabla `pacientes` vinculando el `id_usuario` recién creado.
-* El backend responde con código 201 y un mensaje de éxito. Nunca devuelve el hash ni la contraseña en la respuesta.
+* El usuario completa el formulario y el frontend valida reglas de UX.
+* El frontend envía `nombre`, `apellido`, `correo`, `password`, `telefono` y `rut` al backend.
+* El backend inserta en `usuarios` con `id_rol = 2` (`Paciente`) y hash generado por `pgcrypto`.
+* En login, el backend consulta `usuarios` + `roles` y compara con `u.contrasena_hash = crypt(password, u.contrasena_hash)`.
+* Si la comparación es correcta, la API devuelve un JWT y los datos del usuario.
+
+Limitación actual:
+
+* El registro todavía no crea la fila en `pacientes`, porque esa tabla exige campos que la vista actual aún no captura, como `fecha_nacimiento`.
 
 ---
 
 ## Archivos relacionados
 
-* `app/src/app/core/services/auth.service.ts` — Contiene el comentario de seguridad en `register()` y el bloque de reemplazo HTTP para cuando exista backend.
-* `docs/API_CONTRACT.md` — Contiene el contrato completo de `POST /api/auth/register` y la sección de seguridad de contraseñas.
-* `database/01_init.sql` — Define la columna `usuarios.contrasena_hash VARCHAR(255)` que recibe el hash generado por el backend.
+* `backend/src/controllers/auth.controller.js` — Inserta hash en el registro y valida la contraseña en login.
+* `backend/src/routes/auth.routes.js` — Define validaciones y rate limiting para autenticación.
+* `backend/src/config/jwt.config.js` — Centraliza secreto y expiración del token.
+* `docs/API_CONTRACT.md` — Contrato HTTP actual de `login`, `register` y `forgot-password`.
+* `database/01_init.sql` — Habilita `pgcrypto` y genera hashes reales para usuarios semilla.
