@@ -72,6 +72,6 @@ export class LoginPage {
   }
 
   navigateAsGuest() {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/auth/solicitar-hora']);
   }
 }
