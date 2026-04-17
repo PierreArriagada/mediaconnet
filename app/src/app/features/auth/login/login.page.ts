@@ -41,9 +41,14 @@ export class LoginPage {
     const { email, password } = this.loginForm.value;
 
     this.authService.login({ email, password }).subscribe({
-      next: () => {
+      next: (res) => {
         this.isLoading = false;
-        this.router.navigate(['/dashboard']);
+        // Redirigir al módulo correspondiente según el rol del usuario
+        if (res.user.role === 'Paciente') {
+          this.router.navigate(['/paciente/home']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: async (err) => {
         this.isLoading = false;
