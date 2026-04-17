@@ -1,2 +1,359 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  MediConnect Design System — "Empathetic Precision"
+//  Color & Token Architecture — Material Design 3
+// ─────────────────────────────────────────────────────────────────────────
+//  PREFIX CONVENTION
+//    --mc-*            → MediConnect design tokens  (canonical)
+//    --ion-color-*     → Ionic theme bridge         (mapped from --mc-*)
+//  See docs/COLOR_SYSTEM.md for complete usage rules.
+// ═══════════════════════════════════════════════════════════════════════════
+
+:root {
+
+  // ───────────────────────────────────────────────────────────────────────
+  // PRIMARY  (#005ea4 seed)
+  // ───────────────────────────────────────────────────────────────────────
+  --mc-primary:                     #005ea4;   // core brand blue
+  --mc-on-primary:                  #ffffff;
+  --mc-primary-container:           #0077ce;   // gradient endpoint (135° buttons)
+  --mc-on-primary-container:        #001d35;
+  --mc-primary-fixed:               #d3e4ff;   // chip backgrounds
+  --mc-primary-fixed-dim:           #a5c8f9;
+  --mc-on-primary-fixed:            #001c38;   // text on primary-fixed chips
+  --mc-on-primary-fixed-variant:    #004a87;
+  --mc-inverse-primary:             #a5c8f9;
+
+  // ───────────────────────────────────────────────────────────────────────
+  // SECONDARY  (#446084)
+  // ───────────────────────────────────────────────────────────────────────
+  --mc-secondary:                   #446084;
+  --mc-on-secondary:                #ffffff;
+  --mc-secondary-container:         #b7d4fd;
+  --mc-on-secondary-container:      #001d35;
+  --mc-secondary-fixed:             #d2e4ff;
+  --mc-secondary-fixed-dim:         #b7d4fd;
+  --mc-on-secondary-fixed:          #001d35;
+  --mc-on-secondary-fixed-variant:  #2c4866;
+
+  // ───────────────────────────────────────────────────────────────────────
+  // TERTIARY — "Clinical Warmth"  (#8f4a00)
+  // ───────────────────────────────────────────────────────────────────────
+  --mc-tertiary:                    #8f4a00;
+  --mc-on-tertiary:                 #ffffff;
+  --mc-tertiary-container:          #ffb870;
+  --mc-on-tertiary-container:       #2e1400;
+  --mc-tertiary-fixed:              #ffdcc4;   // warm accent chips
+  --mc-tertiary-fixed-dim:          #ffb870;
+  --mc-on-tertiary-fixed:           #2e1400;
+  --mc-on-tertiary-fixed-variant:   #6d3600;
+
+  // ───────────────────────────────────────────────────────────────────────
+  // ERROR
+  // ───────────────────────────────────────────────────────────────────────
+  --mc-error:                       #ba1a1a;
+  --mc-on-error:                    #ffffff;
+  --mc-error-container:             #ffdad6;   // full-bg tint on invalid inputs
+  --mc-on-error-container:          #410002;
+
+  // ───────────────────────────────────────────────────────────────────────
+  // SURFACE HIERARCHY — "The Canvas"
+  //   Level 0  (Background)   → --mc-surface
+  //   Level 1  (Sections)     → --mc-surface-container-low
+  //   Level 2  (Active Cards) → --mc-surface-container-lowest
+  //   Level 3  (Modals)       → glassmorphism (--mc-glass-bg + backdrop-filter)
+  // ───────────────────────────────────────────────────────────────────────
+  --mc-surface:                     #f9f9f9;   // Level 0 — app root background
+  --mc-surface-dim:                 #d9d9da;
+  --mc-surface-bright:              #f9f9f9;
+  --mc-surface-container-lowest:    #ffffff;   // Level 2 — active card (pure white)
+  --mc-surface-container-low:       #f3f3f4;   // Level 1 — section background
+  --mc-surface-container:           #ededed;   // mid-level panels
+  --mc-surface-container-high:      #e7e7e8;   // hover / pressed states
+  --mc-surface-container-highest:   #e2e2e3;   // input fields (standard state)
+  --mc-surface-tint:                #005ea4;   // primary hue for inner-glow chips
+
+  // ───────────────────────────────────────────────────────────────────────
+  // ON-SURFACE & TEXT
+  //   RULE: never use #000000 — always use --mc-on-surface
+  // ───────────────────────────────────────────────────────────────────────
+  --mc-on-surface:                  #1a1c1c;   // primary text (DO NOT replace with #000)
+  --mc-on-surface-variant:          #424748;   // secondary / caption text
+  --mc-inverse-surface:             #2e3132;
+  --mc-inverse-on-surface:          #eff1f1;
+
+  // ───────────────────────────────────────────────────────────────────────
+  // OUTLINE — "The Ghost Border"
+  //   RULE: never use at 100% opacity; use rgba(--mc-outline-variant, 0.15)
+  //   See --mc-border-ghost composed token below.
+  // ───────────────────────────────────────────────────────────────────────
+  --mc-outline:                     #72787a;
+  --mc-outline-variant:             #c1c7c9;   // ghost border base
+
+  // ───────────────────────────────────────────────────────────────────────
+  // SCRIM & SHADOW
+  // ───────────────────────────────────────────────────────────────────────
+  --mc-scrim:                       #000000;
+  --mc-shadow:                      #000000;
+  --mc-shadow-ambient:              rgba(26, 28, 28, 0.04);  // on-surface @ 4%
+
+  // ───────────────────────────────────────────────────────────────────────
+  // COMPOSED TOKENS — ready-to-use values for components
+  // ───────────────────────────────────────────────────────────────────────
+
+  // Primary action button gradient (135°, Section 2 & 5)
+  --mc-gradient-primary:    linear-gradient(135deg, #005ea4 0%, #0077ce 100%);
+
+  // Glassmorphism: floating headers & nav bars (Section 2)
+  --mc-glass-bg:            rgba(249, 249, 249, 0.72);
+  --mc-glass-blur:          20px;
+
+  // Ambient shadow: FABs & priority modals (Section 4)
+  // blur 32px | y-offset 8px | on-surface @ 4%
+  --mc-shadow-fab:          0 8px 32px 0 rgba(26, 28, 28, 0.04);
+
+  // Ghost border: secondary buttons & high-contrast strokes (Section 4 & 5)
+  // outline-variant at 15% opacity
+  --mc-border-ghost:        rgba(193, 199, 201, 0.15);
+
+  // ───────────────────────────────────────────────────────────────────────
+  // BORDER RADIUS SCALE
+  // ───────────────────────────────────────────────────────────────────────
+  --mc-radius-sm:  0.5rem;   //  8px — minor / chip elements
+  --mc-radius-md:  1.5rem;   // 24px — input fields
+  --mc-radius-lg:  2rem;     // 32px — cards & list containers
+  --mc-radius-xl:  3rem;     // 48px — primary action buttons
+
+  // ───────────────────────────────────────────────────────────────────────
+  // TYPOGRAPHY SCALE
+  // ───────────────────────────────────────────────────────────────────────
+  --mc-font-authority:    'Manrope', system-ui, sans-serif;  // display, headline
+  --mc-font-utility:      'Inter',   system-ui, sans-serif;  // title, body, label
+
+  --mc-type-display-lg:   3.5rem;   // 56px — "Hola, Dr. García"
+  --mc-type-headline-sm:  1.5rem;   // 24px — primary section headers
+  --mc-type-body-lg:      1rem;     // 16px — patient data / instructions
+
+  --mc-tracking-headline: -0.02em;  // -2% tight tracking on Headline-SM
+  --mc-leading-body:       1.6;     // high line-height for Body-LG breathing room
+
+  // ───────────────────────────────────────────────────────────────────────
+  // IONIC BRIDGE — maps --mc-* tokens to --ion-* theme variables
+  // ───────────────────────────────────────────────────────────────────────
+
+  // Global background & text
+  --ion-background-color:           var(--mc-surface);
+  --ion-background-color-rgb:       249, 249, 249;
+  --ion-text-color:                 var(--mc-on-surface);
+  --ion-text-color-rgb:             26, 28, 28;
+
+  // No-Line philosophy: remove all default Ionic borders
+  --ion-border-color:               transparent;
+  --ion-item-border-color:          transparent;
+  --ion-item-background:            var(--mc-surface-container-lowest);
+  --ion-toolbar-background:         var(--mc-glass-bg);
+
+  // Ionic step-color ladder → surface hierarchy
+  --ion-color-step-50:              var(--mc-surface-container-low);
+  --ion-color-step-100:             var(--mc-surface-container);
+  --ion-color-step-150:             var(--mc-surface-container-high);
+  --ion-color-step-200:             var(--mc-surface-container-highest);
+  --ion-color-step-800:             var(--mc-on-surface-variant);
+  --ion-color-step-950:             var(--mc-on-surface);
+
+  // Primary
+  --ion-color-primary:              var(--mc-primary);
+  --ion-color-primary-rgb:          0, 94, 164;
+  --ion-color-primary-contrast:     var(--mc-on-primary);
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade:        #004e8a;
+  --ion-color-primary-tint:         var(--mc-primary-container);
+
+  // Secondary
+  --ion-color-secondary:            var(--mc-secondary);
+  --ion-color-secondary-rgb:        68, 96, 132;
+  --ion-color-secondary-contrast:   var(--mc-on-secondary);
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade:      #3a526f;
+  --ion-color-secondary-tint:       var(--mc-secondary-container);
+
+  // Tertiary (mapped to Ionic tertiary)
+  --ion-color-tertiary:             var(--mc-tertiary);
+  --ion-color-tertiary-rgb:         143, 74, 0;
+  --ion-color-tertiary-contrast:    var(--mc-on-tertiary);
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade:       #7a3f00;
+  --ion-color-tertiary-tint:        var(--mc-tertiary-fixed);
+
+  // Danger / Error
+  --ion-color-danger:               var(--mc-error);
+  --ion-color-danger-rgb:           186, 26, 26;
+  --ion-color-danger-contrast:      var(--mc-on-error);
+  --ion-color-danger-contrast-rgb:  255, 255, 255;
+  --ion-color-danger-shade:         #9e1616;
+  --ion-color-danger-tint:          var(--mc-error-container);
+
+  // Light
+  --ion-color-light:                var(--mc-surface-container-lowest);
+  --ion-color-light-rgb:            255, 255, 255;
+  --ion-color-light-contrast:       var(--mc-on-surface);
+  --ion-color-light-contrast-rgb:   26, 28, 28;
+  --ion-color-light-shade:          var(--mc-surface-container-low);
+  --ion-color-light-tint:           var(--mc-surface-container-lowest);
+
+  // Medium
+  --ion-color-medium:               var(--mc-on-surface-variant);
+  --ion-color-medium-rgb:           66, 71, 72;
+  --ion-color-medium-contrast:      var(--mc-surface);
+  --ion-color-medium-contrast-rgb:  249, 249, 249;
+  --ion-color-medium-shade:         #323839;
+  --ion-color-medium-tint:          var(--mc-outline);
+
+  // Dark
+  --ion-color-dark:                 var(--mc-on-surface);
+  --ion-color-dark-rgb:             26, 28, 28;
+  --ion-color-dark-contrast:        var(--mc-surface);
+  --ion-color-dark-contrast-rgb:    249, 249, 249;
+  --ion-color-dark-shade:           #141616;
+  --ion-color-dark-tint:            var(--mc-on-surface-variant);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  DARK SCHEME OVERRIDES  (respects system preference via dark.system.css)
+//  Full MD3 dark-mode token inversion for every surface and role.
+// ═══════════════════════════════════════════════════════════════════════════
+@media (prefers-color-scheme: dark) {
+  :root {
+    // Primary
+    --mc-primary:                     #a5c8f9;
+    --mc-on-primary:                  #003258;
+    --mc-primary-container:           #004a87;
+    --mc-on-primary-container:        #d3e4ff;
+    --mc-primary-fixed:               #d3e4ff;
+    --mc-primary-fixed-dim:           #a5c8f9;
+    --mc-on-primary-fixed:            #001c38;
+    --mc-on-primary-fixed-variant:    #004a87;
+    --mc-inverse-primary:             #005ea4;
+
+    // Secondary
+    --mc-secondary:                   #b7d4fd;
+    --mc-on-secondary:                #001d35;
+    --mc-secondary-container:         #2c4866;
+    --mc-on-secondary-container:      #d2e4ff;
+    --mc-secondary-fixed:             #d2e4ff;
+    --mc-secondary-fixed-dim:         #b7d4fd;
+    --mc-on-secondary-fixed:          #001d35;
+    --mc-on-secondary-fixed-variant:  #2c4866;
+
+    // Tertiary
+    --mc-tertiary:                    #ffb870;
+    --mc-on-tertiary:                 #4b2400;
+    --mc-tertiary-container:          #6d3600;
+    --mc-on-tertiary-container:       #ffdcc4;
+    --mc-tertiary-fixed:              #ffdcc4;
+    --mc-tertiary-fixed-dim:          #ffb870;
+    --mc-on-tertiary-fixed:           #2e1400;
+    --mc-on-tertiary-fixed-variant:   #6d3600;
+
+    // Error
+    --mc-error:                       #ffb4ab;
+    --mc-on-error:                    #690005;
+    --mc-error-container:             #93000a;
+    --mc-on-error-container:          #ffdad6;
+
+    // Surface hierarchy (dark)
+    --mc-surface:                     #111415;
+    --mc-surface-dim:                 #111415;
+    --mc-surface-bright:              #363a3a;
+    --mc-surface-container-lowest:    #0c0f0f;
+    --mc-surface-container-low:       #191c1c;
+    --mc-surface-container:           #1d2020;
+    --mc-surface-container-high:      #272b2b;
+    --mc-surface-container-highest:   #323535;
+
+    // On-surface (dark)
+    --mc-on-surface:                  #e1e3e3;
+    --mc-on-surface-variant:          #c0c7c8;
+    --mc-inverse-surface:             #e1e3e3;
+    --mc-inverse-on-surface:          #2e3132;
+
+    // Outline (dark)
+    --mc-outline:                     #8a9293;
+    --mc-outline-variant:             #404849;
+
+    // Shadow (dark — stronger ambient)
+    --mc-shadow-ambient:              rgba(0, 0, 0, 0.24);
+
+    // Composed tokens (dark)
+    --mc-gradient-primary:    linear-gradient(135deg, #a5c8f9 0%, #b7d4fd 100%);
+    --mc-glass-bg:            rgba(17, 20, 21, 0.72);
+    --mc-shadow-fab:          0 8px 32px 0 rgba(0, 0, 0, 0.24);
+    --mc-border-ghost:        rgba(64, 72, 73, 0.15);
+
+    // Ionic bridge (dark overrides)
+    --ion-background-color:           var(--mc-surface);
+    --ion-background-color-rgb:       17, 20, 21;
+    --ion-text-color:                 var(--mc-on-surface);
+    --ion-text-color-rgb:             225, 227, 227;
+    --ion-item-background:            var(--mc-surface-container-low);
+    --ion-toolbar-background:         var(--mc-glass-bg);
+
+    --ion-color-step-50:              var(--mc-surface-container-low);
+    --ion-color-step-100:             var(--mc-surface-container);
+    --ion-color-step-150:             var(--mc-surface-container-high);
+    --ion-color-step-200:             var(--mc-surface-container-highest);
+    --ion-color-step-800:             var(--mc-on-surface-variant);
+    --ion-color-step-950:             var(--mc-on-surface);
+
+    --ion-color-primary:              var(--mc-primary);
+    --ion-color-primary-rgb:          165, 200, 249;
+    --ion-color-primary-contrast:     var(--mc-on-primary);
+    --ion-color-primary-contrast-rgb: 0, 50, 88;
+    --ion-color-primary-shade:        #8cacd4;
+    --ion-color-primary-tint:         #aeceff;
+
+    --ion-color-secondary:            var(--mc-secondary);
+    --ion-color-secondary-rgb:        183, 212, 253;
+    --ion-color-secondary-contrast:   var(--mc-on-secondary);
+    --ion-color-secondary-contrast-rgb: 0, 29, 53;
+    --ion-color-secondary-shade:      #9fb9db;
+    --ion-color-secondary-tint:       #bed9ff;
+
+    --ion-color-tertiary:             var(--mc-tertiary);
+    --ion-color-tertiary-rgb:         255, 184, 112;
+    --ion-color-tertiary-contrast:    var(--mc-on-tertiary);
+    --ion-color-tertiary-contrast-rgb: 75, 36, 0;
+    --ion-color-tertiary-shade:       #dfa061;
+    --ion-color-tertiary-tint:        #ffbf7e;
+
+    --ion-color-danger:               var(--mc-error);
+    --ion-color-danger-rgb:           255, 180, 171;
+    --ion-color-danger-contrast:      var(--mc-on-error);
+    --ion-color-danger-contrast-rgb:  105, 0, 5;
+    --ion-color-danger-shade:         #de9d96;
+    --ion-color-danger-tint:          #ffbbb3;
+
+    --ion-color-light:                var(--mc-surface-container);
+    --ion-color-light-rgb:            29, 32, 32;
+    --ion-color-light-contrast:       var(--mc-on-surface);
+    --ion-color-light-contrast-rgb:   225, 227, 227;
+    --ion-color-light-shade:          var(--mc-surface-container-low);
+    --ion-color-light-tint:           var(--mc-surface-container-high);
+
+    --ion-color-medium:               var(--mc-on-surface-variant);
+    --ion-color-medium-rgb:           192, 199, 200;
+    --ion-color-medium-contrast:      var(--mc-surface);
+    --ion-color-medium-contrast-rgb:  17, 20, 21;
+    --ion-color-medium-shade:         #a8aeaf;
+    --ion-color-medium-tint:          #c6cdce;
+
+    --ion-color-dark:                 var(--mc-on-surface);
+    --ion-color-dark-rgb:             225, 227, 227;
+    --ion-color-dark-contrast:        var(--mc-surface);
+    --ion-color-dark-contrast-rgb:    17, 20, 21;
+    --ion-color-dark-shade:           #c6c8c8;
+    --ion-color-dark-tint:            #e4e6e6;
+  }
+}
