@@ -81,10 +81,12 @@ docker exec mediconnect-app sh -c "pkill -f 'ionic'; pkill -f 'ng run app:serve'
 ## Paso 5 — Iniciar el servidor de desarrollo
 
 ```bash
-docker exec -d mediconnect-app sh -c "cd /workspace && ionic serve --host=0.0.0.0 --port=8100 --no-open --no-interactive > /tmp/serve.log 2>&1"
+docker exec -d mediconnect-app sh -c "cd /workspace && ionic serve --host=0.0.0.0 --port=8100 --poll=1000 --no-open --no-interactive > /tmp/serve.log 2>&1"
 ```
 
 Esto inicia Ionic en segundo plano dentro del contenedor. El `-d` hace que la terminal no se quede bloqueada.
+
+> **`--poll=1000`**: Windows no reenvía eventos del sistema de archivos al contenedor Linux (limitación de WSL2/Hyper-V). El flag activa un escaneo activo cada 1 segundo para que Angular detecte tus cambios y recargue el navegador automáticamente sin reiniciar Docker.
 
 ---
 
@@ -133,7 +135,7 @@ El login funciona en modo mock (sin backend). Usa cualquiera de estas cuentas:
 docker compose up -d --build
 docker exec mediconnect-app sh -c "cd /workspace && npm install"
 docker exec mediconnect-app sh -c "pkill -f 'ionic'; pkill -f 'ng run app:serve'; echo ok"
-docker exec -d mediconnect-app sh -c "cd /workspace && ionic serve --host=0.0.0.0 --port=8100 --no-open --no-interactive > /tmp/serve.log 2>&1"
+docker exec -d mediconnect-app sh -c "cd /workspace && ionic serve --host=0.0.0.0 --port=8100 --poll=1000 --no-open --no-interactive > /tmp/serve.log 2>&1"
 # Esperar ~15 segundos
 docker exec mediconnect-app sh -c "cat /tmp/serve.log"
 # Abrir http://localhost:8100

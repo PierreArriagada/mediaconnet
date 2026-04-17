@@ -128,11 +128,70 @@ interface AuthResponse {
 
 ---
 
+## Contrato de Registro
+
+### POST `/api/auth/register`
+
+Crea un nuevo usuario con rol Paciente (id_rol = 2). El campo `rut` y `telefono` son opcionales.
+
+Request body:
+
+```json
+{
+  "nombre":   "string (2-100 chars, solo letras)",
+  "apellido":  "string (2-100 chars, solo letras)",
+  "correo":    "string (email válido, máx 150 chars)",
+  "password":  "string (mínimo 8 chars, 1 mayúscula, 1 número)",
+  "telefono":  "string | null",
+  "rut":       "string | null"
+}
+```
+
+Response 201:
+
+```json
+{ "message": "Cuenta creada exitosamente." }
+```
+
+Response 409:
+
+```json
+{ "message": "Este correo ya está registrado." }
+```
+
+---
+
+## Seguridad: Manejo de Contraseñas
+
+### Principio fundamental
+
+El frontend **nunca** hashea contraseñas. Envía `password` en texto plano sobre HTTPS. El backend es el único responsable del hash antes de persistir en base de datos.
+
+**Por qué no hashear en el cliente:** si la contraseña se hasheara en el frontend, el hash se convierte en la credencial real. Un atacante con acceso a la base de datos podría autenticarse enviando directamente el valor de `contrasena_hash`, eliminando toda protección.
+
+### Contrato del backend para la contraseña
+
+- Algoritmo obligatorio: **bcrypt**
+- Salt rounds mínimos: **12**
+- Columna destino en PostgreSQL: `usuarios.contrasena_hash VARCHAR(255)`
+- El campo `password` del request nunca debe registrarse en logs del servidor
+
+### Flujo completo en registro
+
+1. Frontend valida formato (longitud, mayúscula, número) — solo UX, no seguridad
+2. Frontend envía `password` en texto plano por HTTPS al backend
+3. Backend recibe, valida reglas de negocio, genera hash bcrypt
+4. Backend realiza `INSERT` en `usuarios` con `contrasena_hash = hash_generado` e `id_rol = 2`
+5. Si `rut` está presente, backend realiza `INSERT` en `pacientes` con `id_usuario` recién creado
+6. Backend responde 201 — nunca devuelve el hash ni la contraseña
+
+---
+
 ## Endpoints planificados
 
 | Método | Endpoint | Feature | Descripción |
 |---|---|---|---|
-| `POST` | `/api/auth/register` | Registro | Crear cuenta de paciente |
+| `POST` | `/api/auth/register` | Registro | Crear cuenta de paciente (ver contrato arriba) |
 | `GET` | `/api/especialidades` | Citas | Listar especialidades activas |
 | `GET` | `/api/medicos?especialidad=:id` | Citas | Médicos por especialidad |
 | `GET` | `/api/disponibilidad/:medicoId` | Citas | Horarios disponibles |
