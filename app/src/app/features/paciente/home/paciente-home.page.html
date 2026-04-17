@@ -200,33 +200,8 @@
 
   </main>
 
-  <!-- ===== BOTTOM NAV ===== -->
-  <nav class="mc-bottom-nav" role="navigation" aria-label="Navegación principal">
-    <a class="mc-nav-item mc-nav-item--active" (click)="ir('home')" role="button" tabindex="0">
-      <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">
-        home
-      </span>
-      <span class="mc-nav-item__label">Inicio</span>
-    </a>
-    <a class="mc-nav-item" (click)="ir('reservar')" role="button" tabindex="0">
-      <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">
-        calendar_add_on
-      </span>
-      <span class="mc-nav-item__label">Reservar</span>
-    </a>
-    <a class="mc-nav-item" (click)="ir('historial')" role="button" tabindex="0">
-      <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">
-        history
-      </span>
-      <span class="mc-nav-item__label">Historial</span>
-    </a>
-    <a class="mc-nav-item" (click)="ir('perfil')" role="button" tabindex="0">
-      <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">
-        person
-      </span>
-      <span class="mc-nav-item__label">Perfil</span>
-    </a>
-  </nav>
+  <!-- ===== BOTTOM NAV (componente reutilizable) ===== -->
+  <app-paciente-bottom-nav activeTab="home"></app-paciente-bottom-nav>
 
   <!-- Toast de error -->
   <ion-toast

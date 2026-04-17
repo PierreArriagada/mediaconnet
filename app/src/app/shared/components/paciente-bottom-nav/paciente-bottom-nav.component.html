@@ -1,0 +1,43 @@
+<nav class="mc-bottom-nav" role="navigation" aria-label="Navegación principal">
+
+  <a class="mc-nav-item"
+     [class.mc-nav-item--active]="activeTab === 'home'"
+     (click)="ir('home')"
+     role="button"
+     tabindex="0"
+     aria-label="Inicio">
+    <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">home</span>
+    <span class="mc-nav-item__label">Inicio</span>
+  </a>
+
+  <a class="mc-nav-item"
+     [class.mc-nav-item--active]="activeTab === 'reservar'"
+     (click)="ir('reservar')"
+     role="button"
+     tabindex="0"
+     aria-label="Reservar hora">
+    <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">calendar_add_on</span>
+    <span class="mc-nav-item__label">Reservar</span>
+  </a>
+
+  <a class="mc-nav-item"
+     [class.mc-nav-item--active]="activeTab === 'historial'"
+     (click)="ir('historial')"
+     role="button"
+     tabindex="0"
+     aria-label="Historial de citas">
+    <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">history</span>
+    <span class="mc-nav-item__label">Historial</span>
+  </a>
+
+  <a class="mc-nav-item"
+     [class.mc-nav-item--active]="activeTab === 'perfil'"
+     (click)="ir('perfil')"
+     role="button"
+     tabindex="0"
+     aria-label="Perfil de usuario">
+    <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">person</span>
+    <span class="mc-nav-item__label">Perfil</span>
+  </a>
+
+</nav>
