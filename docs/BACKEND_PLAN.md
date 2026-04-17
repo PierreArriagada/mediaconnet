@@ -28,24 +28,27 @@ backend/
     ├── config/
     │   └── jwt.config.js
     ├── controllers/
-    │   └── auth.controller.js
+    │   ├── auth.controller.js
+    │   └── paciente.controller.js
     ├── db/
     │   └── pool.js
     ├── middleware/
     │   ├── auth.middleware.js
     │   └── error.middleware.js
     ├── routes/
-    │   └── auth.routes.js
+    │   ├── auth.routes.js
+    │   └── paciente.routes.js
     └── server.js
 ```
 
 ## Endpoints disponibles hoy
 
-| Método | Ruta | Estado | Descripción |
+| Método | Ruta | Protección | Descripción |
 |---|---|---|---|
-| `POST` | `/api/auth/login` | Activo | Valida credenciales contra PostgreSQL y devuelve JWT + usuario |
-| `POST` | `/api/auth/register` | Activo | Crea cuenta en `usuarios` con rol `Paciente` |
-| `POST` | `/api/auth/forgot-password` | Activo | Responde siempre `200` con mensaje genérico |
+| `POST` | `/api/auth/login` | Público | Valida credenciales contra PostgreSQL y devuelve JWT + usuario |
+| `POST` | `/api/auth/register` | Público | Crea cuenta en `usuarios` con rol `Paciente` |
+| `POST` | `/api/auth/forgot-password` | Público | Responde siempre `200` con mensaje genérico |
+| `GET` | `/api/paciente/dashboard` | JWT + rol `Paciente` | Devuelve próxima cita y últimas 5 notificaciones del paciente autenticado |
 
 ## Seguridad actual
 
@@ -72,11 +75,10 @@ El backend ya aplica estas capas:
 
 ## Limitaciones actuales
 
-1. El backend solo cubre autenticación; el resto del dominio médico aún no está expuesto por API.
-2. El registro crea la cuenta en `usuarios`, pero todavía no crea el perfil de `pacientes`.
-3. `forgot-password` no envía correo todavía; solo mantiene el comportamiento seguro de no revelar si el correo existe.
-4. No hay refresh tokens ni lista de revocación.
-5. No existe separación por módulos de negocio más allá de autenticación.
+1. El registro crea la cuenta en `usuarios`, pero todavía no crea el perfil de `pacientes`.
+2. `forgot-password` no envía correo todavía; solo mantiene el comportamiento seguro de no revelar si el correo existe.
+3. No hay refresh tokens ni lista de revocación.
+4. Los módulos de médico y administrador aún no tienen endpoints propios.
 
 ## Roadmap sugerido
 
@@ -100,7 +102,6 @@ El backend ya aplica estas capas:
 
 ### Fase 5 — Notificaciones y backoffice
 
-- `GET /api/notificaciones`
 - `PATCH /api/notificaciones/:id/leer`
 - endpoints administrativos protegidos por `requireRole('Administrador')`
 

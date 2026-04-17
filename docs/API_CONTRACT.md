@@ -161,9 +161,37 @@ Comportamiento actual:
 
 ---
 
+## Endpoints del paciente
+
+### GET `/api/paciente/dashboard`
+
+Devuelve la próxima cita activa del paciente autenticado y sus últimas 5 notificaciones.
+
+Requiere: `Authorization: Bearer <token>` con rol `Paciente`.
+
+Response 200:
+
+- `proximaCita`: objeto con los datos de la próxima cita confirmada o pendiente (puede ser `null` si no hay)
+- `notificaciones`: lista de hasta 5 notificaciones recientes
+- `noLeidas`: entero con el total de notificaciones no leídas (usado para el badge del header)
+
+Errores posibles:
+
+- `401` si el token es inválido o ha expirado
+- `403` si el usuario no tiene rol `Paciente`
+- `500` ante error de base de datos
+
+Notas de comportamiento:
+
+- el `id_usuario` se extrae exclusivamente del JWT, nunca del cuerpo de la petición (prevención de IDOR)
+- la próxima cita considera solo `estado_cita IN ('pendiente', 'confirmada')` con `fecha_cita >= CURRENT_DATE`
+- las notificaciones se ordenan por `fecha_envio DESC`
+
+---
+
 ## Autenticación en peticiones protegidas
 
-Las rutas protegidas futuras usarán este formato:
+Todas las rutas bajo `/api/paciente/`, `/api/medico/` y `/api/admin/` requieren:
 
 ```text
 Authorization: Bearer <token>
@@ -171,7 +199,7 @@ Authorization: Bearer <token>
 
 La infraestructura ya existe en:
 
-- frontend: `tokenInterceptor`
+- frontend: `tokenInterceptor` (aplica automáticamente a todas las peticiones)
 - backend: `requireAuth` y `requireRole`
 
 ---
