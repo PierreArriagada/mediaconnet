@@ -1,13 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import {
-  IonContent, IonHeader, IonToolbar, IonTitle,
-  IonButton, IonInput, IonItem, IonNote,
-  IonIcon, IonSpinner, ToastController
-} from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import { eyeOutline, eyeOffOutline, mailOutline, lockClosedOutline } from 'ionicons/icons';
+import { IonContent, IonSpinner, ToastController } from '@ionic/angular/standalone';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -17,9 +11,7 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    IonContent, IonHeader, IonToolbar, IonTitle,
-    IonButton, IonInput, IonItem, IonNote,
-    IonIcon, IonSpinner,
+    IonContent, IonSpinner,
   ],
 })
 export class LoginPage {
@@ -33,8 +25,6 @@ export class LoginPage {
   showPassword = false;
 
   constructor() {
-    addIcons({ eyeOutline, eyeOffOutline, mailOutline, lockClosedOutline });
-
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -42,7 +32,10 @@ export class LoginPage {
   }
 
   async onLogin() {
-    if (this.loginForm.invalid) return;
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
 
     this.isLoading = true;
     const { email, password } = this.loginForm.value;
@@ -67,5 +60,9 @@ export class LoginPage {
 
   navigateToRegister() {
     this.router.navigate(['/auth/register']);
+  }
+
+  navigateAsGuest() {
+    this.router.navigate(['/dashboard']);
   }
 }
