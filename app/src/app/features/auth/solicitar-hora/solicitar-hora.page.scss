@@ -1,0 +1,592 @@
+// Iconos Material Symbols
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: 1.5rem;
+  line-height: 1;
+  display: inline-block;
+  user-select: none;
+}
+
+ion-content {
+  --background: var(--mc-surface);
+}
+
+// ── Encabezado ───────────────────────────────────────────────────────────────
+
+.sh-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--mc-glass-bg);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+
+  &__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    max-width: 80rem;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__brand-icon {
+    color: var(--mc-primary);
+    font-size: 1.75rem;
+  }
+
+  &__brand-text {
+    font-family: var(--mc-font-authority);
+    font-weight: 800;
+    font-size: 1.375rem;
+    letter-spacing: var(--mc-tracking-headline);
+    color: var(--mc-primary);
+  }
+
+  &__back-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--mc-radius-xl);
+    border: 1px solid var(--mc-border-ghost);
+    background: transparent;
+    color: var(--mc-on-surface-variant);
+    font-family: var(--mc-font-utility);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      background: var(--mc-surface-container-low);
+      color: var(--mc-on-surface);
+    }
+
+    .material-symbols-outlined {
+      font-size: 1.125rem;
+    }
+  }
+}
+
+// ── Contenedor principal ──────────────────────────────────────────────────────
+
+.sh-page {
+  background: var(--mc-surface);
+  color: var(--mc-on-surface);
+  font-family: var(--mc-font-utility);
+  min-height: 100dvh;
+}
+
+// ── Layout de dos columnas ────────────────────────────────────────────────────
+
+.sh-main {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+
+  @media (min-width: 1024px) {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 5rem 1.5rem;
+  }
+}
+
+// ── Panel editorial izquierdo ─────────────────────────────────────────────────
+
+.sh-editorial {
+  @media (min-width: 1024px) {
+    flex: 0 0 30%;
+    position: sticky;
+    top: 5rem;
+  }
+
+  &__headline {
+    font-family: var(--mc-font-authority);
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: var(--mc-tracking-headline);
+    color: var(--mc-on-surface);
+    margin: 0 0 1.5rem;
+
+    &--accent {
+      color: var(--mc-primary);
+    }
+  }
+
+  &__body {
+    font-family: var(--mc-font-utility);
+    font-size: 1rem;
+    line-height: var(--mc-leading-body);
+    color: var(--mc-on-surface-variant);
+    max-width: 22rem;
+    margin: 0;
+  }
+
+  &__img-wrap {
+    display: none;
+    margin-top: 3rem;
+    border-radius: var(--mc-radius-lg);
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+
+    @media (min-width: 1024px) {
+      display: block;
+    }
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// ── Canvas del formulario ─────────────────────────────────────────────────────
+
+.sh-form-canvas {
+  flex: 1;
+  background: var(--mc-surface-container-low);
+  border-radius: var(--mc-radius-lg);
+  padding: 2rem;
+
+  @media (min-width: 640px) {
+    padding: 3rem;
+  }
+}
+
+.sh-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+// ── Tarjetas de sección ───────────────────────────────────────────────────────
+
+.sh-card {
+  background: var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  padding: 2rem;
+  box-shadow: var(--mc-shadow-fab);
+  border: 1px solid var(--mc-border-ghost);
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: var(--mc-type-headline-sm);
+    font-weight: 700;
+    color: var(--mc-on-surface);
+    margin: 0 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__title-icon {
+    color: var(--mc-primary);
+    font-size: 1.5rem;
+  }
+
+  // Grilla de 2 columnas para campos cortos
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+
+    @media (min-width: 640px) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  // Columna simple para campos largos
+  &__col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
+
+// ── Campos de formulario ──────────────────────────────────────────────────────
+
+.sh-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  // Ocupa las 2 columnas en la grilla
+  &--full {
+    @media (min-width: 640px) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__label {
+    font-family: var(--mc-font-utility);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--mc-on-surface-variant);
+    letter-spacing: 0.05em;
+    padding: 0 0.25rem;
+    text-transform: uppercase;
+  }
+
+  &__input {
+    width: 100%;
+    background: var(--mc-surface-container-highest);
+    border: 2px solid transparent;
+    border-radius: var(--mc-radius-md);
+    padding: 0.875rem 1rem;
+    font-family: var(--mc-font-utility);
+    font-size: 1rem;
+    color: var(--mc-on-surface);
+    outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: var(--mc-outline-variant);
+    }
+
+    &:focus {
+      border-color: var(--mc-primary);
+      background: var(--mc-surface-container-lowest);
+    }
+
+    &--error {
+      border-color: var(--mc-error);
+      background: var(--mc-error-container);
+    }
+
+    // Variante con prefijo de teléfono
+    &--phone {
+      padding-left: 3.5rem;
+    }
+  }
+
+  &__phone-wrap {
+    position: relative;
+  }
+
+  &__phone-prefix {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--mc-font-utility);
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--mc-outline);
+    pointer-events: none;
+  }
+
+  &__select-wrap {
+    position: relative;
+  }
+
+  &__select {
+    width: 100%;
+    appearance: none;
+    background: var(--mc-surface-container-highest);
+    border: 2px solid transparent;
+    border-radius: var(--mc-radius-md);
+    padding: 0.875rem 2.5rem 0.875rem 1rem;
+    font-family: var(--mc-font-utility);
+    font-size: 1rem;
+    color: var(--mc-on-surface);
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+
+    &:focus {
+      border-color: var(--mc-primary);
+    }
+
+    &--error {
+      border-color: var(--mc-error);
+    }
+  }
+
+  &__select-chevron {
+    position: absolute;
+    right: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--mc-outline);
+    font-size: 1.25rem;
+    pointer-events: none;
+  }
+
+  &__textarea {
+    width: 100%;
+    background: var(--mc-surface-container-highest);
+    border: 2px solid transparent;
+    border-radius: var(--mc-radius-md);
+    padding: 0.875rem 1rem;
+    font-family: var(--mc-font-utility);
+    font-size: 1rem;
+    color: var(--mc-on-surface);
+    outline: none;
+    resize: none;
+    transition: border-color 0.15s ease;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: var(--mc-outline-variant);
+    }
+
+    &:focus {
+      border-color: var(--mc-primary);
+    }
+
+    &--error {
+      border-color: var(--mc-error);
+      background: var(--mc-error-container);
+    }
+  }
+
+  &__error {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: var(--mc-font-utility);
+    font-size: 0.8125rem;
+    color: var(--mc-error);
+    padding: 0 0.25rem;
+  }
+
+  &__error-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+}
+
+// ── Selector de franja horaria ────────────────────────────────────────────────
+
+.sh-franja-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.sh-franja {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 1rem;
+  border-radius: var(--mc-radius-md);
+  border: 2px solid transparent;
+  background: var(--mc-surface-container-low);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    background: var(--mc-surface-container-high);
+  }
+
+  &--active {
+    border-color: var(--mc-primary);
+    background: var(--mc-primary-fixed);
+  }
+
+  &__radio {
+    display: none;
+  }
+
+  &__icon {
+    color: var(--mc-primary);
+    font-size: 1.5rem;
+  }
+
+  &__label {
+    font-family: var(--mc-font-utility);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--mc-on-surface);
+  }
+}
+
+// ── Pie del formulario ────────────────────────────────────────────────────────
+
+.sh-form__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding-top: 1rem;
+}
+
+.sh-btn-primary {
+  width: 100%;
+  padding: 1.125rem 3rem;
+  background: var(--mc-gradient-primary);
+  color: var(--mc-on-primary);
+  font-family: var(--mc-font-authority);
+  font-size: 1.125rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--mc-radius-xl);
+  cursor: pointer;
+  box-shadow: var(--mc-shadow-fab);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+
+  @media (min-width: 640px) {
+    width: auto;
+    min-width: 16rem;
+  }
+
+  &:hover:not(:disabled) {
+    transform: scale(1.02);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.sh-btn-spinner {
+  --color: var(--mc-on-primary);
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.sh-form__disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-family: var(--mc-font-utility);
+  font-size: 0.875rem;
+  color: var(--mc-on-surface-variant);
+  text-align: center;
+  max-width: 28rem;
+  margin: 0;
+  line-height: var(--mc-leading-body);
+}
+
+.sh-form__disclaimer-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  color: var(--mc-secondary);
+  margin-top: 0.1rem;
+}
+
+// ── Pantalla de éxito ─────────────────────────────────────────────────────────
+
+.sh-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  min-height: 70dvh;
+  padding: 3rem 1.5rem;
+  text-align: center;
+
+  &__icon-wrap {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 9999px;
+    background: var(--mc-primary-fixed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__icon {
+    font-size: 2.5rem;
+    color: var(--mc-primary);
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+  }
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--mc-on-surface);
+    margin: 0;
+  }
+
+  &__body {
+    font-family: var(--mc-font-utility);
+    font-size: 1rem;
+    line-height: var(--mc-leading-body);
+    color: var(--mc-on-surface-variant);
+    max-width: 28rem;
+    margin: 0;
+  }
+}
+
+// ── Barra de navegación inferior (solo móvil) ─────────────────────────────────
+
+.sh-bottom-nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 0.5rem 1rem 1.5rem;
+  background: var(--mc-glass-bg);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  border-top: 1px solid var(--mc-border-ghost);
+  border-radius: var(--mc-radius-xl) var(--mc-radius-xl) 0 0;
+  z-index: 50;
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 1.5rem;
+    border-radius: 9999px;
+    color: var(--mc-outline);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+
+    &--active {
+      background: var(--mc-primary-fixed);
+      color: var(--mc-primary);
+    }
+
+    .material-symbols-outlined {
+      font-size: 1.5rem;
+    }
+  }
+
+  &__label {
+    font-family: var(--mc-font-utility);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+}
+
+.sh-nav-spacer {
+  height: 6rem;
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
