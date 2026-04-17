@@ -1,0 +1,23 @@
+<header class="mc-header">
+  <div class="mc-header__inner">
+
+    <div class="mc-header__brand">
+      <div class="mc-avatar" [attr.aria-label]="userName">{{ initials }}</div>
+      <span class="mc-brand-title">MediConnect</span>
+    </div>
+
+    <button
+      class="mc-icon-btn"
+      (click)="onNotificaciones()"
+      aria-label="Ver notificaciones"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+      @if (noLeidas > 0) {
+        <span class="mc-badge" [attr.aria-label]="noLeidas + ' no leídas'">
+          {{ noLeidas }}
+        </span>
+      }
+    </button>
+
+  </div>
+</header>
