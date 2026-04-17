@@ -1,9 +1,10 @@
-const express       = require('express');
-const helmet        = require('helmet');
-const cors          = require('cors');
-const rateLimit     = require('express-rate-limit');
-const authRoutes    = require('./routes/auth.routes');
-const errorHandler  = require('./middleware/error.middleware');
+const express          = require('express');
+const helmet           = require('helmet');
+const cors             = require('cors');
+const rateLimit        = require('express-rate-limit');
+const authRoutes       = require('./routes/auth.routes');
+const pacienteRoutes   = require('./routes/paciente.routes');
+const errorHandler     = require('./middleware/error.middleware');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -14,7 +15,7 @@ app.use(helmet());
 // CORS: solo acepta peticiones del frontend en desarrollo
 app.use(cors({
   origin: ['http://localhost:8100', 'http://localhost:4200'],
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
@@ -29,7 +30,8 @@ app.use(rateLimit({
   legacyHeaders: false,
 }));
 
-app.use('/api/auth', authRoutes);
+app.use('/api/auth',     authRoutes);
+app.use('/api/paciente', pacienteRoutes);
 
 // Rutas no encontradas
 app.use((_req, res) => {
