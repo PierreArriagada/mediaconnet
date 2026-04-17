@@ -21,4 +21,11 @@ export const routes: Routes = [
       import('./features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
     canActivate: [authGuard],
   },
+  // Módulo del paciente (protegido por authGuard)
+  {
+    path: 'paciente',
+    loadChildren: () =>
+      import('./features/paciente/paciente.routes').then((m) => m.PACIENTE_ROUTES),
+    canActivate: [authGuard],
+  },
 ];
