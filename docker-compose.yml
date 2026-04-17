@@ -21,6 +21,27 @@ services:
       - mediconnect-db
 
   # ─────────────────────────────────────────────
+  # Contenedor del backend API (Node.js + Express)
+  # Recibe peticiones HTTP del frontend y accede a PostgreSQL
+  # ─────────────────────────────────────────────
+  mediconnect-api:
+    build: ./backend
+    container_name: mediconnect-api
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@mediconnect-postgres:5432/mediconnect
+      JWT_SECRET: mediconnect-dev-secret-2026-cambiar-en-produccion
+      PORT: 3000
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    volumes:
+      # Monta el código fuente para hot-reload con node --watch
+      - ./backend/src:/api/src
+    depends_on:
+      mediconnect-db:
+        condition: service_healthy
+
+  # ─────────────────────────────────────────────
   # Contenedor de base de datos PostgreSQL (local Supabase)
   # ─────────────────────────────────────────────
   mediconnect-db:

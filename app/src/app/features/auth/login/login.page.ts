@@ -62,6 +62,10 @@ export class LoginPage {
     this.router.navigate(['/auth/register']);
   }
 
+  navigateToForgotPassword() {
+    this.router.navigate(['/auth/forgot-password']);
+  }
+
   navigateAsGuest() {
     this.router.navigate(['/dashboard']);
   }

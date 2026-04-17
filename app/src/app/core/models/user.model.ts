@@ -9,7 +9,7 @@ export interface User {
   createdAt?: string;
 }
 
-export type UserRole = 'patient' | 'doctor' | 'admin';
+export type UserRole = 'Paciente' | 'Medico' | 'Administrador';
 
 export interface AuthCredentials {
   email: string;

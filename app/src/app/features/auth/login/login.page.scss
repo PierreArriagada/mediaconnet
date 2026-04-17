@@ -1,4 +1,4 @@
-// ── Material Symbols (scoped) ────────────────────────────────────────────────
+// Iconos Material Symbols
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined', sans-serif;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -8,7 +8,7 @@
   user-select: none;
 }
 
-// ── Page shell ───────────────────────────────────────────────────────────────
+// Estructura base de la página
 ion-content {
   --background: var(--mc-surface);
 }
@@ -22,7 +22,7 @@ ion-content {
   font-family: var(--mc-font-utility);
 }
 
-// ── Two-column layout ────────────────────────────────────────────────────────
+// Distribución de dos columnas
 .login-main {
   flex: 1;
   display: flex;
@@ -33,7 +33,7 @@ ion-content {
   }
 }
 
-// ── Left Panel ───────────────────────────────────────────────────────────────
+// Panel izquierdo
 .login-left {
   display: none;
 
@@ -110,7 +110,7 @@ ion-content {
   color: var(--mc-primary);
 }
 
-// ── Right Panel ───────────────────────────────────────────────────────────────
+// Panel derecho
 .login-right {
   width: 100%;
   display: flex;
@@ -133,7 +133,7 @@ ion-content {
   gap: 2.5rem;
 }
 
-// ── Mobile branding ───────────────────────────────────────────────────────────
+// Marca visual en móvil
 .login-mobile-brand {
   display: flex;
   flex-direction: column;
@@ -165,7 +165,7 @@ ion-content {
   }
 }
 
-// ── Form header ───────────────────────────────────────────────────────────────
+// Encabezado del formulario
 .login-form-header {
   display: flex;
   flex-direction: column;
@@ -193,14 +193,14 @@ ion-content {
   }
 }
 
-// ── Form ─────────────────────────────────────────────────────────────────────
+// Formulario
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-// ── Fields ───────────────────────────────────────────────────────────────────
+// Campos del formulario
 .field {
   display: flex;
   flex-direction: column;
@@ -303,7 +303,7 @@ ion-content {
   }
 }
 
-// ── Primary button ────────────────────────────────────────────────────────────
+// Botón principal
 .btn-primary {
   width: 100%;
   background: var(--mc-gradient-primary);
@@ -333,7 +333,7 @@ ion-content {
   height: 24px;
 }
 
-// ── Secondary actions ─────────────────────────────────────────────────────────
+// Acciones secundarias
 .login-secondary {
   display: flex;
   flex-direction: column;
@@ -374,7 +374,7 @@ ion-content {
   }
 }
 
-// ── Ghost button ──────────────────────────────────────────────────────────────
+// Botón secundario
 .btn-ghost {
   width: 100%;
   background: var(--mc-surface-container-low);
