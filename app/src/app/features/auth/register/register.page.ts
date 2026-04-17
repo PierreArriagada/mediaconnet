@@ -12,7 +12,7 @@ import {
 import { IonContent, IonSpinner, ToastController } from '@ionic/angular/standalone';
 import { AuthService, RegisterPayload } from '../../../core/services/auth.service';
 
-// ── Validators ────────────────────────────────────────────────────────────────
+// Validadores del formulario
 
 /** Solo letras (con tildes/ñ), espacios y guiones. Previene XSS por entrada. */
 const NOMBRE_RE = /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s\-']{2,100}$/;
@@ -66,7 +66,7 @@ function passwordMatchValidator(): ValidatorFn {
   };
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// Componente
 
 @Component({
   selector: 'app-register',
@@ -114,7 +114,7 @@ export class RegisterPage {
     );
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────────
+  // Métodos auxiliares
 
   /**
    * Formatea el RUT chileno mientras el usuario escribe.
@@ -156,7 +156,7 @@ export class RegisterPage {
     return this.form.touched && this.form.hasError(error);
   }
 
-  // ── Submit ───────────────────────────────────────────────────────────────────
+  // Envío del formulario
 
   async onRegister(): Promise<void> {
     this.form.markAllAsTouched();
@@ -164,7 +164,7 @@ export class RegisterPage {
 
     this.isLoading = true;
 
-    // Sanitize: trim strings, strip raw HTML (no innerHTML involved, but defensive)
+    // Sanea los valores: recorta espacios y normaliza el correo a minúsculas
     const raw = this.form.value;
     const payload: RegisterPayload = {
       nombre:   raw.nombre.trim(),

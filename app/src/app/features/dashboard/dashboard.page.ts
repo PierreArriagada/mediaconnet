@@ -15,15 +15,15 @@ import {
 import { AuthService } from '../../core/services/auth.service';
 
 const ROLE_LABEL: Record<string, string> = {
-  patient: 'Paciente',
-  doctor: 'Médico',
-  admin: 'Administrador',
+  Paciente:       'Paciente',
+  Medico:         'Médico',
+  Administrador:  'Administrador',
 };
 
 const ROLE_COLOR: Record<string, string> = {
-  patient: 'primary',
-  doctor: 'secondary',
-  admin: 'tertiary',
+  Paciente:       'primary',
+  Medico:         'secondary',
+  Administrador:  'tertiary',
 };
 
 @Component({

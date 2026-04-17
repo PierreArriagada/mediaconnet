@@ -8,6 +8,13 @@
 -- =========================================================
 
 -- =========================================================
+-- EXTENSIONES REQUERIDAS
+-- pgcrypto: necesario para hashear contraseñas con bcrypt (blowfish)
+-- =========================================================
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- =========================================================
 -- LIMPIEZA PREVIA (opcional)
 -- Ejecutar solo si quieres reiniciar desde cero.
 -- =========================================================
@@ -229,17 +236,19 @@ INSERT INTO especialidades (nombre_especialidad, descripcion, estado) VALUES ('D
 INSERT INTO especialidades (nombre_especialidad, descripcion, estado) VALUES ('Traumatologia', 'Atencion osteomuscular', 'activa');
 INSERT INTO especialidades (nombre_especialidad, descripcion, estado) VALUES ('Cardiologia', 'Atencion cardiologica', 'activa');
 
+-- Contraseña de todos los usuarios semilla: mediconnect2026
+-- Hash generado con bcrypt (blowfish, 12 rondas) vía pgcrypto
 INSERT INTO usuarios (nombre, apellido, correo, contrasena_hash, telefono, estado, id_rol)
-VALUES ('Eduardo', 'Guerrero', 'admin@mediconnect.cl', 'hash_admin_123', '912345678', 'activo', 1);
+VALUES ('Eduardo', 'Guerrero', 'admin@mediconnect.cl', crypt('mediconnect2026', gen_salt('bf', 12)), '912345678', 'activo', 1);
 
 INSERT INTO usuarios (nombre, apellido, correo, contrasena_hash, telefono, estado, id_rol)
-VALUES ('Laura', 'Mora', 'paciente1@mediconnect.cl', 'hash_paciente_123', '923456789', 'activo', 2);
+VALUES ('Laura', 'Mora', 'paciente1@mediconnect.cl', crypt('mediconnect2026', gen_salt('bf', 12)), '923456789', 'activo', 2);
 
 INSERT INTO usuarios (nombre, apellido, correo, contrasena_hash, telefono, estado, id_rol)
-VALUES ('Carlos', 'Rojas', 'medico1@mediconnect.cl', 'hash_medico_123', '934567890', 'activo', 3);
+VALUES ('Carlos', 'Rojas', 'medico1@mediconnect.cl', crypt('mediconnect2026', gen_salt('bf', 12)), '934567890', 'activo', 3);
 
 INSERT INTO usuarios (nombre, apellido, correo, contrasena_hash, telefono, estado, id_rol)
-VALUES ('Valentina', 'Perez', 'medico2@mediconnect.cl', 'hash_medico_456', '945678901', 'activo', 3);
+VALUES ('Valentina', 'Perez', 'medico2@mediconnect.cl', crypt('mediconnect2026', gen_salt('bf', 12)), '945678901', 'activo', 3);
 
 INSERT INTO pacientes (id_usuario, rut, fecha_nacimiento, direccion, comuna, ciudad, contacto_emergencia, telefono_emergencia)
 VALUES (2, '18765432-1', DATE '1999-08-15', 'Av. Central 123', 'Valparaiso', 'Valparaiso', 'Maria Mora', '998887776');

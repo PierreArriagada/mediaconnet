@@ -39,7 +39,7 @@ describe('DashboardPage', () => {
   it('should display patient name when patient is logged in', () => {
     localStorage.setItem(
       'user',
-      JSON.stringify({ id: '2', email: 'paciente1@mediconnect.cl', name: 'Laura Mora', role: 'patient' })
+      JSON.stringify({ id: '2', email: 'paciente1@mediconnect.cl', name: 'Laura Mora', role: 'Paciente' })
     );
     fixture.detectChanges();
     component.ngOnInit();
@@ -51,7 +51,7 @@ describe('DashboardPage', () => {
   it('should display doctor name when doctor is logged in', () => {
     localStorage.setItem(
       'user',
-      JSON.stringify({ id: '3', email: 'medico1@mediconnect.cl', name: 'Carlos Rojas', role: 'doctor' })
+      JSON.stringify({ id: '3', email: 'medico1@mediconnect.cl', name: 'Carlos Rojas', role: 'Medico' })
     );
     component.ngOnInit();
     expect(component.userName).toBe('Carlos Rojas');

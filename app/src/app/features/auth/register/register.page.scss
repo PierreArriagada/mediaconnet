@@ -1,4 +1,4 @@
-// ── Material Symbols ─────────────────────────────────────────────────────────
+// Iconos Material Symbols
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined', sans-serif;
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
@@ -8,7 +8,7 @@
   user-select: none;
 }
 
-// ── Page shell ───────────────────────────────────────────────────────────────
+// Estructura base de la página
 ion-content {
   --background: var(--mc-surface);
 }
@@ -22,7 +22,7 @@ ion-content {
   font-family: var(--mc-font-utility);
 }
 
-// ── Glass header ─────────────────────────────────────────────────────────────
+// Encabezado con efecto cristal
 .reg-header {
   position: fixed;
   top: 0;
@@ -75,7 +75,7 @@ ion-content {
   }
 }
 
-// ── Main layout ───────────────────────────────────────────────────────────────
+// Distribución principal
 .reg-main {
   flex: 1;
   display: flex;
@@ -96,7 +96,7 @@ ion-content {
   }
 }
 
-// ── Left editorial panel ─────────────────────────────────────────────────────
+// Panel editorial izquierdo
 .reg-left {
   display: none;
 
@@ -133,7 +133,7 @@ ion-content {
   }
 }
 
-// ── Feature cards ─────────────────────────────────────────────────────────────
+// Tarjetas de características
 .reg-features {
   display: flex;
   flex-direction: column;
@@ -180,7 +180,7 @@ ion-content {
   }
 }
 
-// ── Register card ─────────────────────────────────────────────────────────────
+// Tarjeta de registro
 .reg-right {
   width: 100%;
   max-width: 31.25rem;   // 500px
@@ -238,7 +238,7 @@ ion-content {
   }
 }
 
-// ── Form ─────────────────────────────────────────────────────────────────────
+// Formulario
 .reg-form {
   display: flex;
   flex-direction: column;
@@ -249,7 +249,7 @@ ion-content {
   }
 }
 
-// ── Field grid ────────────────────────────────────────────────────────────────
+// Grilla de campos
 .field-row {
   display: grid;
   grid-template-columns: 1fr;
@@ -260,7 +260,7 @@ ion-content {
   }
 }
 
-// ── Fields ───────────────────────────────────────────────────────────────────
+// Campos del formulario
 .field {
   display: flex;
   flex-direction: column;
@@ -357,7 +357,7 @@ ion-content {
   }
 }
 
-// ── Terms checkbox ────────────────────────────────────────────────────────────
+// Casilla de términos y condiciones
 .field-terms {
   display: flex;
   align-items: flex-start;
@@ -390,7 +390,7 @@ ion-content {
   }
 }
 
-// ── Primary button ────────────────────────────────────────────────────────────
+// Botón principal
 .btn-primary {
   width: 100%;
   background: var(--mc-gradient-primary);
@@ -429,7 +429,7 @@ ion-content {
   height: 24px;
 }
 
-// ── Floating assistant (desktop) ─────────────────────────────────────────────
+// Asistente flotante en escritorio
 .reg-assistant {
   display: none;
 

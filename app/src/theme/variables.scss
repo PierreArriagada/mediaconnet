@@ -1,34 +1,24 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
-
-// ═══════════════════════════════════════════════════════════════════════════
-//  MediConnect Design System — "Empathetic Precision"
-//  Color & Token Architecture — Material Design 3
-// ─────────────────────────────────────────────────────────────────────────
-//  PREFIX CONVENTION
-//    --mc-*            → MediConnect design tokens  (canonical)
-//    --ion-color-*     → Ionic theme bridge         (mapped from --mc-*)
-//  See docs/COLOR_SYSTEM.md for complete usage rules.
-// ═══════════════════════════════════════════════════════════════════════════
+// Sistema de diseño MediConnect — variables CSS globales.
+// Todos los tokens usan el prefijo --mc-* (MediConnect).
+// Los tokens --ion-* son el puente que aplica esos valores a los componentes de Ionic.
+// Referencia: https://ionicframework.com/docs/theming/
 
 :root {
 
-  // ───────────────────────────────────────────────────────────────────────
-  // PRIMARY  (#005ea4 seed)
-  // ───────────────────────────────────────────────────────────────────────
-  --mc-primary:                     #005ea4;   // core brand blue
+  // Color primario: azul institucional del proyecto (#005ea4).
+  // Se usa en botones principales, enlaces activos, iconos de acción y barras de herramientas.
+  --mc-primary:                     #005ea4;   // azul de marca principal
   --mc-on-primary:                  #ffffff;
   --mc-primary-container:           #0077ce;   // gradient endpoint (135° buttons)
   --mc-on-primary-container:        #001d35;
-  --mc-primary-fixed:               #d3e4ff;   // chip backgrounds
+  --mc-primary-fixed:               #d3e4ff;   // fondo de chips y etiquetas de estado
   --mc-primary-fixed-dim:           #a5c8f9;
-  --mc-on-primary-fixed:            #001c38;   // text on primary-fixed chips
+  --mc-on-primary-fixed:            #001c38;   // texto sobre chips de color primario
   --mc-on-primary-fixed-variant:    #004a87;
   --mc-inverse-primary:             #a5c8f9;
 
-  // ───────────────────────────────────────────────────────────────────────
-  // SECONDARY  (#446084)
-  // ───────────────────────────────────────────────────────────────────────
+  // Color secundario: azul grisáceo (#446084).
+  // Se usa en etiquetas de especialidad, badges informativos y elementos de soporte visual.
   --mc-secondary:                   #446084;
   --mc-on-secondary:                #ffffff;
   --mc-secondary-container:         #b7d4fd;
@@ -38,124 +28,111 @@
   --mc-on-secondary-fixed:          #001d35;
   --mc-on-secondary-fixed-variant:  #2c4866;
 
-  // ───────────────────────────────────────────────────────────────────────
-  // TERTIARY — "Clinical Warmth"  (#8f4a00)
-  // ───────────────────────────────────────────────────────────────────────
+  // Color terciario: naranja cálido (#8f4a00).
+  // Aporta calidez visual al diseño clínico. Se usa en tarjetas de bienvenida,
+  // destacados de atención urgente y acentos secundarios de interfaz.
   --mc-tertiary:                    #8f4a00;
   --mc-on-tertiary:                 #ffffff;
   --mc-tertiary-container:          #ffb870;
   --mc-on-tertiary-container:       #2e1400;
-  --mc-tertiary-fixed:              #ffdcc4;   // warm accent chips
+  --mc-tertiary-fixed:              #ffdcc4;   // fondo de chips de acento cálido
   --mc-tertiary-fixed-dim:          #ffb870;
   --mc-on-tertiary-fixed:           #2e1400;
   --mc-on-tertiary-fixed-variant:   #6d3600;
 
-  // ───────────────────────────────────────────────────────────────────────
-  // ERROR
-  // ───────────────────────────────────────────────────────────────────────
+  // Color de error: rojo de validación.
+  // Se usa en campos inválidos, mensajes de toast de fallo y estados de alerta crítica.
   --mc-error:                       #ba1a1a;
   --mc-on-error:                    #ffffff;
-  --mc-error-container:             #ffdad6;   // full-bg tint on invalid inputs
+  --mc-error-container:             #ffdad6;   // fondo del campo cuando tiene error de validación
   --mc-on-error-container:          #410002;
 
-  // ───────────────────────────────────────────────────────────────────────
-  // SURFACE HIERARCHY — "The Canvas"
-  //   Level 0  (Background)   → --mc-surface
-  //   Level 1  (Sections)     → --mc-surface-container-low
-  //   Level 2  (Active Cards) → --mc-surface-container-lowest
-  //   Level 3  (Modals)       → glassmorphism (--mc-glass-bg + backdrop-filter)
-  // ───────────────────────────────────────────────────────────────────────
-  --mc-surface:                     #f9f9f9;   // Level 0 — app root background
+  // Jerarquía de superficies: define los niveles de profundidad visual de la app.
+  // Nivel 0 → fondo raíz de la app        (--mc-surface)
+  // Nivel 1 → fondo de secciones          (--mc-surface-container-low)
+  // Nivel 2 → tarjetas activas y modales  (--mc-surface-container-lowest)
+  // Nivel 3 → barras flotantes            (glassmorphism: --mc-glass-bg + backdrop-filter)
+  --mc-surface:                     #f9f9f9;   // nivel 0 — fondo raíz de la app
   --mc-surface-dim:                 #d9d9da;
   --mc-surface-bright:              #f9f9f9;
-  --mc-surface-container-lowest:    #ffffff;   // Level 2 — active card (pure white)
-  --mc-surface-container-low:       #f3f3f4;   // Level 1 — section background
-  --mc-surface-container:           #ededed;   // mid-level panels
-  --mc-surface-container-high:      #e7e7e8;   // hover / pressed states
-  --mc-surface-container-highest:   #e2e2e3;   // input fields (standard state)
-  --mc-surface-tint:                #005ea4;   // primary hue for inner-glow chips
+  --mc-surface-container-lowest:    #ffffff;   // nivel 2 — tarjeta activa (blanco puro)
+  --mc-surface-container-low:       #f3f3f4;   // nivel 1 — fondo de secciones
+  --mc-surface-container:           #ededed;   // paneles de nivel medio
+  --mc-surface-container-high:      #e7e7e8;   // estados hover y presionado
+  --mc-surface-container-highest:   #e2e2e3;   // fondo de campos de entrada
+  --mc-surface-tint:                #005ea4;   // tinte primario para chips con brillo interno
 
-  // ───────────────────────────────────────────────────────────────────────
-  // ON-SURFACE & TEXT
-  //   RULE: never use #000000 — always use --mc-on-surface
-  // ───────────────────────────────────────────────────────────────────────
-  --mc-on-surface:                  #1a1c1c;   // primary text (DO NOT replace with #000)
-  --mc-on-surface-variant:          #424748;   // secondary / caption text
+  // Colores de texto sobre superficie.
+  // Regla: nunca usar #000000 directo, siempre usar --mc-on-surface.
+  --mc-on-surface:                  #1a1c1c;   // texto principal (NO reemplazar con #000)
+  --mc-on-surface-variant:          #424748;   // texto secundario y leyendas
   --mc-inverse-surface:             #2e3132;
   --mc-inverse-on-surface:          #eff1f1;
 
-  // ───────────────────────────────────────────────────────────────────────
-  // OUTLINE — "The Ghost Border"
-  //   RULE: never use at 100% opacity; use rgba(--mc-outline-variant, 0.15)
-  //   See --mc-border-ghost composed token below.
-  // ───────────────────────────────────────────────────────────────────────
+  // Bordes y contornos.
+  // Regla: nunca usar al 100% de opacidad. Usar --mc-border-ghost (ya compuesto con 15% de opacidad).
   --mc-outline:                     #72787a;
-  --mc-outline-variant:             #c1c7c9;   // ghost border base
+  --mc-outline-variant:             #c1c7c9;   // base del borde fantasma (se usa a baja opacidad)
 
-  // ───────────────────────────────────────────────────────────────────────
-  // SCRIM & SHADOW
-  // ───────────────────────────────────────────────────────────────────────
+  // Fondos de superposición y sombras.
+  // El scrim oscurece el contenido detrás de modales. Las sombras dan profundidad a los elementos flotantes.
   --mc-scrim:                       #000000;
   --mc-shadow:                      #000000;
-  --mc-shadow-ambient:              rgba(26, 28, 28, 0.04);  // on-surface @ 4%
+  --mc-shadow-ambient:              rgba(26, 28, 28, 0.04);  // on-surface al 4% de opacidad
 
-  // ───────────────────────────────────────────────────────────────────────
-  // COMPOSED TOKENS — ready-to-use values for components
-  // ───────────────────────────────────────────────────────────────────────
+  // Tokens compuestos: valores listos para usar directamente en los componentes.
+  // No hace falta calcular ni combinar, simplemente referenciarlos con var().
 
-  // Primary action button gradient (135°, Section 2 & 5)
+  // Degradado del botón principal: azul de izquierda a derecha (135°)
   --mc-gradient-primary:    linear-gradient(135deg, #005ea4 0%, #0077ce 100%);
 
-  // Glassmorphism: floating headers & nav bars (Section 2)
+  // Efecto glassmorphism: fondo semitransparente con desenfoque para barras flotantes y encabezados
   --mc-glass-bg:            rgba(249, 249, 249, 0.72);
   --mc-glass-blur:          20px;
 
-  // Ambient shadow: FABs & priority modals (Section 4)
-  // blur 32px | y-offset 8px | on-surface @ 4%
+  // Sombra suave para elementos flotantes: botones de acción y modales de prioridad
   --mc-shadow-fab:          0 8px 32px 0 rgba(26, 28, 28, 0.04);
 
-  // Ghost border: secondary buttons & high-contrast strokes (Section 4 & 5)
-  // outline-variant at 15% opacity
+  // Borde fantasma: contorno casi invisible para botones secundarios y tarjetas
   --mc-border-ghost:        rgba(193, 199, 201, 0.15);
 
-  // ───────────────────────────────────────────────────────────────────────
-  // BORDER RADIUS SCALE
-  // ───────────────────────────────────────────────────────────────────────
-  --mc-radius-sm:  0.5rem;   //  8px — minor / chip elements
-  --mc-radius-md:  1.5rem;   // 24px — input fields
-  --mc-radius-lg:  2rem;     // 32px — cards & list containers
-  --mc-radius-xl:  3rem;     // 48px — primary action buttons
+  // Escala de bordes redondeados: define el nivel de redondez según el tipo de elemento.
+  // Usar siempre estos tokens en lugar de valores fijos para mantener coherencia visual.
+  --mc-radius-sm:  0.5rem;   //  8px — chips y elementos pequeños
+  --mc-radius-md:  1.5rem;   // 24px — campos de entrada
+  --mc-radius-lg:  2rem;     // 32px — tarjetas y contenedores de lista
+  --mc-radius-xl:  3rem;     // 48px — botones de acción principal
 
-  // ───────────────────────────────────────────────────────────────────────
-  // TYPOGRAPHY SCALE
-  // ───────────────────────────────────────────────────────────────────────
-  --mc-font-authority:    'Manrope', system-ui, sans-serif;  // display, headline
-  --mc-font-utility:      'Inter',   system-ui, sans-serif;  // title, body, label
+  // Tipografía: dos familias de fuentes y una escala de tamaños.
+  // --mc-font-authority se usa para títulos y encabezados grandes (Manrope).
+  // --mc-font-utility se usa para cuerpo de texto, etiquetas y formularios (Inter).
+  --mc-font-authority:    'Manrope', system-ui, sans-serif;  // títulos y encabezados
+  --mc-font-utility:      'Inter',   system-ui, sans-serif;  // cuerpo, etiquetas y formularios
 
-  --mc-type-display-lg:   3.5rem;   // 56px — "Hola, Dr. García"
-  --mc-type-headline-sm:  1.5rem;   // 24px — primary section headers
-  --mc-type-body-lg:      1rem;     // 16px — patient data / instructions
+  --mc-type-display-lg:   3.5rem;   // 56px — pantallas de bienvenida y titulares grandes
+  --mc-type-headline-sm:  1.5rem;   // 24px — encabezados de sección principales
+  --mc-type-body-lg:      1rem;     // 16px — texto de datos del paciente e instrucciones
 
-  --mc-tracking-headline: -0.02em;  // -2% tight tracking on Headline-SM
-  --mc-leading-body:       1.6;     // high line-height for Body-LG breathing room
+  --mc-tracking-headline: -0.02em;  // espaciado negativo entre letras para encabezados
+  --mc-leading-body:       1.6;     // altura de línea amplia para facilitar la lectura
 
-  // ───────────────────────────────────────────────────────────────────────
-  // IONIC BRIDGE — maps --mc-* tokens to --ion-* theme variables
-  // ───────────────────────────────────────────────────────────────────────
+  // Puente con Ionic: traduce los tokens --mc-* al sistema de variables --ion-* que usa el framework.
+  // Gracias a este bloque, los componentes de Ionic (botones, items, toolbars) heredan
+  // automáticamente la paleta de MediConnect sin necesitar estilos adicionales.
 
-  // Global background & text
+  // Color de fondo global y texto principal de la app
   --ion-background-color:           var(--mc-surface);
   --ion-background-color-rgb:       249, 249, 249;
   --ion-text-color:                 var(--mc-on-surface);
   --ion-text-color-rgb:             26, 28, 28;
 
-  // No-Line philosophy: remove all default Ionic borders
+  // Elimina todos los bordes y líneas divisorias por defecto de Ionic
   --ion-border-color:               transparent;
   --ion-item-border-color:          transparent;
   --ion-item-background:            var(--mc-surface-container-lowest);
   --ion-toolbar-background:         var(--mc-glass-bg);
 
-  // Ionic step-color ladder → surface hierarchy
+  // Escala de pasos de color de Ionic mapeada a la jerarquía de superficies del sistema
   --ion-color-step-50:              var(--mc-surface-container-low);
   --ion-color-step-100:             var(--mc-surface-container);
   --ion-color-step-150:             var(--mc-surface-container-high);
@@ -163,7 +140,7 @@
   --ion-color-step-800:             var(--mc-on-surface-variant);
   --ion-color-step-950:             var(--mc-on-surface);
 
-  // Primary
+  // Color primario de Ionic
   --ion-color-primary:              var(--mc-primary);
   --ion-color-primary-rgb:          0, 94, 164;
   --ion-color-primary-contrast:     var(--mc-on-primary);
@@ -171,7 +148,7 @@
   --ion-color-primary-shade:        #004e8a;
   --ion-color-primary-tint:         var(--mc-primary-container);
 
-  // Secondary
+  // Color secundario de Ionic
   --ion-color-secondary:            var(--mc-secondary);
   --ion-color-secondary-rgb:        68, 96, 132;
   --ion-color-secondary-contrast:   var(--mc-on-secondary);
@@ -179,7 +156,7 @@
   --ion-color-secondary-shade:      #3a526f;
   --ion-color-secondary-tint:       var(--mc-secondary-container);
 
-  // Tertiary (mapped to Ionic tertiary)
+  // Color terciario de Ionic
   --ion-color-tertiary:             var(--mc-tertiary);
   --ion-color-tertiary-rgb:         143, 74, 0;
   --ion-color-tertiary-contrast:    var(--mc-on-tertiary);
@@ -187,7 +164,7 @@
   --ion-color-tertiary-shade:       #7a3f00;
   --ion-color-tertiary-tint:        var(--mc-tertiary-fixed);
 
-  // Danger / Error
+  // Color de peligro y error de Ionic
   --ion-color-danger:               var(--mc-error);
   --ion-color-danger-rgb:           186, 26, 26;
   --ion-color-danger-contrast:      var(--mc-on-error);
@@ -195,7 +172,7 @@
   --ion-color-danger-shade:         #9e1616;
   --ion-color-danger-tint:          var(--mc-error-container);
 
-  // Light
+  // Tono claro de Ionic (superficies blancas y fondos de tarjeta)
   --ion-color-light:                var(--mc-surface-container-lowest);
   --ion-color-light-rgb:            255, 255, 255;
   --ion-color-light-contrast:       var(--mc-on-surface);
@@ -203,7 +180,7 @@
   --ion-color-light-shade:          var(--mc-surface-container-low);
   --ion-color-light-tint:           var(--mc-surface-container-lowest);
 
-  // Medium
+  // Tono medio de Ionic (texto secundario y bordes suaves)
   --ion-color-medium:               var(--mc-on-surface-variant);
   --ion-color-medium-rgb:           66, 71, 72;
   --ion-color-medium-contrast:      var(--mc-surface);
@@ -211,7 +188,7 @@
   --ion-color-medium-shade:         #323839;
   --ion-color-medium-tint:          var(--mc-outline);
 
-  // Dark
+  // Tono oscuro de Ionic (texto principal y elementos de alto contraste)
   --ion-color-dark:                 var(--mc-on-surface);
   --ion-color-dark-rgb:             26, 28, 28;
   --ion-color-dark-contrast:        var(--mc-surface);
@@ -220,13 +197,12 @@
   --ion-color-dark-tint:            var(--mc-on-surface-variant);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-//  DARK SCHEME OVERRIDES  (respects system preference via dark.system.css)
-//  Full MD3 dark-mode token inversion for every surface and role.
-// ═══════════════════════════════════════════════════════════════════════════
+// Modo oscuro: se activa automáticamente cuando el sistema operativo tiene el tema oscuro activado.
+// Redefine todos los tokens de color para invertir la paleta según Material Design 3.
+// No es necesario agregar ninguna clase manual; el navegador lo aplica solo.
 @media (prefers-color-scheme: dark) {
   :root {
-    // Primary
+    // Primario en modo oscuro: se invierte a un azul claro para contrastar sobre fondos oscuros
     --mc-primary:                     #a5c8f9;
     --mc-on-primary:                  #003258;
     --mc-primary-container:           #004a87;
@@ -237,7 +213,7 @@
     --mc-on-primary-fixed-variant:    #004a87;
     --mc-inverse-primary:             #005ea4;
 
-    // Secondary
+    // Secundario en modo oscuro
     --mc-secondary:                   #b7d4fd;
     --mc-on-secondary:                #001d35;
     --mc-secondary-container:         #2c4866;
@@ -247,7 +223,7 @@
     --mc-on-secondary-fixed:          #001d35;
     --mc-on-secondary-fixed-variant:  #2c4866;
 
-    // Tertiary
+    // Terciario en modo oscuro
     --mc-tertiary:                    #ffb870;
     --mc-on-tertiary:                 #4b2400;
     --mc-tertiary-container:          #6d3600;
@@ -257,13 +233,13 @@
     --mc-on-tertiary-fixed:           #2e1400;
     --mc-on-tertiary-fixed-variant:   #6d3600;
 
-    // Error
+    // Error en modo oscuro
     --mc-error:                       #ffb4ab;
     --mc-on-error:                    #690005;
     --mc-error-container:             #93000a;
     --mc-on-error-container:          #ffdad6;
 
-    // Surface hierarchy (dark)
+    // Jerarquía de superficies en modo oscuro: fondos muy oscuros casi negros
     --mc-surface:                     #111415;
     --mc-surface-dim:                 #111415;
     --mc-surface-bright:              #363a3a;
@@ -273,26 +249,26 @@
     --mc-surface-container-high:      #272b2b;
     --mc-surface-container-highest:   #323535;
 
-    // On-surface (dark)
+    // Texto sobre superficie en modo oscuro: blanco roto para no fatigar la vista
     --mc-on-surface:                  #e1e3e3;
     --mc-on-surface-variant:          #c0c7c8;
     --mc-inverse-surface:             #e1e3e3;
     --mc-inverse-on-surface:          #2e3132;
 
-    // Outline (dark)
+    // Bordes en modo oscuro
     --mc-outline:                     #8a9293;
     --mc-outline-variant:             #404849;
 
-    // Shadow (dark — stronger ambient)
+    // Sombra en modo oscuro: más intensa porque el contraste sobre fondos oscuros lo requiere
     --mc-shadow-ambient:              rgba(0, 0, 0, 0.24);
 
-    // Composed tokens (dark)
+    // Tokens compuestos en modo oscuro: degradado claro, glassmorphism oscuro y sombra fuerte
     --mc-gradient-primary:    linear-gradient(135deg, #a5c8f9 0%, #b7d4fd 100%);
     --mc-glass-bg:            rgba(17, 20, 21, 0.72);
     --mc-shadow-fab:          0 8px 32px 0 rgba(0, 0, 0, 0.24);
     --mc-border-ghost:        rgba(64, 72, 73, 0.15);
 
-    // Ionic bridge (dark overrides)
+    // Puente con Ionic en modo oscuro
     --ion-background-color:           var(--mc-surface);
     --ion-background-color-rgb:       17, 20, 21;
     --ion-text-color:                 var(--mc-on-surface);
