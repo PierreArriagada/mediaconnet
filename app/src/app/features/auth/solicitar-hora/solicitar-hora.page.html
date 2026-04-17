@@ -1,0 +1,355 @@
+<ion-content [fullscreen]="true">
+
+  <!-- Encabezado con efecto cristal -->
+  <header class="sh-header">
+    <div class="sh-header__inner">
+      <div class="sh-header__brand">
+        <span class="material-symbols-outlined sh-header__brand-icon">medical_services</span>
+        <span class="sh-header__brand-text">MediConnect</span>
+      </div>
+      <button class="sh-header__back-btn" type="button" (click)="volverLogin()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span>Volver</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="sh-page">
+
+    <!-- Vista de confirmación de éxito -->
+    @if (exito()) {
+      <div class="sh-success">
+        <div class="sh-success__icon-wrap">
+          <span class="material-symbols-outlined sh-success__icon">check_circle</span>
+        </div>
+        <h2 class="sh-success__title">¡Solicitud enviada!</h2>
+        <p class="sh-success__body">
+          Tu solicitud fue registrada correctamente. Nuestro equipo se pondrá en
+          contacto contigo para confirmar los detalles de tu cita.
+        </p>
+        <button class="sh-btn-primary" type="button" (click)="volverLogin()">
+          Volver al inicio
+        </button>
+      </div>
+    } @else {
+
+      <main class="sh-main">
+
+        <!-- Panel editorial (oculto en móvil) -->
+        <section class="sh-editorial">
+          <h1 class="sh-editorial__headline">
+            Solicitar <br/>
+            <span class="sh-editorial__headline--accent">una hora</span>
+          </h1>
+          <p class="sh-editorial__body">
+            Complete el formulario para coordinar su próxima atención médica.
+            Nuestro equipo confirmará su cita a la brevedad.
+          </p>
+          <div class="sh-editorial__img-wrap">
+            <img
+              class="sh-editorial__img"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXbdG1b8dc7KDslIj5PbVm_TGpi64nBbJsYXW9XPJd04I5x1pdNbfjb-g_kZxMbmUyINXqZ2LHnxuguq-lSIbx75h4JsG-AdN8uHyLAhLSCSs0TpKovZU2kK5H1KoGBAw2MPGa7ettGJmTddMNE3xc77eCVy--zF8BLJkNRpXojmmWdXo7FQ1Mj54HbceDMtnDsHVhLFDqC8mplmInoNpN8OtYxVavZwS3m2AUHPpTKye2NHnyj8DGs1oSbQYoMhUJ7GC6O8sCwT5l"
+              alt="Espacio clínico moderno con iluminación natural suave"
+            />
+          </div>
+        </section>
+
+        <!-- Canvas del formulario -->
+        <section class="sh-form-canvas">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="sh-form" novalidate>
+
+            <!-- ── Tarjeta 1: Datos Personales ─────────────────────── -->
+            <div class="sh-card">
+              <h2 class="sh-card__title">
+                <span class="material-symbols-outlined sh-card__title-icon">person</span>
+                Datos Personales
+              </h2>
+
+              <div class="sh-card__grid">
+
+                <!-- Nombre -->
+                <div class="sh-field">
+                  <label class="sh-field__label" for="sh-nombre">Nombre</label>
+                  <input
+                    class="sh-field__input"
+                    id="sh-nombre"
+                    type="text"
+                    formControlName="nombre"
+                    placeholder="Ej: Juan"
+                    autocomplete="given-name"
+                    [class.sh-field__input--error]="hasError('nombre')"
+                  />
+                  @if (hasError('nombre')) {
+                    <span class="sh-field__error">
+                      <span class="material-symbols-outlined sh-field__error-icon">error</span>
+                      Nombre requerido (solo letras)
+                    </span>
+                  }
+                </div>
+
+                <!-- Apellido -->
+                <div class="sh-field">
+                  <label class="sh-field__label" for="sh-apellido">Apellidos</label>
+                  <input
+                    class="sh-field__input"
+                    id="sh-apellido"
+                    type="text"
+                    formControlName="apellido"
+                    placeholder="Ej: Pérez González"
+                    autocomplete="family-name"
+                    [class.sh-field__input--error]="hasError('apellido')"
+                  />
+                  @if (hasError('apellido')) {
+                    <span class="sh-field__error">
+                      <span class="material-symbols-outlined sh-field__error-icon">error</span>
+                      Apellido requerido (solo letras)
+                    </span>
+                  }
+                </div>
+
+                <!-- RUT -->
+                <div class="sh-field">
+                  <label class="sh-field__label" for="sh-rut">RUT</label>
+                  <input
+                    class="sh-field__input"
+                    id="sh-rut"
+                    type="text"
+                    formControlName="rut"
+                    placeholder="12.345.678-9"
+                    inputmode="numeric"
+                    (input)="onRutInput($event)"
+                    [class.sh-field__input--error]="hasError('rut')"
+                  />
+                  @if (hasError('rut', 'rutFormat') || hasError('rut', 'rutInvalid')) {
+                    <span class="sh-field__error">
+                      <span class="material-symbols-outlined sh-field__error-icon">error</span>
+                      RUT inválido. Formato: 12.345.678-9
+                    </span>
+                  }
+                  @if (hasError('rut', 'required')) {
+                    <span class="sh-field__error">
+                      <span class="material-symbols-outlined sh-field__error-icon">error</span>
+                      RUT requerido
+                    </span>
+                  }
+                </div>
+
+                <!-- Fecha de nacimiento (requerida por el registro clínico) -->
+                <div class="sh-field">
+                  <label class="sh-field__label" for="sh-fn">Fecha de nacimiento</label>
+                  <input
+                    class="sh-field__input"
+                    id="sh-fn"
+                    type="date"
+                    formControlName="fecha_nacimiento"
+                    [class.sh-field__input--error]="hasError('fecha_nacimiento')"
+                  />
+                  @if (hasError('fecha_nacimiento')) {
+                    <span class="sh-field__error">
+                      <span class="material-symbols-outlined sh-field__error-icon">error</span>
+                      Fecha de nacimiento requerida
+                    </span>
+                  }
+                </div>
+
+                <!-- Teléfono -->
+                <div class="sh-field">
+                  <label class="sh-field__label" for="sh-tel">Teléfono</label>
+                  <div class="sh-field__phone-wrap">
+                    <span class="sh-field__phone-prefix">+56</span>
+                    <input
+                      class="sh-field__input sh-field__input--phone"
+                      id="sh-tel"
+                      type="tel"
+                      formControlName="telefono"
+                      placeholder="9 1234 5678"
+                      autocomplete="tel"
+                      [class.sh-field__input--error]="hasError('telefono')"
+                    />
+                  </div>
+                  @if (hasError('telefono')) {
+                    <span class="sh-field__error">
+                      <span class="material-symbols-outlined sh-field__error-icon">error</span>
+                      Teléfono inválido
+                    </span>
+                  }
+                </div>
+
+                <!-- Correo -->
+                <div class="sh-field sh-field--full">
+                  <label class="sh-field__label" for="sh-correo">Correo electrónico</label>
+                  <input
+                    class="sh-field__input"
+                    id="sh-correo"
+                    type="email"
+                    formControlName="correo"
+                    placeholder="nombre@ejemplo.com"
+                    autocomplete="email"
+                    inputmode="email"
+                    [class.sh-field__input--error]="hasError('correo')"
+                  />
+                  @if (hasError('correo')) {
+                    <span class="sh-field__error">
+                      <span class="material-symbols-outlined sh-field__error-icon">error</span>
+                      Correo electrónico inválido
+                    </span>
+                  }
+                </div>
+
+              </div>
+            </div>
+
+            <!-- ── Tarjeta 2: Detalle de Consulta ──────────────────── -->
+            <div class="sh-card">
+              <h2 class="sh-card__title">
+                <span class="material-symbols-outlined sh-card__title-icon">medical_services</span>
+                Detalle de Consulta
+              </h2>
+
+              <div class="sh-card__col">
+
+                <!-- Especialidad -->
+                <div class="sh-field">
+                  <label class="sh-field__label" for="sh-especialidad">Especialidad</label>
+                  <div class="sh-field__select-wrap">
+                    <select
+                      class="sh-field__select"
+                      id="sh-especialidad"
+                      formControlName="id_especialidad"
+                      [class.sh-field__select--error]="hasError('id_especialidad')"
+                    >
+                      <option [value]="null" disabled>Seleccione especialidad</option>
+                      @for (esp of especialidades(); track esp.id_especialidad) {
+                        <option [value]="esp.id_especialidad">{{ esp.nombre_especialidad }}</option>
+                      }
+                    </select>
+                    <span class="material-symbols-outlined sh-field__select-chevron">expand_more</span>
+                  </div>
+                  @if (hasError('id_especialidad')) {
+                    <span class="sh-field__error">
+                      <span class="material-symbols-outlined sh-field__error-icon">error</span>
+                      Seleccione una especialidad
+                    </span>
+                  }
+                </div>
+
+                <!-- Motivo de consulta -->
+                <div class="sh-field">
+                  <label class="sh-field__label" for="sh-motivo">Motivo de consulta</label>
+                  <textarea
+                    class="sh-field__textarea"
+                    id="sh-motivo"
+                    formControlName="motivo_consulta"
+                    placeholder="Describa brevemente su síntoma o motivo de visita..."
+                    rows="4"
+                    [class.sh-field__textarea--error]="hasError('motivo_consulta')"
+                  ></textarea>
+                  @if (hasError('motivo_consulta')) {
+                    <span class="sh-field__error">
+                      <span class="material-symbols-outlined sh-field__error-icon">error</span>
+                      Motivo de consulta requerido
+                    </span>
+                  }
+                </div>
+
+              </div>
+            </div>
+
+            <!-- ── Tarjeta 3: Preferencia de Agenda ───────────────── -->
+            <div class="sh-card">
+              <h2 class="sh-card__title">
+                <span class="material-symbols-outlined sh-card__title-icon">event_available</span>
+                Preferencia de Agenda
+              </h2>
+
+              <div class="sh-card__grid">
+
+                <!-- Fecha preferente -->
+                <div class="sh-field">
+                  <label class="sh-field__label" for="sh-fecha">Fecha preferente</label>
+                  <input
+                    class="sh-field__input"
+                    id="sh-fecha"
+                    type="date"
+                    formControlName="fecha_preferente"
+                    [min]="minFecha"
+                    [class.sh-field__input--error]="hasError('fecha_preferente')"
+                  />
+                  @if (hasError('fecha_preferente')) {
+                    <span class="sh-field__error">
+                      <span class="material-symbols-outlined sh-field__error-icon">error</span>
+                      Fecha requerida
+                    </span>
+                  }
+                </div>
+
+                <!-- Franja horaria -->
+                <div class="sh-field">
+                  <label class="sh-field__label">Horario preferido</label>
+                  <div class="sh-franja-grid">
+                    <label
+                      class="sh-franja"
+                      [class.sh-franja--active]="form.get('franja_horaria')?.value === 'manana'"
+                    >
+                      <input type="radio" formControlName="franja_horaria" value="manana" class="sh-franja__radio" />
+                      <span class="material-symbols-outlined sh-franja__icon">light_mode</span>
+                      <span class="sh-franja__label">Mañana</span>
+                    </label>
+                    <label
+                      class="sh-franja"
+                      [class.sh-franja--active]="form.get('franja_horaria')?.value === 'tarde'"
+                    >
+                      <input type="radio" formControlName="franja_horaria" value="tarde" class="sh-franja__radio" />
+                      <span class="material-symbols-outlined sh-franja__icon">dark_mode</span>
+                      <span class="sh-franja__label">Tarde</span>
+                    </label>
+                  </div>
+                  @if (hasError('franja_horaria')) {
+                    <span class="sh-field__error">
+                      <span class="material-symbols-outlined sh-field__error-icon">error</span>
+                      Seleccione un horario
+                    </span>
+                  }
+                </div>
+
+              </div>
+            </div>
+
+            <!-- ── Acción principal ────────────────────────────────── -->
+            <div class="sh-form__footer">
+              <button class="sh-btn-primary" type="submit" [disabled]="isLoading">
+                @if (isLoading) {
+                  <ion-spinner name="crescent" class="sh-btn-spinner" />
+                } @else {
+                  Enviar solicitud
+                }
+              </button>
+              <p class="sh-form__disclaimer">
+                <span class="material-symbols-outlined sh-form__disclaimer-icon">info</span>
+                Esta solicitud será revisada por nuestro equipo. Recibirá un correo
+                electrónico o llamado de confirmación con la hora definitiva.
+              </p>
+            </div>
+
+          </form>
+        </section>
+
+      </main>
+    }
+
+  </div>
+
+  <!-- Barra de navegación inferior (solo móvil) -->
+  <nav class="sh-bottom-nav">
+    <a class="sh-bottom-nav__item" (click)="volverLogin()">
+      <span class="material-symbols-outlined">home</span>
+      <span class="sh-bottom-nav__label">Inicio</span>
+    </a>
+    <a class="sh-bottom-nav__item sh-bottom-nav__item--active">
+      <span class="material-symbols-outlined">calendar_add_on</span>
+      <span class="sh-bottom-nav__label">Reservar</span>
+    </a>
+  </nav>
+  <div class="sh-nav-spacer"></div>
+
+</ion-content>
