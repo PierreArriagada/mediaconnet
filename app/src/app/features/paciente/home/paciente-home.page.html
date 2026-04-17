@@ -1,0 +1,241 @@
+<ion-content [scrollEvents]="true">
+
+  <!-- Pull-to-refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="loadDashboard($any($event))">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- ===== HEADER ===== -->
+  <header class="mc-header">
+    <div class="mc-header__inner">
+      <div class="mc-header__brand">
+        <div class="mc-avatar" [attr.aria-label]="user?.name">{{ initials }}</div>
+        <span class="mc-brand-title">MediConnect</span>
+      </div>
+      <button
+        class="mc-icon-btn"
+        (click)="ir('notificaciones')"
+        aria-label="Notificaciones"
+      >
+        <span class="material-symbols-outlined">notifications</span>
+        @if (data && data.noLeidas > 0) {
+          <span class="mc-badge" aria-label="{{ data.noLeidas }} no leídas">
+            {{ data.noLeidas }}
+          </span>
+        }
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
+  <main class="mc-main">
+
+    <!-- Saludo -->
+    <section class="mc-greeting">
+      <h1 class="mc-heading-display">
+        Hola, <span class="mc-heading-accent">{{ firstName }}</span>
+      </h1>
+      <p class="mc-subtitle">Gestiona tu salud con precisión y empatía.</p>
+    </section>
+
+    <!-- Skeleton de carga -->
+    @if (isLoading) {
+      <div class="mc-skeleton-wrapper">
+        <div class="mc-skeleton mc-skeleton--featured"></div>
+        <div class="mc-skeleton-grid">
+          <div class="mc-skeleton mc-skeleton--card"></div>
+          <div class="mc-skeleton mc-skeleton--card"></div>
+          <div class="mc-skeleton mc-skeleton--card"></div>
+          <div class="mc-skeleton mc-skeleton--card"></div>
+        </div>
+        <div class="mc-skeleton mc-skeleton--notif"></div>
+        <div class="mc-skeleton mc-skeleton--notif"></div>
+      </div>
+    }
+
+    @if (!isLoading) {
+      <!-- Bento Grid -->
+      <div class="mc-bento">
+
+        <!-- ── Tarjeta próxima cita ── -->
+        @if (data?.proximaCita) {
+          <article
+            class="mc-featured-card"
+            (click)="ir('citas/' + data!.proximaCita!.id_cita)"
+            role="button"
+            tabindex="0"
+            aria-label="Ver detalles de la cita"
+          >
+            <div class="mc-featured-card__glow" aria-hidden="true"></div>
+            <div>
+              <span class="mc-chip mc-chip--primary">Próxima cita</span>
+              <h2 class="mc-featured-card__title">
+                Dr. {{ data!.proximaCita!.medico_nombre }}
+                {{ data!.proximaCita!.medico_apellido }}
+              </h2>
+              <p class="mc-featured-card__sub">
+                {{ data!.proximaCita!.nombre_especialidad }}
+              </p>
+            </div>
+            <div class="mc-featured-card__footer">
+              <div class="mc-featured-card__meta">
+                <div>
+                  <p class="mc-meta-label">Fecha</p>
+                  <p class="mc-meta-value">
+                    {{ formatFecha(data!.proximaCita!.fecha_cita) }}
+                  </p>
+                </div>
+                <div>
+                  <p class="mc-meta-label">Hora</p>
+                  <p class="mc-meta-value">
+                    {{ formatHora(data!.proximaCita!.hora_cita) }}
+                  </p>
+                </div>
+                <div>
+                  <p class="mc-meta-label">Modalidad</p>
+                  <p class="mc-meta-value">
+                    {{ data!.proximaCita!.modalidad | titlecase }}
+                  </p>
+                </div>
+              </div>
+              <button
+                class="mc-btn-primary"
+                (click)="$event.stopPropagation(); ir('citas/' + data!.proximaCita!.id_cita)"
+              >
+                Ver detalles
+              </button>
+            </div>
+          </article>
+        }
+
+        <!-- Sin citas pendientes -->
+        @if (!data?.proximaCita) {
+          <article class="mc-featured-card mc-featured-card--empty">
+            <div class="mc-featured-card__glow" aria-hidden="true"></div>
+            <div>
+              <span class="mc-chip mc-chip--secondary">Sin citas pendientes</span>
+              <h2 class="mc-featured-card__title">No tienes citas próximas</h2>
+              <p class="mc-featured-card__sub">Reserva una hora con tu médico.</p>
+            </div>
+            <div class="mc-featured-card__footer">
+              <button class="mc-btn-primary" (click)="ir('reservar')">
+                Reservar hora
+              </button>
+            </div>
+          </article>
+        }
+
+        <!-- ── Grid de acceso rápido ── -->
+        <div class="mc-quick-grid" role="list">
+          <button class="mc-quick-btn" (click)="ir('reservar')" role="listitem">
+            <div class="mc-quick-btn__icon" aria-hidden="true">
+              <span class="material-symbols-outlined">calendar_add_on</span>
+            </div>
+            <span class="mc-quick-btn__label">Reservar hora</span>
+          </button>
+
+          <button class="mc-quick-btn" (click)="ir('solicitudes')" role="listitem">
+            <div class="mc-quick-btn__icon" aria-hidden="true">
+              <span class="material-symbols-outlined">pending_actions</span>
+            </div>
+            <span class="mc-quick-btn__label">Mis solicitudes</span>
+          </button>
+
+          <button class="mc-quick-btn" (click)="ir('historial')" role="listitem">
+            <div class="mc-quick-btn__icon" aria-hidden="true">
+              <span class="material-symbols-outlined">history</span>
+            </div>
+            <span class="mc-quick-btn__label">Historial</span>
+          </button>
+
+          <button class="mc-quick-btn" (click)="ir('profesionales')" role="listitem">
+            <div class="mc-quick-btn__icon" aria-hidden="true">
+              <span class="material-symbols-outlined">medical_services</span>
+            </div>
+            <span class="mc-quick-btn__label">Profesionales</span>
+          </button>
+        </div>
+
+        <!-- ── Sección notificaciones ── -->
+        <section class="mc-notif-section" aria-label="Notificaciones recientes">
+          <div class="mc-notif-section__header">
+            <h2 class="mc-section-title">Notificaciones recientes</h2>
+            <button class="mc-link-btn" (click)="ir('notificaciones')">
+              Ver todo
+            </button>
+          </div>
+
+          @if (!data?.notificaciones?.length) {
+            <p class="mc-empty-text">No tienes notificaciones recientes.</p>
+          }
+
+          <div class="mc-notif-list">
+            @for (n of data?.notificaciones; track n.id_notificacion) {
+              <div
+                class="mc-notif-item"
+                [class.mc-notif-item--unread]="!n.leida"
+                role="listitem"
+              >
+                <div class="mc-notif-item__icon" aria-hidden="true">
+                  <span class="material-symbols-outlined">
+                    {{ iconoNotificacion(n.tipo) }}
+                  </span>
+                </div>
+                <div class="mc-notif-item__body">
+                  <div class="mc-notif-item__row">
+                    <p class="mc-notif-item__title">{{ n.titulo }}</p>
+                    <span class="mc-notif-item__time">
+                      {{ tiempoRelativo(n.fecha_envio) }}
+                    </span>
+                  </div>
+                  <p class="mc-notif-item__msg">{{ n.mensaje }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+
+      </div>
+    }
+
+  </main>
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <nav class="mc-bottom-nav" role="navigation" aria-label="Navegación principal">
+    <a class="mc-nav-item mc-nav-item--active" (click)="ir('home')" role="button" tabindex="0">
+      <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">
+        home
+      </span>
+      <span class="mc-nav-item__label">Inicio</span>
+    </a>
+    <a class="mc-nav-item" (click)="ir('reservar')" role="button" tabindex="0">
+      <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">
+        calendar_add_on
+      </span>
+      <span class="mc-nav-item__label">Reservar</span>
+    </a>
+    <a class="mc-nav-item" (click)="ir('historial')" role="button" tabindex="0">
+      <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">
+        history
+      </span>
+      <span class="mc-nav-item__label">Historial</span>
+    </a>
+    <a class="mc-nav-item" (click)="ir('perfil')" role="button" tabindex="0">
+      <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">
+        person
+      </span>
+      <span class="mc-nav-item__label">Perfil</span>
+    </a>
+  </nav>
+
+  <!-- Toast de error -->
+  <ion-toast
+    [isOpen]="showError"
+    [message]="errorMsg"
+    [duration]="3000"
+    color="danger"
+    position="bottom"
+    (didDismiss)="showError = false"
+  ></ion-toast>
+
+</ion-content>
