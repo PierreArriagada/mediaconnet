@@ -11,6 +11,7 @@ import {
   PacienteService,
   DashboardData,
 } from '../../../core/services/paciente.service';
+import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 
 @Component({
   selector: 'app-paciente-home',
@@ -21,6 +22,7 @@ import {
     TitleCasePipe,
     IonContent, IonToast,
     IonRefresher, IonRefresherContent,
+    PacienteBottomNavComponent,
   ],
 })
 export class PacienteHomePage implements OnInit {
