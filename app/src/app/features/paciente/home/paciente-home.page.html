@@ -5,27 +5,11 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <!-- ===== HEADER ===== -->
-  <header class="mc-header">
-    <div class="mc-header__inner">
-      <div class="mc-header__brand">
-        <div class="mc-avatar" [attr.aria-label]="user?.name">{{ initials }}</div>
-        <span class="mc-brand-title">MediConnect</span>
-      </div>
-      <button
-        class="mc-icon-btn"
-        (click)="ir('notificaciones')"
-        aria-label="Notificaciones"
-      >
-        <span class="material-symbols-outlined">notifications</span>
-        @if (data && data.noLeidas > 0) {
-          <span class="mc-badge" aria-label="{{ data.noLeidas }} no leídas">
-            {{ data.noLeidas }}
-          </span>
-        }
-      </button>
-    </div>
-  </header>
+  <!-- ===== HEADER (componente reutilizable) ===== -->
+  <app-paciente-header
+    [userName]="user?.name ?? ''"
+    [noLeidas]="data?.noLeidas ?? 0"
+  ></app-paciente-header>
 
   <!-- ===== CONTENIDO PRINCIPAL ===== -->
   <main class="mc-main">

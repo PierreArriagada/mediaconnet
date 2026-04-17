@@ -12,6 +12,7 @@ import {
   DashboardData,
 } from '../../../core/services/paciente.service';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
+import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 
 @Component({
   selector: 'app-paciente-home',
@@ -23,6 +24,7 @@ import { PacienteBottomNavComponent } from '../../../shared/components/paciente-
     IonContent, IonToast,
     IonRefresher, IonRefresherContent,
     PacienteBottomNavComponent,
+    PacienteHeaderComponent,
   ],
 })
 export class PacienteHomePage implements OnInit {
@@ -35,17 +37,6 @@ export class PacienteHomePage implements OnInit {
   isLoading  = true;
   errorMsg   = '';
   showError  = false;
-
-  /** Iniciales del nombre para el avatar */
-  get initials(): string {
-    const name = this.user?.name ?? '';
-    return name
-      .split(' ')
-      .map((w) => w[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  }
 
   /** Primer nombre del usuario para el saludo */
   get firstName(): string {
