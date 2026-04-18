@@ -1,0 +1,120 @@
+<ion-content>
+
+  <!-- ===== HEADER (reutilizable) ===== -->
+  <app-paciente-header
+    [userName]="user?.name ?? ''"
+    [noLeidas]="noLeidas"
+  ></app-paciente-header>
+
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
+  <main class="mc-main">
+
+    <!-- Encabezado editorial -->
+    <section class="mc-editorial">
+      <div class="mc-editorial__text">
+        <h1 class="mc-heading-display">
+          ¿Qué necesitas<br/>
+          <span class="mc-heading-accent">hoy?</span>
+        </h1>
+        <p class="mc-subtitle">
+          Selecciona una especialidad para encontrar al profesional
+          adecuado y agenda tu cita en segundos.
+        </p>
+      </div>
+    </section>
+
+    <!-- Barra de búsqueda -->
+    <div class="mc-search-wrapper">
+      <span class="material-symbols-outlined mc-search-icon" aria-hidden="true">search</span>
+      <input
+        class="mc-search-input"
+        type="search"
+        placeholder="Buscar especialidad"
+        [(ngModel)]="busqueda"
+        aria-label="Buscar especialidad"
+        autocomplete="off"
+        maxlength="100"
+      />
+    </div>
+
+    <!-- Skeleton de carga -->
+    @if (isLoading) {
+      <div class="mc-skeleton-grid">
+        @for (_ of [1,2,3,4,5,6]; track $index) {
+          <div class="mc-skeleton mc-skeleton--card"></div>
+        }
+      </div>
+    }
+
+    <!-- Grid de especialidades -->
+    @if (!isLoading) {
+
+      @if (!especialidadesFiltradas.length) {
+        <p class="mc-empty-text">No se encontraron especialidades.</p>
+      }
+
+      <div class="mc-bento-grid">
+        @for (esp of especialidadesFiltradas; track esp.id_especialidad) {
+          <article
+            class="mc-esp-card"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="'Ver profesionales de ' + esp.nombre_especialidad"
+            (click)="verProfesionales(esp.id_especialidad)"
+            (keydown.enter)="verProfesionales(esp.id_especialidad)"
+            (keydown.space)="verProfesionales(esp.id_especialidad)"
+          >
+            <!-- Ícono con tema de color dinámico -->
+            <div class="mc-esp-card__icon mc-esp-card__icon--{{ tema(esp.nombre_especialidad) }}" aria-hidden="true">
+              <span class="material-symbols-outlined">{{ icono(esp.nombre_especialidad) }}</span>
+            </div>
+
+            <div class="mc-esp-card__body">
+              <h3 class="mc-esp-card__title">{{ esp.nombre_especialidad }}</h3>
+              <p class="mc-esp-card__desc">{{ esp.descripcion }}</p>
+            </div>
+
+            <button
+              class="mc-link-btn"
+              (click)="$event.stopPropagation(); verProfesionales(esp.id_especialidad)"
+              tabindex="-1"
+              aria-hidden="true"
+            >
+              Ver profesionales
+              <span class="material-symbols-outlined mc-link-btn__arrow">arrow_forward</span>
+            </button>
+          </article>
+        }
+      </div>
+
+      <!-- Banner de ayuda -->
+      <div class="mc-help-banner" role="complementary" aria-label="Soporte">
+        <div class="mc-help-banner__overlay" aria-hidden="true"></div>
+        <div class="mc-help-banner__content">
+          <h2 class="mc-help-banner__title">¿No encuentras tu especialidad?</h2>
+          <p class="mc-help-banner__desc">
+            Contamos con una amplia red de profesionales. Si necesitas ayuda,
+            nuestro equipo de soporte está disponible 24/7.
+          </p>
+          <button class="mc-btn-help">Contactar Soporte</button>
+        </div>
+      </div>
+
+    }
+
+  </main>
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <app-paciente-bottom-nav activeTab="reservar"></app-paciente-bottom-nav>
+
+  <!-- Toast de error -->
+  <ion-toast
+    [isOpen]="showError"
+    [message]="errorMsg"
+    [duration]="3000"
+    color="danger"
+    position="bottom"
+    (didDismiss)="showError = false"
+  ></ion-toast>
+
+</ion-content>
