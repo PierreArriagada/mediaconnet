@@ -1,286 +1,449 @@
-// Detalle Profesional — perfil del médico + disponibilidad lateral.
-// Tokens visuales: theme/variables.scss (--mc-*).
+// Detalle Profesional — fiel al mockup de identidad.
+// Tokens: theme/variables.scss (--mc-*).
 
 ion-content {
   --padding-bottom: 0;
   --padding-top:    0;
 }
 
-// ── Contenedor principal ──────────────────────────────
+// ── Layout ────────────────────────────────────────────
 .mc-main {
   max-width: 56rem;
   margin: 0 auto;
-  padding: 1.5rem 1.5rem 10rem;
+  padding: 1.5rem 1.5rem 12rem;
 }
 
-// ── Botón volver ──────────────────────────────────────
+// ── Boton volver ──────────────────────────────────────
 .mc-back-btn {
   display:     inline-flex;
   align-items: center;
-  gap:         0.375rem;
   color:       var(--mc-primary);
-  font-family: var(--mc-font-utility);
-  font-size:   0.9375rem;
-  font-weight: 600;
   background:  none;
   border:      none;
-  padding:     0.5rem 0;
+  padding:     0.5rem;
   cursor:      pointer;
-  margin-bottom: 1.5rem;
-  transition:  opacity 0.15s;
+  border-radius: 50%;
+  transition:  background 0.15s;
 
-  &:hover  { opacity: 0.75; }
-  &:active { opacity: 0.5; }
+  &:hover  { background: rgba(0, 94, 164, 0.06); }
+  &:active { background: rgba(0, 94, 164, 0.12); }
 
-  .material-symbols-outlined { font-size: 1.25rem; }
+  .material-symbols-outlined { font-size: 1.5rem; }
 }
 
-// ── Perfil del profesional ────────────────────────────
-.mc-profile {
-  display:       flex;
-  align-items:   flex-start;
-  gap:           1.5rem;
-  padding:       2rem;
-  background:    var(--mc-surface-container-lowest);
-  border-radius: var(--mc-radius-lg);
-  border:        1px solid var(--mc-border-ghost);
-  box-shadow:    var(--mc-shadow-fab);
-  margin-bottom: 2rem;
+// ══════════════════════════════════════════════════════
+// IDENTITY HEADER — avatar grande + info + pills
+// ══════════════════════════════════════════════════════
+.mc-identity {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            1.5rem;
+  padding:        2rem 0 2.5rem;
 }
 
-.mc-profile__avatar {
-  width:  6rem;
-  height: 6rem;
-  font-size: 1.75rem;
+.mc-identity__avatar-wrap {
+  position: relative;
 }
 
-.mc-profile__info {
-  flex: 1;
-}
-
-.mc-profile__name {
-  font-family:   var(--mc-font-authority);
-  font-size:     1.5rem;
-  font-weight:   700;
-  color:         var(--mc-on-surface);
-  line-height:   1.3;
-  margin-bottom: 0.25rem;
-}
-
-.mc-profile__specialty {
-  font-family: var(--mc-font-utility);
-  font-size:   1rem;
-  font-weight: 500;
-  color:       var(--mc-secondary);
-  margin-bottom: 0.75rem;
-}
-
-.mc-profile__meta {
-  display:   flex;
-  flex-wrap: wrap;
-  gap:       0.75rem;
-}
-
-.mc-profile__badge {
-  display:       inline-flex;
-  align-items:   center;
-  gap:           0.375rem;
-  background:    var(--mc-surface-container-low);
-  color:         var(--mc-on-surface-variant);
-  padding:       0.5rem 1rem;
-  border-radius: var(--mc-radius-sm);
-  font-family:   var(--mc-font-utility);
-  font-size:     0.8125rem;
-  font-weight:   600;
-
-  .material-symbols-outlined { font-size: 1rem; }
-}
-
-// ── Avatar con iniciales ──────────────────────────────
-.mc-avatar {
-  border-radius:   50%;
+// Avatar tipo mockup: cuadrado grande, esquinas redondeadas, sombra profunda
+.mc-avatar-hero {
+  width:           10rem;
+  height:          10rem;
+  border-radius:   var(--mc-radius-md);
   display:         flex;
   align-items:     center;
   justify-content: center;
   font-family:     var(--mc-font-authority);
-  font-weight:     700;
+  font-size:       2.75rem;
+  font-weight:     800;
   flex-shrink:     0;
-  border:          3px solid var(--mc-surface-container-low);
+  box-shadow:      0 32px 64px rgba(0, 0, 0, 0.08);
 
-  &--primary   { background: rgba(0, 94, 164, 0.1);       color: var(--mc-primary);   }
-  &--tertiary  { background: var(--mc-tertiary-fixed);     color: var(--mc-tertiary);  }
+  &--primary   { background: rgba(0, 94, 164, 0.1);        color: var(--mc-primary);   }
+  &--tertiary  { background: var(--mc-tertiary-fixed);      color: var(--mc-tertiary);  }
   &--secondary { background: var(--mc-secondary-container); color: var(--mc-secondary); }
 }
 
-// ── Secciones de contenido ────────────────────────────
-.mc-section {
+// Badge verificado (mockup: absolute -bottom-4 right-4)
+.mc-identity__badge {
+  position:        absolute;
+  bottom:          -0.75rem;
+  right:           0.75rem;
+  width:           2.25rem;
+  height:          2.25rem;
+  background:      var(--mc-primary);
+  color:           var(--mc-on-primary);
+  border-radius:   50%;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  box-shadow:      0 4px 16px rgba(0, 94, 164, 0.4);
+}
+
+.mc-identity__body {
+  text-align: center;
+}
+
+// Nombre: grande y contundente como en el mockup (text-4xl tracking-tight)
+.mc-identity__name {
+  font-family:    var(--mc-font-authority);
+  font-size:      2rem;
+  font-weight:    800;
+  color:          var(--mc-on-surface);
+  line-height:    1.15;
+  letter-spacing: -0.02em;
+  margin-bottom:  0.375rem;
+}
+
+// Especialidad: primary, semibold, tracking-wide
+.mc-identity__specialty {
+  font-family:    var(--mc-font-authority);
+  font-size:      1.125rem;
+  font-weight:    600;
+  color:          var(--mc-primary);
+  letter-spacing: 0.02em;
+  margin-bottom:  1rem;
+}
+
+// Pills contenedor
+.mc-identity__pills {
+  display:         flex;
+  flex-wrap:       wrap;
+  justify-content: center;
+  gap:             0.625rem;
+}
+
+// Pills individuales (mockup: px-4 py-1.5 rounded-full font-semibold text-sm)
+.mc-pill {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           0.375rem;
+  padding:       0.375rem 1rem;
+  border-radius: 9999px;
+  font-family:   var(--mc-font-utility);
+  font-size:     0.875rem;
+  font-weight:   700;
+  white-space:   nowrap;
+
+  &--warm {
+    background: var(--mc-tertiary-fixed);
+    color:      var(--mc-on-tertiary-fixed);
+  }
+
+  &--cool {
+    background: var(--mc-secondary-container);
+    color:      var(--mc-on-secondary-container);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// TABS — mockup: gap-8, pb-4, border-b-4, text-lg
+// ══════════════════════════════════════════════════════
+.mc-tabs {
+  display:       flex;
+  gap:           2rem;
+  border-bottom: 1px solid var(--mc-border-ghost);
   margin-bottom: 2rem;
 }
 
-.mc-section__title {
-  font-family:    var(--mc-font-authority);
-  font-size:      1.125rem;
-  font-weight:    700;
-  color:          var(--mc-on-surface);
-  margin-bottom:  1rem;
-  letter-spacing: var(--mc-tracking-headline);
-}
-
-.mc-section__text {
-  font-family: var(--mc-font-utility);
-  font-size:   0.9375rem;
-  color:       var(--mc-secondary);
-  line-height: var(--mc-leading-body);
-}
-
-// ── Grupos de fecha ───────────────────────────────────
-.mc-date-group {
-  margin-bottom: 1.5rem;
-}
-
-.mc-date-group__label {
-  font-family:    var(--mc-font-utility);
-  font-size:      0.75rem;
-  font-weight:    700;
-  color:          var(--mc-outline);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom:  0.75rem;
-}
-
-.mc-date-group__slots {
-  display:   flex;
-  flex-wrap: wrap;
-  gap:       0.5rem;
-}
-
-// ── Chips de horario ──────────────────────────────────
-.mc-time-chip {
-  background:    var(--mc-surface-container-low);
-  color:         var(--mc-on-surface-variant);
-  border:        2px solid var(--mc-border-ghost);
-  border-radius: var(--mc-radius-sm);
-  padding:       0.625rem 1.25rem;
-  font-family:   var(--mc-font-utility);
-  font-size:     0.875rem;
-  font-weight:   600;
+.mc-tabs__item {
+  padding:       1rem 0.5rem;
+  background:    none;
+  border:        none;
+  border-bottom: 4px solid transparent;
+  margin-bottom: -1px;
+  font-family:   var(--mc-font-authority);
+  font-size:     1.125rem;
+  font-weight:   700;
+  color:         var(--mc-outline);
   cursor:        pointer;
-  transition:    all 0.15s;
+  transition:    color 0.2s, border-color 0.2s;
 
-  &:hover {
-    border-color: rgba(0, 94, 164, 0.4);
+  &--active {
     color:        var(--mc-primary);
-  }
-
-  &--selected {
-    background:   var(--mc-primary-fixed);
-    color:        var(--mc-on-primary-fixed);
     border-color: var(--mc-primary);
   }
+
+  &:hover:not(.mc-tabs__item--active) {
+    color: var(--mc-on-surface);
+  }
 }
 
-// ── Estado vacío ──────────────────────────────────────
-.mc-empty-state {
-  text-align: center;
-  padding:    3rem 1.5rem;
-}
-
-.mc-empty-state__icon {
-  font-size: 3rem;
-  color:     var(--mc-outline);
-  margin-bottom: 1rem;
-}
-
-.mc-empty-state__title {
-  font-family: var(--mc-font-authority);
-  font-size:   1.125rem;
-  font-weight: 700;
-  color:       var(--mc-on-surface);
-  margin-bottom: 0.5rem;
-}
-
-.mc-empty-state__desc {
-  font-family: var(--mc-font-utility);
-  font-size:   0.9375rem;
-  color:       var(--mc-secondary);
-}
-
-// ── Barra inferior de reserva ─────────────────────────
-.mc-bottom-bar {
-  position:      fixed;
-  bottom:        4.5rem;
-  left:          0;
-  right:         0;
-  z-index:       100;
-  display:       flex;
-  align-items:   center;
-  justify-content: space-between;
-  gap:           1rem;
-  padding:       1rem 1.5rem;
+// ══════════════════════════════════════════════════════
+// CARDS — mockup: bg-white rounded-lg p-8 shadow
+// ══════════════════════════════════════════════════════
+.mc-card {
   background:    var(--mc-surface-container-lowest);
-  border-top:    1px solid var(--mc-border-ghost);
-  box-shadow:    0 -4px 16px rgba(26, 28, 28, 0.06);
-  max-width:     56rem;
-  margin:        0 auto;
+  border-radius: var(--mc-radius-lg);
+  padding:       2rem;
+  margin-bottom: 1.5rem;
+  box-shadow:    0 8px 32px rgba(0, 0, 0, 0.04);
 }
 
-.mc-bottom-bar__info {
-  display:     flex;
-  align-items: center;
-  gap:         0.5rem;
+.mc-card__heading {
+  font-family:   var(--mc-font-authority);
+  font-size:     1.375rem;
+  font-weight:   700;
+  color:         var(--mc-on-surface);
+  margin-bottom: 1.25rem;
+}
+
+.mc-card__body {
+  font-family:  var(--mc-font-utility);
+  font-size:    1rem;
+  color:        var(--mc-on-surface-variant);
+  line-height:  1.75;
+}
+
+// Grid de celdas dentro de card (mockup: grid-cols-2 gap-4 mt-8)
+.mc-card__grid {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   1rem;
+  margin-top:            2rem;
+}
+
+// ══════════════════════════════════════════════════════
+// CELLS — mockup: flex gap-4 p-4 rounded-lg bg-surface-container-low
+// ══════════════════════════════════════════════════════
+.mc-cell {
+  display:       flex;
+  align-items:   flex-start;
+  gap:           1rem;
+  padding:       1rem 1.25rem;
+  background:    var(--mc-surface-container-low);
+  border-radius: var(--mc-radius-md);
+}
+
+.mc-cell__icon {
+  font-size:   1.5rem;
+  color:       var(--mc-primary);
+  flex-shrink: 0;
+  margin-top:  0.0625rem;
+}
+
+.mc-cell__title {
+  font-family:   var(--mc-font-utility);
+  font-size:     0.8125rem;
+  font-weight:   700;
+  color:         var(--mc-on-surface);
+  margin-bottom: 0.125rem;
+}
+
+.mc-cell__data {
   font-family: var(--mc-font-utility);
+  font-size:   0.875rem;
+  color:       var(--mc-on-surface-variant);
+}
+
+// ══════════════════════════════════════════════════════
+// SCHEDULE — horario semanal con filas alternas
+// ══════════════════════════════════════════════════════
+.mc-schedule {
+  border:        1px solid var(--mc-border-ghost);
+  border-radius: var(--mc-radius-md);
+  overflow:      hidden;
+}
+
+.mc-schedule__row {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         0.875rem 1.25rem;
+  font-family:     var(--mc-font-utility);
+
+  &:nth-child(even) { background: var(--mc-surface-container-low); }
+  &:not(:last-child) { border-bottom: 1px solid var(--mc-border-ghost); }
+}
+
+.mc-schedule__day {
   font-size:   0.9375rem;
   font-weight: 600;
   color:       var(--mc-on-surface);
+}
+
+.mc-schedule__time {
+  font-size:     0.875rem;
+  font-weight:   600;
+  color:         var(--mc-primary);
+  background:    rgba(0, 94, 164, 0.08);
+  padding:       0.3125rem 0.75rem;
+  border-radius: 9999px;
+}
+
+// ══════════════════════════════════════════════════════
+// NEXT SLOT — indicador de proximo turno
+// ══════════════════════════════════════════════════════
+.mc-next-slot {
+  display:       flex;
+  align-items:   center;
+  gap:           1rem;
+  padding:       1.25rem 1.5rem;
+  background:    rgba(5, 150, 105, 0.06);
+  border:        1.5px solid rgba(5, 150, 105, 0.18);
+  border-radius: var(--mc-radius-lg);
+  margin-bottom: 1.5rem;
+}
+
+.mc-next-slot__icon-wrap {
+  width:           2.75rem;
+  height:          2.75rem;
+  background:      rgba(5, 150, 105, 0.12);
+  border-radius:   50%;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  flex-shrink:     0;
 
   .material-symbols-outlined {
-    color:     var(--mc-primary);
-    font-size: 1.25rem;
+    font-size: 1.375rem;
+    color:     #059669;
   }
 }
 
-.mc-bottom-bar__btn {
-  background:    var(--mc-gradient-primary);
+.mc-next-slot__body { flex: 1; }
+
+.mc-next-slot__label {
+  font-family:    var(--mc-font-utility);
+  font-size:      0.6875rem;
+  font-weight:    700;
+  color:          #059669;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom:  0.125rem;
+}
+
+.mc-next-slot__value {
+  font-family: var(--mc-font-authority);
+  font-size:   1rem;
+  font-weight: 700;
+  color:       var(--mc-on-surface);
+}
+
+// ══════════════════════════════════════════════════════
+// LINK BUTTON — ver calendario completo
+// ══════════════════════════════════════════════════════
+.mc-link-btn {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             0.5rem;
+  width:           100%;
+  padding:         1rem;
+  background:      none;
+  border:          none;
+  border-radius:   var(--mc-radius-md);
+  color:           var(--mc-primary);
+  font-family:     var(--mc-font-authority);
+  font-size:       1rem;
+  font-weight:     700;
+  cursor:          pointer;
+  transition:      background 0.15s;
+
+  &:hover  { background: rgba(0, 94, 164, 0.04); }
+  &:active { background: rgba(0, 94, 164, 0.1);  }
+
+  .material-symbols-outlined { font-size: 1.125rem; }
+}
+
+// ══════════════════════════════════════════════════════
+// BOTTOM ACTION BAR — glassmorphism + CTA prominente
+// Mockup: bg-surface/90 backdrop-blur-xl py-6 px-6
+// ══════════════════════════════════════════════════════
+.mc-action-bar {
+  position:   fixed;
+  bottom:     4.5rem;
+  left:       0;
+  right:      0;
+  z-index:    100;
+  background: rgba(249, 249, 249, 0.9);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid var(--mc-border-ghost);
+  padding:    1.25rem 1.5rem;
+}
+
+.mc-action-bar__inner {
+  max-width:       56rem;
+  margin:          0 auto;
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  gap:             1rem;
+}
+
+.mc-action-bar__meta {
+  flex: 1;
+  overflow: hidden;
+}
+
+.mc-action-bar__meta-label {
+  font-family:    var(--mc-font-utility);
+  font-size:      0.6875rem;
+  font-weight:    700;
+  color:          var(--mc-outline);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mc-action-bar__meta-value {
+  font-family:   var(--mc-font-authority);
+  font-size:     0.9375rem;
+  font-weight:   700;
+  color:         var(--mc-on-surface);
+  white-space:   nowrap;
+  text-overflow: ellipsis;
+  overflow:      hidden;
+}
+
+// CTA button (mockup: px-12 py-4 rounded-xl text-lg gradient shadow)
+.mc-action-bar__cta {
+  background:    linear-gradient(135deg, var(--mc-primary) 0%, var(--mc-primary-container) 100%);
   color:         var(--mc-on-primary);
   border:        none;
   border-radius: var(--mc-radius-md);
-  padding:       0.875rem 2rem;
+  padding:       1rem 2.5rem;
   font-family:   var(--mc-font-authority);
-  font-size:     1rem;
+  font-size:     1.0625rem;
   font-weight:   700;
   cursor:        pointer;
-  box-shadow:    0 8px 32px rgba(0, 94, 164, 0.15);
   white-space:   nowrap;
-  transition:    filter 0.15s, transform 0.1s;
+  box-shadow:    0 12px 24px rgba(0, 94, 164, 0.3);
+  transition:    transform 0.1s;
+  flex-shrink:   0;
 
-  &:hover  { filter: brightness(1.1); }
-  &:active { transform: scale(0.97); }
+  &:hover  { transform: scale(0.99);  }
+  &:active { transform: scale(0.96);  }
 }
 
-// ── Skeleton de carga ─────────────────────────────────
+// ══════════════════════════════════════════════════════
+// SKELETONS
+// ══════════════════════════════════════════════════════
 .mc-skeleton {
   background:    var(--mc-surface-container);
   border-radius: var(--mc-radius-lg);
   animation:     mc-pulse 1.4s ease-in-out infinite;
 
-  &--profile { height: 12rem; margin-bottom: 2rem; }
-  &--slots   { height: 20rem; }
+  &--identity { height: 20rem; margin-bottom: 1rem; }
+  &--tabs     { height: 3.5rem; margin-bottom: 2rem; }
+  &--card     { height: 18rem; }
 }
 
 @keyframes mc-pulse {
-  0%, 100% { opacity: 1; }
+  0%, 100% { opacity: 1;   }
   50%      { opacity: 0.4; }
 }
 
-// ── Responsivo ────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// RESPONSIVE
+// ══════════════════════════════════════════════════════
 @media (max-width: 480px) {
-  .mc-profile {
-    flex-direction: column;
-    align-items:    center;
-    text-align:     center;
-  }
-
-  .mc-profile__meta {
-    justify-content: center;
-  }
+  .mc-avatar-hero { width: 7.5rem; height: 7.5rem; font-size: 2rem; }
+  .mc-identity__name { font-size: 1.625rem; }
+  .mc-card { padding: 1.5rem; }
+  .mc-card__grid { grid-template-columns: 1fr; }
+  .mc-action-bar__meta { display: none; }
+  .mc-action-bar__cta { width: 100%; text-align: center; }
 }
+
