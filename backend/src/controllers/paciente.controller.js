@@ -199,4 +199,208 @@ async function getEspecialidadesConBadge(req, res) {
   }
 }
 
-module.exports = { getDashboard, getEspecialidadesConBadge, getProfesionalesPorEspecialidad };
+/**
+ * GET /api/paciente/medico/:idMedico
+ * Detalle de un médico: datos personales, especialidad, experiencia y próximas disponibilidades.
+ */
+async function getDetalleMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idMedico  = parseInt(req.params.idMedico, 10);
+
+  if (isNaN(idUsuario) || isNaN(idMedico) || idMedico < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  try {
+    const medicoResult = await pool.query(
+      `SELECT m.id_medico, u.nombre, u.apellido, m.anios_experiencia, m.numero_registro,
+              e.id_especialidad, e.nombre_especialidad, e.descripcion AS descripcion_especialidad
+       FROM   medicos m
+       JOIN   usuarios u ON m.id_usuario = u.id_usuario
+       JOIN   especialidades e ON m.id_especialidad = e.id_especialidad
+       WHERE  m.id_medico = $1 AND m.estado = 'activo'`,
+      [idMedico]
+    );
+
+    if (medicoResult.rowCount === 0) {
+      return res.status(404).json({ message: 'Médico no encontrado.' });
+    }
+
+    // Próximas disponibilidades (máximo 10 slots futuros)
+    const dispResult = await pool.query(
+      `SELECT id_disponibilidad, fecha::text, hora_inicio::text, hora_fin::text
+       FROM   disponibilidad_medica
+       WHERE  id_medico = $1 AND fecha >= CURRENT_DATE AND estado = 'disponible'
+       ORDER  BY fecha ASC, hora_inicio ASC
+       LIMIT  10`,
+      [idMedico]
+    );
+
+    const unreadResult = await pool.query(
+      `SELECT COUNT(*) AS total FROM notificaciones WHERE id_usuario = $1 AND leida = FALSE`,
+      [idUsuario]
+    );
+
+    return res.json({
+      medico:          medicoResult.rows[0],
+      disponibilidad:  dispResult.rows,
+      noLeidas:        parseInt(unreadResult.rows[0].total, 10),
+    });
+  } catch (err) {
+    console.error('Error en getDetalleMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * GET /api/paciente/medico/:idMedico/disponibilidad
+ * Disponibilidad completa de un médico agrupada por fecha para la vista de calendario.
+ */
+async function getDisponibilidadMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idMedico  = parseInt(req.params.idMedico, 10);
+
+  if (isNaN(idUsuario) || isNaN(idMedico) || idMedico < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  try {
+    // Info básica del médico para el resumen
+    const medicoResult = await pool.query(
+      `SELECT m.id_medico, u.nombre, u.apellido,
+              e.id_especialidad, e.nombre_especialidad
+       FROM   medicos m
+       JOIN   usuarios u ON m.id_usuario = u.id_usuario
+       JOIN   especialidades e ON m.id_especialidad = e.id_especialidad
+       WHERE  m.id_medico = $1 AND m.estado = 'activo'`,
+      [idMedico]
+    );
+
+    if (medicoResult.rowCount === 0) {
+      return res.status(404).json({ message: 'Médico no encontrado.' });
+    }
+
+    // Todos los slots disponibles futuros
+    const dispResult = await pool.query(
+      `SELECT id_disponibilidad, fecha::text, hora_inicio::text, hora_fin::text
+       FROM   disponibilidad_medica
+       WHERE  id_medico = $1 AND fecha >= CURRENT_DATE AND estado = 'disponible'
+       ORDER  BY fecha ASC, hora_inicio ASC`,
+      [idMedico]
+    );
+
+    const unreadResult = await pool.query(
+      `SELECT COUNT(*) AS total FROM notificaciones WHERE id_usuario = $1 AND leida = FALSE`,
+      [idUsuario]
+    );
+
+    return res.json({
+      medico:         medicoResult.rows[0],
+      disponibilidad: dispResult.rows,
+      noLeidas:       parseInt(unreadResult.rows[0].total, 10),
+    });
+  } catch (err) {
+    console.error('Error en getDisponibilidadMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * POST /api/paciente/reservar
+ * Crea una cita médica para el paciente autenticado.
+ * Valida que el slot de disponibilidad esté libre y lo marca como reservado dentro de una transacción.
+ */
+async function crearCitaPaciente(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  const { id_medico, id_especialidad, id_disponibilidad, modalidad, motivo_consulta } = req.body;
+
+  // Validación básica de campos requeridos
+  const idMedico  = parseInt(id_medico, 10);
+  const idEsp     = parseInt(id_especialidad, 10);
+  const idDisp    = parseInt(id_disponibilidad, 10);
+
+  if (isNaN(idMedico) || isNaN(idEsp) || isNaN(idDisp)) {
+    return res.status(400).json({ message: 'Parámetros numéricos inválidos.' });
+  }
+  if (!['presencial', 'telemedicina'].includes(modalidad)) {
+    return res.status(400).json({ message: 'Modalidad inválida.' });
+  }
+  if (!motivo_consulta || typeof motivo_consulta !== 'string' || motivo_consulta.trim().length < 3 || motivo_consulta.length > 255) {
+    return res.status(400).json({ message: 'Motivo de consulta inválido.' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Obtener paciente del usuario autenticado
+    const pacResult = await client.query(
+      'SELECT id_paciente FROM pacientes WHERE id_usuario = $1',
+      [idUsuario]
+    );
+    if (pacResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ message: 'Paciente no encontrado.' });
+    }
+    const idPaciente = pacResult.rows[0].id_paciente;
+
+    // Bloquear fila de disponibilidad para evitar doble reserva (race condition)
+    const dispResult = await client.query(
+      `SELECT id_disponibilidad, fecha::text, hora_inicio::text
+       FROM   disponibilidad_medica
+       WHERE  id_disponibilidad = $1 AND id_medico = $2 AND estado = 'disponible'
+       FOR UPDATE`,
+      [idDisp, idMedico]
+    );
+
+    if (dispResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ message: 'El horario seleccionado ya no está disponible.' });
+    }
+
+    const slot = dispResult.rows[0];
+
+    // Marcar slot como reservado
+    await client.query(
+      `UPDATE disponibilidad_medica SET estado = 'reservada' WHERE id_disponibilidad = $1`,
+      [idDisp]
+    );
+
+    // Crear cita médica
+    const citaResult = await client.query(
+      `INSERT INTO citas_medicas (
+         id_paciente, id_medico, id_especialidad, id_disponibilidad,
+         modalidad, fecha_cita, hora_cita, estado_cita, motivo_consulta,
+         es_invitado
+       ) VALUES ($1, $2, $3, $4, $5, $6::date, $7::time, 'pendiente', $8, FALSE)
+       RETURNING id_cita`,
+      [idPaciente, idMedico, idEsp, idDisp, modalidad.trim(), slot.fecha, slot.hora_inicio, motivo_consulta.trim()]
+    );
+
+    // Crear notificación de confirmación
+    await client.query(
+      `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+       VALUES ($1, 'Cita reservada', 'Tu cita médica fue registrada correctamente.', 'confirmacion', FALSE)`,
+      [idUsuario]
+    );
+
+    await client.query('COMMIT');
+
+    return res.status(201).json({
+      message: 'Cita reservada correctamente.',
+      id_cita: citaResult.rows[0].id_cita,
+    });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error en crearCitaPaciente:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  } finally {
+    client.release();
+  }
+}
+
+module.exports = { getDashboard, getEspecialidadesConBadge, getProfesionalesPorEspecialidad, getDetalleMedico, getDisponibilidadMedico, crearCitaPaciente };

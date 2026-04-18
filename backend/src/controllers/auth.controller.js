@@ -75,12 +75,36 @@ async function register(req, res) {
       });
     }
 
-    // crypt($4, gen_salt('bf', 12)): hashea con bcrypt (blowfish, 12 rondas)
-    await pool.query(
-      `INSERT INTO usuarios (nombre, apellido, correo, contrasena_hash, telefono, estado, id_rol)
-       VALUES ($1, $2, $3, crypt($4, gen_salt('bf', 12)), $5, 'activo', 2)`,
-      [nombre, apellido, correo, password, telefono ?? null]
-    );
+    // Transacción: crea usuario + perfil de paciente juntos
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // crypt($4, gen_salt('bf', 12)): hashea con bcrypt (blowfish, 12 rondas)
+      const userResult = await client.query(
+        `INSERT INTO usuarios (nombre, apellido, correo, contrasena_hash, telefono, estado, id_rol)
+         VALUES ($1, $2, $3, crypt($4, gen_salt('bf', 12)), $5, 'activo', 2)
+         RETURNING id_usuario`,
+        [nombre, apellido, correo, password, telefono ?? null]
+      );
+
+      const idUsuario = userResult.rows[0].id_usuario;
+      // rut provisional único hasta que el paciente complete su perfil
+      const rutTemp = `USR-${idUsuario}`;
+
+      await client.query(
+        `INSERT INTO pacientes (id_usuario, rut, fecha_nacimiento)
+         VALUES ($1, $2, '2000-01-01')`,
+        [idUsuario, rutTemp]
+      );
+
+      await client.query('COMMIT');
+    } catch (txErr) {
+      await client.query('ROLLBACK');
+      throw txErr;
+    } finally {
+      client.release();
+    }
 
     return res.status(201).json({ message: 'Cuenta creada exitosamente.' });
   } catch (err) {
