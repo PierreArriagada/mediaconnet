@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { requireAuth, requireRole } = require('../middleware/auth.middleware');
-const { getDashboard } = require('../controllers/paciente.controller');
+const { getDashboard, getEspecialidadesConBadge } = require('../controllers/paciente.controller');
 
 const router = Router();
 
@@ -9,5 +9,6 @@ router.use(requireAuth);
 router.use(requireRole('Paciente'));
 
 router.get('/dashboard', getDashboard);
+router.get('/especialidades', getEspecialidadesConBadge);
 
 module.exports = router;
