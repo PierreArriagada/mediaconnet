@@ -30,6 +30,17 @@ export interface DashboardData {
   noLeidas:       number;
 }
 
+export interface Especialidad {
+  id_especialidad:     number;
+  nombre_especialidad: string;
+  descripcion:         string;
+}
+
+export interface EspecialidadesData {
+  especialidades: Especialidad[];
+  noLeidas:       number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PacienteService {
   private readonly http = inject(HttpClient);
@@ -37,5 +48,9 @@ export class PacienteService {
 
   getDashboard(): Observable<DashboardData> {
     return this.http.get<DashboardData>(`${this.API}/dashboard`);
+  }
+
+  getEspecialidades(): Observable<EspecialidadesData> {
+    return this.http.get<EspecialidadesData>(`${this.API}/especialidades`);
   }
 }
