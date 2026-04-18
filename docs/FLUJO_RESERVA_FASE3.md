@@ -83,3 +83,9 @@
 ### Flujo completo de navegación
 * Especialidades → Profesionales → **Detalle Profesional** (info) → **Elegir Horario** (selección) → **Confirmar Reserva** (formulario) → Home (tras éxito)
 * El flujo es congruente: primero se consulta la información del profesional, luego se selecciona el horario deseado y finalmente se confirma la reserva.
+
+
+### Actualizaciones UI: Confirmar Reserva
+* **Qué se realizó:** Rediseño completo de la vista de confirmar reserva adoptando el estilo moderno en cuadrícula (Bento UI) basado en la referencia HTML.
+* **Qué se modificó:** Reestructuración semántica del HTML en dos columnas para dispositivos grandes separando el contenido editorial y de resumen de los controles de formulario; actualización exhaustiva en SCSS aplicando tokens (\--mc-*\) para sombras profundas, avatares más grandes, tipografías marcadas y componentes de entrada refinados.
+
