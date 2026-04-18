@@ -1,0 +1,326 @@
+// Elegir Horario — calendario mensual + selector de bloques horarios.
+// Tokens visuales: theme/variables.scss (--mc-*).
+
+ion-content {
+  --padding-bottom: 0;
+  --padding-top:    0;
+}
+
+// ── Contenedor principal ──────────────────────────────
+.mc-main {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 10rem;
+}
+
+// ── Botón volver ──────────────────────────────────────
+.mc-back-btn {
+  display:     inline-flex;
+  align-items: center;
+  gap:         0.375rem;
+  color:       var(--mc-primary);
+  font-family: var(--mc-font-utility);
+  font-size:   0.9375rem;
+  font-weight: 600;
+  background:  none;
+  border:      none;
+  padding:     0.5rem 0;
+  cursor:      pointer;
+  margin-bottom: 1.5rem;
+  transition:  opacity 0.15s;
+
+  &:hover  { opacity: 0.75; }
+  &:active { opacity: 0.5; }
+
+  .material-symbols-outlined { font-size: 1.25rem; }
+}
+
+// ── Contexto del médico (mini tarjeta) ────────────────
+.mc-doctor-context {
+  display:       flex;
+  align-items:   center;
+  gap:           1rem;
+  padding:       1.25rem 1.5rem;
+  background:    var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  border:        1px solid var(--mc-border-ghost);
+  margin-bottom: 2rem;
+}
+
+.mc-doctor-context__name {
+  font-family: var(--mc-font-authority);
+  font-size:   1rem;
+  font-weight: 700;
+  color:       var(--mc-on-surface);
+  line-height: 1.3;
+}
+
+.mc-doctor-context__specialty {
+  font-family: var(--mc-font-utility);
+  font-size:   0.8125rem;
+  color:       var(--mc-secondary);
+}
+
+// ── Avatar ────────────────────────────────────────────
+.mc-avatar {
+  border-radius:   50%;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  font-family:     var(--mc-font-authority);
+  font-weight:     700;
+  flex-shrink:     0;
+  border:          3px solid var(--mc-surface-container-low);
+
+  &--sm {
+    width:     3.5rem;
+    height:    3.5rem;
+    font-size: 1.125rem;
+  }
+
+  &--primary   { background: rgba(0, 94, 164, 0.1);       color: var(--mc-primary);   }
+  &--tertiary  { background: var(--mc-tertiary-fixed);     color: var(--mc-tertiary);  }
+  &--secondary { background: var(--mc-secondary-container); color: var(--mc-secondary); }
+}
+
+// ── Encabezado ────────────────────────────────────────
+.mc-heading {
+  font-family:    var(--mc-font-authority);
+  font-size:      clamp(1.75rem, 5vw, 2.25rem);
+  font-weight:    800;
+  color:          var(--mc-on-surface);
+  line-height:    1.1;
+  letter-spacing: var(--mc-tracking-headline);
+  margin-bottom:  0.5rem;
+}
+
+.mc-subtitle {
+  font-family:   var(--mc-font-utility);
+  font-size:     1rem;
+  color:         var(--mc-secondary);
+  line-height:   var(--mc-leading-body);
+  margin-bottom: 2rem;
+}
+
+// ── Calendario mensual ───────────────────────────────
+.mc-calendar {
+  background:    var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  border:        1px solid var(--mc-border-ghost);
+  padding:       1.5rem;
+  margin-bottom: 2rem;
+}
+
+.mc-calendar__nav {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   1.25rem;
+}
+
+.mc-calendar__arrow {
+  background:    none;
+  border:        none;
+  color:         var(--mc-primary);
+  cursor:        pointer;
+  padding:       0.25rem;
+  border-radius: var(--mc-radius-sm);
+  transition:    background 0.15s;
+
+  &:hover { background: var(--mc-surface-container-low); }
+
+  .material-symbols-outlined { font-size: 1.5rem; }
+}
+
+.mc-calendar__month {
+  font-family: var(--mc-font-authority);
+  font-size:   1.125rem;
+  font-weight: 700;
+  color:       var(--mc-on-surface);
+}
+
+.mc-calendar__grid {
+  display:               grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap:                   0.25rem;
+  text-align:            center;
+}
+
+.mc-calendar__weekday {
+  font-family:    var(--mc-font-utility);
+  font-size:      0.6875rem;
+  font-weight:    700;
+  color:          var(--mc-outline);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding:        0.5rem 0;
+}
+
+.mc-calendar__day {
+  aspect-ratio:  1;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  border-radius: 50%;
+  font-family:   var(--mc-font-utility);
+  font-size:     0.875rem;
+  font-weight:   500;
+  border:        none;
+  background:    none;
+  color:         var(--mc-on-surface);
+  cursor:        default;
+  transition:    all 0.15s;
+
+  &--fuera {
+    color:   var(--mc-outline);
+    opacity: 0.4;
+  }
+
+  &--hoy {
+    font-weight: 700;
+    box-shadow:  inset 0 0 0 2px var(--mc-primary);
+  }
+
+  &--disponible {
+    cursor:     pointer;
+    font-weight: 600;
+    color:      var(--mc-primary);
+    background: rgba(0, 94, 164, 0.08);
+
+    &:hover {
+      background: rgba(0, 94, 164, 0.15);
+    }
+  }
+
+  &--selected {
+    background: var(--mc-primary) !important;
+    color:      var(--mc-on-primary) !important;
+    font-weight: 700;
+  }
+
+  &:disabled:not(.mc-calendar__day--disponible) {
+    cursor: default;
+  }
+}
+
+// ── Slots del día seleccionado ────────────────────────
+.mc-slots-section {
+  margin-bottom: 2rem;
+}
+
+.mc-slots-section__title {
+  font-family:   var(--mc-font-authority);
+  font-size:     1.125rem;
+  font-weight:   700;
+  color:         var(--mc-on-surface);
+  margin-bottom: 1rem;
+}
+
+.mc-slots-group-label {
+  font-family:    var(--mc-font-utility);
+  font-size:      0.6875rem;
+  font-weight:    700;
+  color:          var(--mc-outline);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom:  0.625rem;
+  margin-top:     1rem;
+}
+
+.mc-slots-row {
+  display:   flex;
+  flex-wrap: wrap;
+  gap:       0.5rem;
+}
+
+// ── Chips de horario ──────────────────────────────────
+.mc-time-chip {
+  background:    var(--mc-surface-container-low);
+  color:         var(--mc-on-surface-variant);
+  border:        2px solid var(--mc-border-ghost);
+  border-radius: var(--mc-radius-sm);
+  padding:       0.625rem 1.25rem;
+  font-family:   var(--mc-font-utility);
+  font-size:     0.875rem;
+  font-weight:   600;
+  cursor:        pointer;
+  transition:    all 0.15s;
+
+  &:hover {
+    border-color: rgba(0, 94, 164, 0.4);
+    color:        var(--mc-primary);
+  }
+
+  &--selected {
+    background:   var(--mc-primary-fixed);
+    color:        var(--mc-on-primary-fixed);
+    border-color: var(--mc-primary);
+  }
+}
+
+// ── Barra inferior confirmar ──────────────────────────
+.mc-bottom-bar {
+  position:        fixed;
+  bottom:          4.5rem;
+  left:            0;
+  right:           0;
+  z-index:         100;
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  gap:             1rem;
+  padding:         1rem 1.5rem;
+  background:      var(--mc-surface-container-lowest);
+  border-top:      1px solid var(--mc-border-ghost);
+  box-shadow:      0 -4px 16px rgba(26, 28, 28, 0.06);
+  max-width:       56rem;
+  margin:          0 auto;
+}
+
+.mc-bottom-bar__info {
+  display:     flex;
+  align-items: center;
+  gap:         0.5rem;
+  font-family: var(--mc-font-utility);
+  font-size:   0.9375rem;
+  font-weight: 600;
+  color:       var(--mc-on-surface);
+
+  .material-symbols-outlined {
+    color:     var(--mc-primary);
+    font-size: 1.25rem;
+  }
+}
+
+.mc-bottom-bar__btn {
+  background:    var(--mc-gradient-primary);
+  color:         var(--mc-on-primary);
+  border:        none;
+  border-radius: var(--mc-radius-md);
+  padding:       0.875rem 2rem;
+  font-family:   var(--mc-font-authority);
+  font-size:     1rem;
+  font-weight:   700;
+  cursor:        pointer;
+  box-shadow:    0 8px 32px rgba(0, 94, 164, 0.15);
+  white-space:   nowrap;
+  transition:    filter 0.15s, transform 0.1s;
+
+  &:hover  { filter: brightness(1.1); }
+  &:active { transform: scale(0.97); }
+}
+
+// ── Skeleton ──────────────────────────────────────────
+.mc-skeleton {
+  background:    var(--mc-surface-container);
+  border-radius: var(--mc-radius-lg);
+  animation:     mc-pulse 1.4s ease-in-out infinite;
+
+  &--card     { height: 5rem; margin-bottom: 2rem; }
+  &--calendar { height: 22rem; }
+}
+
+@keyframes mc-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}

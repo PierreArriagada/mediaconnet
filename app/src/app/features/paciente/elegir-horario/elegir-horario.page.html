@@ -1,0 +1,140 @@
+<ion-content>
+
+  <!-- ===== HEADER ===== -->
+  <app-paciente-header [userName]="userName" [noLeidas]="noLeidas"></app-paciente-header>
+
+  <main class="mc-main">
+
+    <!-- Botón volver -->
+    <button class="mc-back-btn" (click)="volver()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Volver
+    </button>
+
+    <!-- Skeleton -->
+    @if (isLoading) {
+      <div class="mc-skeleton mc-skeleton--card"></div>
+      <div class="mc-skeleton mc-skeleton--calendar"></div>
+    }
+
+    @if (!isLoading && data) {
+
+      <!-- Contexto del médico -->
+      <div class="mc-doctor-context">
+        <div class="mc-avatar mc-avatar--sm mc-avatar--{{ temaAvatar(data.medico.id_medico) }}">
+          {{ iniciales(data.medico.nombre, data.medico.apellido) }}
+        </div>
+        <div class="mc-doctor-context__info">
+          <p class="mc-doctor-context__name">
+            {{ titulo(data.medico.nombre) }} {{ data.medico.nombre }} {{ data.medico.apellido }}
+          </p>
+          <p class="mc-doctor-context__specialty">{{ data.medico.nombre_especialidad }}</p>
+        </div>
+      </div>
+
+      <!-- Encabezado -->
+      <h1 class="mc-heading">Elige un horario</h1>
+      <p class="mc-subtitle">Selecciona un día con disponibilidad y luego el bloque horario.</p>
+
+      <!-- Calendario mensual -->
+      <section class="mc-calendar">
+        <div class="mc-calendar__nav">
+          <button class="mc-calendar__arrow" (click)="mesAnterior()" aria-label="Mes anterior">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <span class="mc-calendar__month">{{ nombreMes() }}</span>
+          <button class="mc-calendar__arrow" (click)="mesSiguiente()" aria-label="Mes siguiente">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+
+        <div class="mc-calendar__grid">
+          @for (dia of diasSemana; track dia) {
+            <span class="mc-calendar__weekday">{{ dia }}</span>
+          }
+          @for (dia of diasCalendario(); track dia.fecha) {
+            <button
+              class="mc-calendar__day"
+              [class.mc-calendar__day--fuera]="dia.fuera"
+              [class.mc-calendar__day--hoy]="dia.hoy"
+              [class.mc-calendar__day--disponible]="dia.disponible"
+              [class.mc-calendar__day--selected]="fechaSeleccionada() === dia.fecha"
+              [disabled]="!dia.disponible"
+              (click)="seleccionarFecha(dia)"
+            >
+              {{ dia.dia }}
+            </button>
+          }
+        </div>
+      </section>
+
+      <!-- Slots del día seleccionado -->
+      @if (fechaSeleccionada()) {
+        <section class="mc-slots-section">
+          <h2 class="mc-slots-section__title">
+            Horarios del {{ formatFechaCorta(fechaSeleccionada()) }}
+          </h2>
+
+          @if (slotsManana().length) {
+            <p class="mc-slots-group-label">Mañana</p>
+            <div class="mc-slots-row">
+              @for (slot of slotsManana(); track slot.id_disponibilidad) {
+                <button
+                  class="mc-time-chip"
+                  [class.mc-time-chip--selected]="slotSeleccionado()?.id_disponibilidad === slot.id_disponibilidad"
+                  (click)="seleccionarSlot(slot)"
+                >
+                  {{ formatHora(slot.hora_inicio) }}
+                </button>
+              }
+            </div>
+          }
+
+          @if (slotsTarde().length) {
+            <p class="mc-slots-group-label">Tarde</p>
+            <div class="mc-slots-row">
+              @for (slot of slotsTarde(); track slot.id_disponibilidad) {
+                <button
+                  class="mc-time-chip"
+                  [class.mc-time-chip--selected]="slotSeleccionado()?.id_disponibilidad === slot.id_disponibilidad"
+                  (click)="seleccionarSlot(slot)"
+                >
+                  {{ formatHora(slot.hora_inicio) }}
+                </button>
+              }
+            </div>
+          }
+        </section>
+      }
+
+    }
+
+  </main>
+
+  <!-- Barra inferior confirmar -->
+  @if (slotSeleccionado()) {
+    <div class="mc-bottom-bar">
+      <div class="mc-bottom-bar__info">
+        <span class="material-symbols-outlined">schedule</span>
+        <span>{{ formatFechaCorta(slotSeleccionado()!.fecha) }} · {{ formatHora(slotSeleccionado()!.hora_inicio) }}</span>
+      </div>
+      <button class="mc-bottom-bar__btn" (click)="confirmarCita()">
+        Confirmar cita
+      </button>
+    </div>
+  }
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <app-paciente-bottom-nav activeTab="reservar"></app-paciente-bottom-nav>
+
+  <!-- Toast error -->
+  <ion-toast
+    [isOpen]="showError"
+    [message]="errorMsg"
+    [duration]="3000"
+    color="danger"
+    position="bottom"
+    (didDismiss)="showError = false"
+  ></ion-toast>
+
+</ion-content>
