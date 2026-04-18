@@ -201,7 +201,8 @@ async function getEspecialidadesConBadge(req, res) {
 
 /**
  * GET /api/paciente/medico/:idMedico
- * Detalle de un médico: datos personales, especialidad, experiencia y próximas disponibilidades.
+ * Perfil enriquecido del médico: bio, valoraciones, horario de atención semanal,
+ * próximo slot disponible y total de consultas realizadas.
  */
 async function getDetalleMedico(req, res) {
   const idUsuario = parseInt(req.user.id, 10);
@@ -214,6 +215,7 @@ async function getDetalleMedico(req, res) {
   try {
     const medicoResult = await pool.query(
       `SELECT m.id_medico, u.nombre, u.apellido, m.anios_experiencia, m.numero_registro,
+              m.biografia, m.valoracion_promedio, m.total_valoraciones,
               e.id_especialidad, e.nombre_especialidad, e.descripcion AS descripcion_especialidad
        FROM   medicos m
        JOIN   usuarios u ON m.id_usuario = u.id_usuario
@@ -226,13 +228,35 @@ async function getDetalleMedico(req, res) {
       return res.status(404).json({ message: 'Médico no encontrado.' });
     }
 
-    // Próximas disponibilidades (máximo 10 slots futuros)
-    const dispResult = await pool.query(
-      `SELECT id_disponibilidad, fecha::text, hora_inicio::text, hora_fin::text
+    // Horario de atención semanal (días y rango de horas por día)
+    const scheduleResult = await pool.query(
+      `SELECT
+         EXTRACT(ISODOW FROM fecha)::int AS dia_semana,
+         MIN(hora_inicio::text) AS hora_inicio,
+         MAX(hora_fin::text) AS hora_fin
+       FROM   disponibilidad_medica
+       WHERE  id_medico = $1 AND fecha >= CURRENT_DATE
+         AND  estado IN ('disponible', 'reservada')
+       GROUP  BY EXTRACT(ISODOW FROM fecha)
+       ORDER  BY dia_semana`,
+      [idMedico]
+    );
+
+    // Próximo slot disponible
+    const nextSlotResult = await pool.query(
+      `SELECT fecha::text, hora_inicio::text, hora_fin::text
        FROM   disponibilidad_medica
        WHERE  id_medico = $1 AND fecha >= CURRENT_DATE AND estado = 'disponible'
        ORDER  BY fecha ASC, hora_inicio ASC
-       LIMIT  10`,
+       LIMIT  1`,
+      [idMedico]
+    );
+
+    // Total de consultas realizadas por este médico
+    const consultasResult = await pool.query(
+      `SELECT COUNT(*) AS total
+       FROM   citas_medicas
+       WHERE  id_medico = $1 AND estado_cita IN ('completada', 'confirmada')`,
       [idMedico]
     );
 
@@ -243,7 +267,9 @@ async function getDetalleMedico(req, res) {
 
     return res.json({
       medico:          medicoResult.rows[0],
-      disponibilidad:  dispResult.rows,
+      horarioAtencion: scheduleResult.rows,
+      proximoSlot:     nextSlotResult.rows[0] ?? null,
+      totalConsultas:  parseInt(consultasResult.rows[0].total, 10),
       noLeidas:        parseInt(unreadResult.rows[0].total, 10),
     });
   } catch (err) {
