@@ -41,6 +41,29 @@ export interface EspecialidadesData {
   noLeidas:       number;
 }
 
+export interface DisponibilidadSlot {
+  id_disponibilidad: number;
+  id_medico:         number;
+  fecha:             string;
+  hora_inicio:       string;
+  hora_fin:          string;
+}
+
+export interface MedicoProfesional {
+  id_medico:         number;
+  nombre:            string;
+  apellido:          string;
+  anios_experiencia: number;
+  numero_registro:   string;
+  disponibilidad:    DisponibilidadSlot[];
+}
+
+export interface ProfesionalesData {
+  especialidad: Especialidad;
+  medicos:      MedicoProfesional[];
+  noLeidas:     number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PacienteService {
   private readonly http = inject(HttpClient);
@@ -52,5 +75,9 @@ export class PacienteService {
 
   getEspecialidades(): Observable<EspecialidadesData> {
     return this.http.get<EspecialidadesData>(`${this.API}/especialidades`);
+  }
+
+  getProfesionales(idEspecialidad: number): Observable<ProfesionalesData> {
+    return this.http.get<ProfesionalesData>(`${this.API}/profesionales/${idEspecialidad}`);
   }
 }
