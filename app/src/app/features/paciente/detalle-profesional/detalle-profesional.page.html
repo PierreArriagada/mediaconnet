@@ -5,96 +5,168 @@
 
   <main class="mc-main">
 
-    <!-- Botón volver -->
+    <!-- Boton volver -->
     <button class="mc-back-btn" (click)="volver()">
       <span class="material-symbols-outlined">arrow_back</span>
-      Volver
     </button>
 
     <!-- Skeleton de carga -->
     @if (isLoading) {
-      <div class="mc-skeleton mc-skeleton--profile"></div>
-      <div class="mc-skeleton mc-skeleton--slots"></div>
+      <div class="mc-skeleton mc-skeleton--identity"></div>
+      <div class="mc-skeleton mc-skeleton--tabs"></div>
+      <div class="mc-skeleton mc-skeleton--card"></div>
     }
 
     @if (!isLoading && data) {
 
-      <!-- Perfil del profesional -->
-      <section class="mc-profile">
-        <div class="mc-profile__avatar mc-avatar mc-avatar--{{ temaAvatar(data.medico.id_medico) }}">
-          {{ iniciales(data.medico.nombre, data.medico.apellido) }}
+      <!-- ═══ IDENTITY HEADER ═══ -->
+      <header class="mc-identity">
+        <div class="mc-identity__avatar-wrap">
+          <div class="mc-avatar-hero mc-avatar-hero--{{ temaAvatar(data.medico.id_medico) }}">
+            {{ iniciales(data.medico.nombre, data.medico.apellido) }}
+          </div>
+          <div class="mc-identity__badge">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 1.25rem;">verified</span>
+          </div>
         </div>
-        <div class="mc-profile__info">
-          <h1 class="mc-profile__name">
+        <div class="mc-identity__body">
+          <h1 class="mc-identity__name">
             {{ titulo(data.medico.nombre) }} {{ data.medico.nombre }} {{ data.medico.apellido }}
           </h1>
-          <p class="mc-profile__specialty">{{ data.medico.nombre_especialidad }}</p>
-          <div class="mc-profile__meta">
-            <span class="mc-profile__badge">
-              <span class="material-symbols-outlined">badge</span>
-              {{ data.medico.numero_registro }}
+          <p class="mc-identity__specialty">{{ data.medico.nombre_especialidad }}</p>
+          <div class="mc-identity__pills">
+            <span class="mc-pill mc-pill--warm">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 0.875rem;">star</span>
+              {{ data.medico.valoracion_promedio }} ({{ data.medico.total_valoraciones }} Resenas)
             </span>
-            <span class="mc-profile__badge">
-              <span class="material-symbols-outlined">work_history</span>
-              {{ data.medico.anios_experiencia }} año{{ data.medico.anios_experiencia !== 1 ? 's' : '' }}
+            <span class="mc-pill mc-pill--cool">
+              <span class="material-symbols-outlined" style="font-size: 0.875rem;">history</span>
+              {{ data.medico.anios_experiencia }} anos exp.
             </span>
           </div>
         </div>
-      </section>
+      </header>
 
-      <!-- Descripción de especialidad -->
-      @if (data.medico.descripcion_especialidad) {
-        <section class="mc-section">
-          <h2 class="mc-section__title">Acerca de la especialidad</h2>
-          <p class="mc-section__text">{{ data.medico.descripcion_especialidad }}</p>
+      <!-- ═══ TABS ═══ -->
+      <nav class="mc-tabs">
+        <button
+          class="mc-tabs__item"
+          [class.mc-tabs__item--active]="activeTab === 'info'"
+          (click)="activeTab = 'info'">
+          Informacion
+        </button>
+        <button
+          class="mc-tabs__item"
+          [class.mc-tabs__item--active]="activeTab === 'disponibilidad'"
+          (click)="activeTab = 'disponibilidad'">
+          Disponibilidad
+        </button>
+      </nav>
+
+      <!-- ═══ TAB: INFORMACION ═══ -->
+      @if (activeTab === 'info') {
+
+        <!-- Sobre el profesional -->
+        @if (data.medico.biografia) {
+          <section class="mc-card">
+            <h2 class="mc-card__heading">Sobre el Profesional</h2>
+            <p class="mc-card__body">{{ data.medico.biografia }}</p>
+            <div class="mc-card__grid">
+              <div class="mc-cell">
+                <span class="material-symbols-outlined mc-cell__icon">work_history</span>
+                <div>
+                  <p class="mc-cell__title">Experiencia</p>
+                  <p class="mc-cell__data">{{ data.medico.anios_experiencia }} anos</p>
+                </div>
+              </div>
+              <div class="mc-cell">
+                <span class="material-symbols-outlined mc-cell__icon">groups</span>
+                <div>
+                  <p class="mc-cell__title">Consultas</p>
+                  <p class="mc-cell__data">{{ data.totalConsultas }}</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        }
+
+        <!-- Especialidad -->
+        @if (data.medico.descripcion_especialidad) {
+          <section class="mc-card">
+            <h2 class="mc-card__heading">Especialidad</h2>
+            <p class="mc-card__body">{{ data.medico.descripcion_especialidad }}</p>
+          </section>
+        }
+
+        <!-- Informacion profesional -->
+        <section class="mc-card">
+          <h2 class="mc-card__heading">Informacion Profesional</h2>
+          <div class="mc-cell">
+            <span class="material-symbols-outlined mc-cell__icon">badge</span>
+            <div>
+              <p class="mc-cell__title">Numero de Registro</p>
+              <p class="mc-cell__data">{{ data.medico.numero_registro }}</p>
+            </div>
+          </div>
         </section>
       }
 
-      <!-- Disponibilidad agrupada por fecha -->
-      <section class="mc-section">
-        <h2 class="mc-section__title">Próximos horarios disponibles</h2>
+      <!-- ═══ TAB: DISPONIBILIDAD ═══ -->
+      @if (activeTab === 'disponibilidad') {
 
-        @if (!gruposFecha.length) {
-          <div class="mc-empty-state" role="status">
-            <span class="material-symbols-outlined mc-empty-state__icon">event_busy</span>
-            <p class="mc-empty-state__title">Sin disponibilidad próxima</p>
-            <p class="mc-empty-state__desc">Este profesional no tiene horarios disponibles por el momento.</p>
-          </div>
-        }
-
-        @for (grupo of gruposFecha; track grupo.fecha) {
-          <div class="mc-date-group">
-            <p class="mc-date-group__label">{{ formatFecha(grupo.fecha) }}</p>
-            <div class="mc-date-group__slots">
-              @for (slot of grupo.slots; track slot.id_disponibilidad) {
-                <button
-                  class="mc-time-chip"
-                  [class.mc-time-chip--selected]="slotSeleccionado()?.id_disponibilidad === slot.id_disponibilidad"
-                  (click)="seleccionarSlot(slot)"
-                  [attr.aria-label]="'Horario ' + formatHora(slot.hora_inicio) + ' - ' + formatHora(slot.hora_fin)"
-                >
-                  {{ formatHora(slot.hora_inicio) }} - {{ formatHora(slot.hora_fin) }}
-                </button>
-              }
+        <!-- Proximo horario -->
+        @if (data.proximoSlot) {
+          <div class="mc-next-slot">
+            <div class="mc-next-slot__icon-wrap">
+              <span class="material-symbols-outlined">event_available</span>
+            </div>
+            <div class="mc-next-slot__body">
+              <p class="mc-next-slot__label">Siguiente disponibilidad</p>
+              <p class="mc-next-slot__value">{{ formatFecha(data.proximoSlot.fecha) }} a las {{ formatHora(data.proximoSlot.hora_inicio) }}</p>
             </div>
           </div>
         }
-      </section>
+
+        <!-- Horario semanal -->
+        @if (data.horarioAtencion.length) {
+          <section class="mc-card">
+            <h2 class="mc-card__heading">Horario de Atencion</h2>
+            <div class="mc-schedule">
+              @for (h of data.horarioAtencion; track h.dia_semana) {
+                <div class="mc-schedule__row">
+                  <span class="mc-schedule__day">{{ nombreDia(h.dia_semana) }}</span>
+                  <span class="mc-schedule__time">{{ formatHora(h.hora_inicio) }} – {{ formatHora(h.hora_fin) }}</span>
+                </div>
+              }
+            </div>
+          </section>
+        }
+
+        <!-- Ver calendario completo -->
+        <button class="mc-link-btn" (click)="verHorarios()">
+          Ver calendario completo
+          <span class="material-symbols-outlined">calendar_month</span>
+        </button>
+      }
 
     }
 
   </main>
 
-  <!-- Barra inferior de reserva -->
-  @if (slotSeleccionado()) {
-    <div class="mc-bottom-bar">
-      <div class="mc-bottom-bar__info">
-        <span class="material-symbols-outlined">event_available</span>
-        <span>{{ formatFecha(slotSeleccionado()!.fecha) }} · {{ formatHora(slotSeleccionado()!.hora_inicio) }}</span>
+  <!-- ═══ BOTTOM ACTION BAR ═══ -->
+  @if (!isLoading && data) {
+    <div class="mc-action-bar">
+      <div class="mc-action-bar__inner">
+        @if (data.proximoSlot) {
+          <div class="mc-action-bar__meta">
+            <p class="mc-action-bar__meta-label">Siguiente disponibilidad</p>
+            <p class="mc-action-bar__meta-value">{{ formatFecha(data.proximoSlot.fecha) }} a las {{ formatHora(data.proximoSlot.hora_inicio) }}</p>
+          </div>
+        }
+        <button class="mc-action-bar__cta" (click)="verHorarios()">
+          Reservar hora
+        </button>
       </div>
-      <button class="mc-bottom-bar__btn" (click)="reservarHora()">
-        Reservar hora
-      </button>
     </div>
   }
 

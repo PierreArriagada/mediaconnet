@@ -1,8 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent, IonToast } from '@ionic/angular/standalone';
-import { PacienteService, DetalleMedicoData, DisponibilidadSlot } from '../../../core/services/paciente.service';
+import { PacienteService, DetalleMedicoData } from '../../../core/services/paciente.service';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { AuthService } from '../../../core/services/auth.service';
@@ -21,19 +21,12 @@ export default class DetalleProfesionalPage implements OnInit {
   private readonly authSvc  = inject(AuthService);
 
   data: DetalleMedicoData | null = null;
-  isLoading = true;
-  showError = false;
-  errorMsg  = '';
-
-  // Slot seleccionado para la barra inferior
-  slotSeleccionado = signal<DisponibilidadSlot | null>(null);
-
-  // Nombre del usuario para el header
-  userName = '';
-  noLeidas = 0;
-
-  // Agrupar disponibilidad por fecha
-  gruposFecha: { fecha: string; slots: DisponibilidadSlot[] }[] = [];
+  isLoading  = true;
+  showError  = false;
+  errorMsg   = '';
+  userName   = '';
+  noLeidas   = 0;
+  activeTab  = 'info';
 
   ngOnInit(): void {
     const user = this.authSvc.getCurrentUser();
@@ -49,11 +42,10 @@ export default class DetalleProfesionalPage implements OnInit {
       next: (res) => {
         this.data      = res;
         this.noLeidas  = res.noLeidas;
-        this.agruparPorFecha(res.disponibilidad);
         this.isLoading = false;
       },
       error: () => {
-        this.errorMsg  = 'No se pudo cargar la información del profesional.';
+        this.errorMsg  = 'No se pudo cargar la informacion del profesional.';
         this.showError = true;
         this.isLoading = false;
       },
@@ -64,13 +56,8 @@ export default class DetalleProfesionalPage implements OnInit {
     window.history.back();
   }
 
-  seleccionarSlot(slot: DisponibilidadSlot): void {
-    this.slotSeleccionado.set(slot);
-  }
-
-  reservarHora(): void {
-    const slot = this.slotSeleccionado();
-    if (!slot || !this.data) return;
+  verHorarios(): void {
+    if (!this.data) return;
     this.router.navigate(['/paciente/elegir-horario', this.data.medico.id_medico]);
   }
 
@@ -88,6 +75,30 @@ export default class DetalleProfesionalPage implements OnInit {
     return nombre.endsWith('a') ? 'Dra.' : 'Dr.';
   }
 
+  // Genera arreglo de estrellas para la valoracion
+  estrellas(): ('full' | 'half' | 'empty')[] {
+    const rating = parseFloat(this.data?.medico.valoracion_promedio ?? '0');
+    const result: ('full' | 'half' | 'empty')[] = [];
+    for (let i = 1; i <= 5; i++) {
+      if (rating >= i) result.push('full');
+      else if (rating >= i - 0.5) result.push('half');
+      else result.push('empty');
+    }
+    return result;
+  }
+
+  nombreDia(isodow: number): string {
+    const dias: Record<number, string> = {
+      1: 'Lunes', 2: 'Martes', 3: 'Miercoles',
+      4: 'Jueves', 5: 'Viernes', 6: 'Sabado', 7: 'Domingo',
+    };
+    return dias[isodow] ?? '';
+  }
+
+  formatHora(hora: string): string {
+    return hora.slice(0, 5);
+  }
+
   formatFecha(fechaStr: string): string {
     const [y, m, d] = fechaStr.split('-').map(Number);
     const fecha = new Date(y, m - 1, d);
@@ -96,23 +107,10 @@ export default class DetalleProfesionalPage implements OnInit {
     const diff  = Math.round((fecha.getTime() - hoy.getTime()) / 86400000);
 
     if (diff === 0) return 'Hoy';
-    if (diff === 1) return 'Mañana';
+    if (diff === 1) return 'Manana';
 
-    const dias    = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-    const meses   = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const dias  = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
     return `${dias[fecha.getDay()]} ${d} ${meses[m - 1]}`;
-  }
-
-  formatHora(hora: string): string {
-    return hora.slice(0, 5);
-  }
-
-  private agruparPorFecha(slots: DisponibilidadSlot[]): void {
-    const map = new Map<string, DisponibilidadSlot[]>();
-    for (const s of slots) {
-      if (!map.has(s.fecha)) map.set(s.fecha, []);
-      map.get(s.fecha)!.push(s);
-    }
-    this.gruposFecha = Array.from(map.entries()).map(([fecha, sl]) => ({ fecha, slots: sl }));
   }
 }
