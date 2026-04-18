@@ -21,4 +21,19 @@ export const PACIENTE_ROUTES: Routes = [
     loadComponent: () =>
       import('./profesionales/profesionales.page').then((m) => m.ProfesionalesPage),
   },
+  {
+    path: 'detalle-profesional/:idMedico',
+    loadComponent: () =>
+      import('./detalle-profesional/detalle-profesional.page'),
+  },
+  {
+    path: 'elegir-horario/:idMedico',
+    loadComponent: () =>
+      import('./elegir-horario/elegir-horario.page'),
+  },
+  {
+    path: 'confirmar-reserva/:idDisponibilidad',
+    loadComponent: () =>
+      import('./confirmar-reserva/confirmar-reserva.page'),
+  },
 ];
