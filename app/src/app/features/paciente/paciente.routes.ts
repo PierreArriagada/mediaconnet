@@ -16,4 +16,9 @@ export const PACIENTE_ROUTES: Routes = [
     loadComponent: () =>
       import('./reservar/reservar.page').then((m) => m.ReservarPage),
   },
+  {
+    path: 'profesionales/:idEspecialidad',
+    loadComponent: () =>
+      import('./profesionales/profesionales.page').then((m) => m.ProfesionalesPage),
+  },
 ];
