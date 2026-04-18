@@ -20,20 +20,26 @@ ON CONFLICT (correo) DO NOTHING;
 
 -- ── 2. Nuevos médicos ─────────────────────────────────────
 -- Pediatría (id_especialidad=2)
-INSERT INTO medicos (id_usuario, id_especialidad, numero_registro, anios_experiencia, estado)
-SELECT u.id_usuario, 2, 'REG-MED-003', 15, 'activo'
+INSERT INTO medicos (id_usuario, id_especialidad, numero_registro, anios_experiencia, biografia, valoracion_promedio, total_valoraciones, estado)
+SELECT u.id_usuario, 2, 'REG-MED-003', 15,
+  'Pediatra dedicado al cuidado integral de ninos y adolescentes. Experto en control de crecimiento, vacunacion y enfermedades respiratorias infantiles.',
+  4.7, 215, 'activo'
 FROM usuarios u WHERE u.correo = 'medico3@mediconnect.cl'
 ON CONFLICT (numero_registro) DO NOTHING;
 
 -- Traumatología (id_especialidad=4)
-INSERT INTO medicos (id_usuario, id_especialidad, numero_registro, anios_experiencia, estado)
-SELECT u.id_usuario, 4, 'REG-MED-004', 8, 'activo'
+INSERT INTO medicos (id_usuario, id_especialidad, numero_registro, anios_experiencia, biografia, valoracion_promedio, total_valoraciones, estado)
+SELECT u.id_usuario, 4, 'REG-MED-004', 8,
+  'Traumatologa con enfoque en lesiones deportivas, fracturas y rehabilitacion musculoesqueletica. Experiencia en tratamiento conservador y quirurgico.',
+  4.6, 76, 'activo'
 FROM usuarios u WHERE u.correo = 'medico4@mediconnect.cl'
 ON CONFLICT (numero_registro) DO NOTHING;
 
 -- Cardiología (id_especialidad=5)
-INSERT INTO medicos (id_usuario, id_especialidad, numero_registro, anios_experiencia, estado)
-SELECT u.id_usuario, 5, 'REG-MED-005', 20, 'activo'
+INSERT INTO medicos (id_usuario, id_especialidad, numero_registro, anios_experiencia, biografia, valoracion_promedio, total_valoraciones, estado)
+SELECT u.id_usuario, 5, 'REG-MED-005', 20,
+  'Cardiologo con mas de 20 anos de experiencia en prevencion cardiovascular, hipertension y arritmias. Especialista en ecocardiografia y pruebas de esfuerzo.',
+  4.9, 310, 'activo'
 FROM usuarios u WHERE u.correo = 'medico5@mediconnect.cl'
 ON CONFLICT (numero_registro) DO NOTHING;
 
