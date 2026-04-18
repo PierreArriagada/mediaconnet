@@ -1,0 +1,124 @@
+<ion-content>
+
+  <!-- ===== HEADER ===== -->
+  <app-paciente-header [userName]="userName" [noLeidas]="0"></app-paciente-header>
+
+  <main class="mc-main">
+
+    <!-- Botón volver -->
+    <button class="mc-back-btn" (click)="cambiarHorario()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Cambiar horario
+    </button>
+
+    <!-- Encabezado -->
+    <h1 class="mc-heading">Confirmar reserva</h1>
+    <p class="mc-subtitle">Revisa los datos de tu cita antes de confirmar.</p>
+
+    <!-- Resumen de la cita -->
+    <section class="mc-summary-card">
+      <div class="mc-summary-card__header">
+        <div class="mc-avatar mc-avatar--sm mc-avatar--{{ temaAvatar() }}">
+          {{ iniciales() }}
+        </div>
+        <div class="mc-summary-card__doctor">
+          <p class="mc-summary-card__name">{{ titulo() }} {{ nombreMedico }} {{ apellidoMedico }}</p>
+          <p class="mc-summary-card__specialty">{{ especialidad }}</p>
+        </div>
+      </div>
+
+      <div class="mc-summary-card__details">
+        <div class="mc-detail-item">
+          <span class="material-symbols-outlined">calendar_today</span>
+          <span>{{ formatFecha() }}</span>
+        </div>
+        <div class="mc-detail-item">
+          <span class="material-symbols-outlined">schedule</span>
+          <span>{{ formatHora(horaInicio) }} - {{ formatHora(horaFin) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modalidad -->
+    <section class="mc-section">
+      <h2 class="mc-section__title">Modalidad de atención</h2>
+      <div class="mc-radio-group">
+        <label class="mc-radio" [class.mc-radio--active]="modalidad === 'presencial'">
+          <input type="radio" name="modalidad" value="presencial" [(ngModel)]="modalidad" />
+          <span class="material-symbols-outlined">local_hospital</span>
+          Presencial
+        </label>
+        <label class="mc-radio" [class.mc-radio--active]="modalidad === 'telemedicina'">
+          <input type="radio" name="modalidad" value="telemedicina" [(ngModel)]="modalidad" />
+          <span class="material-symbols-outlined">videocam</span>
+          Telemedicina
+        </label>
+      </div>
+    </section>
+
+    <!-- Motivo de consulta -->
+    <section class="mc-section">
+      <h2 class="mc-section__title">Motivo de la consulta</h2>
+      <textarea
+        class="mc-textarea"
+        [(ngModel)]="motivoConsulta"
+        placeholder="Describe brevemente el motivo de tu consulta..."
+        maxlength="255"
+        rows="4"
+      ></textarea>
+      <p class="mc-char-count">{{ motivoConsulta.length }} / 255</p>
+    </section>
+
+    <!-- Info de solicitudes -->
+    <div class="mc-info-banner">
+      <span class="material-symbols-outlined">info</span>
+      <p>
+        Tu cita quedará registrada como <strong>pendiente</strong> y podrás revisarla
+        en la sección <strong>Mis solicitudes</strong>.
+      </p>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="mc-actions">
+      <button
+        class="mc-btn-primary"
+        [disabled]="!motivoValido || isSubmitting()"
+        (click)="reservar()"
+      >
+        @if (isSubmitting()) {
+          Reservando...
+        } @else {
+          Reservar Cita
+        }
+      </button>
+      <button class="mc-btn-secondary" (click)="cambiarHorario()">
+        Cambiar horario
+      </button>
+    </div>
+
+  </main>
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <app-paciente-bottom-nav activeTab="reservar"></app-paciente-bottom-nav>
+
+  <!-- Toast error -->
+  <ion-toast
+    [isOpen]="showError"
+    [message]="errorMsg"
+    [duration]="3500"
+    color="danger"
+    position="bottom"
+    (didDismiss)="showError = false"
+  ></ion-toast>
+
+  <!-- Toast éxito -->
+  <ion-toast
+    [isOpen]="showSuccess"
+    message="¡Cita reservada correctamente! Redirigiendo..."
+    [duration]="2500"
+    color="success"
+    position="bottom"
+    (didDismiss)="showSuccess = false"
+  ></ion-toast>
+
+</ion-content>
