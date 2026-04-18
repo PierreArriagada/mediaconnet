@@ -1,6 +1,10 @@
 const { Router } = require('express');
 const { requireAuth, requireRole } = require('../middleware/auth.middleware');
-const { getDashboard, getEspecialidadesConBadge } = require('../controllers/paciente.controller');
+const {
+  getDashboard,
+  getEspecialidadesConBadge,
+  getProfesionalesPorEspecialidad,
+} = require('../controllers/paciente.controller');
 
 const router = Router();
 
@@ -10,5 +14,6 @@ router.use(requireRole('Paciente'));
 
 router.get('/dashboard', getDashboard);
 router.get('/especialidades', getEspecialidadesConBadge);
+router.get('/profesionales/:idEspecialidad', getProfesionalesPorEspecialidad);
 
 module.exports = router;
