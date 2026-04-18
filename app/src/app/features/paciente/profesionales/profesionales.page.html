@@ -1,0 +1,183 @@
+<ion-content>
+
+  <!-- ===== HEADER (reutilizable) ===== -->
+  <app-paciente-header
+    [userName]="user?.name ?? ''"
+    [noLeidas]="noLeidas"
+  ></app-paciente-header>
+
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
+  <main class="mc-main">
+
+    <!-- Botón volver -->
+    <button class="mc-back-btn" (click)="volver()" aria-label="Volver a especialidades">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Especialidades
+    </button>
+
+    <!-- Encabezado editorial -->
+    <section class="mc-editorial">
+      @if (isLoading) {
+        <div class="mc-skeleton mc-skeleton--title"></div>
+        <div class="mc-skeleton mc-skeleton--subtitle"></div>
+      }
+      @if (!isLoading && data) {
+        <h1 class="mc-heading-display">{{ data.especialidad.nombre_especialidad }}</h1>
+        <p class="mc-subtitle">{{ data.especialidad.descripcion }}</p>
+      }
+    </section>
+
+    <!-- Chips de filtro -->
+    @if (!isLoading) {
+      <div class="mc-chips-scroll" role="group" aria-label="Filtrar por disponibilidad">
+        <div class="mc-chips">
+          <button
+            class="mc-filter-chip"
+            [class.mc-filter-chip--active]="filtro === 'todos'"
+            (click)="filtro = 'todos'"
+          >Todos</button>
+
+          <button
+            class="mc-filter-chip"
+            [class.mc-filter-chip--active]="filtro === 'hoy'"
+            (click)="filtro = 'hoy'"
+          >
+            <span class="material-symbols-outlined mc-filter-chip__icon" aria-hidden="true">today</span>
+            Disponible hoy
+          </button>
+
+          <button
+            class="mc-filter-chip"
+            [class.mc-filter-chip--active]="filtro === 'semana'"
+            (click)="filtro = 'semana'"
+          >
+            <span class="material-symbols-outlined mc-filter-chip__icon" aria-hidden="true">date_range</span>
+            Esta semana
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Skeleton de carga -->
+    @if (isLoading) {
+      <div class="mc-doctors-grid">
+        @for (_ of [1, 2, 3]; track $index) {
+          <div class="mc-skeleton mc-skeleton--doctor-card"></div>
+        }
+      </div>
+    }
+
+    @if (!isLoading) {
+
+      <!-- Estado vacío -->
+      @if (!medicosFiltrados.length) {
+        <div class="mc-empty-state" role="status">
+          <span class="material-symbols-outlined mc-empty-state__icon" aria-hidden="true">person_search</span>
+          <p class="mc-empty-state__title">
+            @if (filtro === 'todos') {
+              Sin profesionales en esta especialidad
+            } @else {
+              Sin disponibilidad con el filtro aplicado
+            }
+          </p>
+          <p class="mc-empty-state__desc">
+            @if (filtro !== 'todos') {
+              Prueba seleccionando "Todos" para ver todos los profesionales disponibles.
+            } @else {
+              No hay médicos activos registrados en esta especialidad por el momento.
+            }
+          </p>
+          @if (filtro !== 'todos') {
+            <button class="mc-btn-secondary" (click)="filtro = 'todos'">Ver todos</button>
+          }
+        </div>
+      }
+
+      <!-- Grid de tarjetas de médicos -->
+      <div class="mc-doctors-grid">
+        @for (medico of medicosFiltrados; track medico.id_medico) {
+          <article class="mc-doctor-card">
+
+            <!-- Avatar + datos del médico -->
+            <div class="mc-doctor-card__header">
+              <div
+                class="mc-avatar mc-avatar--{{ temaAvatar(medico.id_medico) }}"
+                [attr.aria-label]="medico.nombre + ' ' + medico.apellido"
+              >
+                {{ iniciales(medico.nombre, medico.apellido) }}
+              </div>
+              <div class="mc-doctor-card__info">
+                <h3 class="mc-doctor-card__name">
+                  {{ titulo(medico.nombre) }} {{ medico.nombre }} {{ medico.apellido }}
+                </h3>
+                <p class="mc-doctor-card__specialty">{{ data!.especialidad.nombre_especialidad }}</p>
+                <p class="mc-doctor-card__exp">
+                  {{ medico.anios_experiencia }} año{{ medico.anios_experiencia !== 1 ? 's' : '' }} de experiencia
+                </p>
+              </div>
+            </div>
+
+            <!-- Próximos slots disponibles -->
+            <div class="mc-doctor-card__slots">
+              <p class="mc-slots-label">Próximos Turnos</p>
+
+              @if (!medico.disponibilidad.length) {
+                <p class="mc-slots-empty">Sin disponibilidad próxima</p>
+              }
+
+              @if (medico.disponibilidad.length) {
+                <div class="mc-slots-list" role="list">
+                  @for (slot of medico.disponibilidad; track slot.id_disponibilidad) {
+                    <span
+                      class="mc-slot"
+                      [class.mc-slot--today]="esHoy(slot.fecha)"
+                      role="listitem"
+                    >
+                      {{ etiquetaSlot(slot.fecha, slot.hora_inicio) }}
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- CTA -->
+            <button
+              class="mc-btn-primary"
+              (click)="verDisponibilidad(medico.id_medico)"
+              [attr.aria-label]="'Ver disponibilidad de ' + medico.nombre + ' ' + medico.apellido"
+            >
+              Ver disponibilidad
+            </button>
+
+          </article>
+        }
+      </div>
+
+    }
+
+  </main>
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <app-paciente-bottom-nav activeTab="reservar"></app-paciente-bottom-nav>
+
+  <!-- Toast: error de red -->
+  <ion-toast
+    [isOpen]="showError"
+    [message]="errorMsg"
+    [duration]="3000"
+    color="danger"
+    position="bottom"
+    (didDismiss)="showError = false"
+  ></ion-toast>
+
+  <!-- Toast: funcionalidad próxima -->
+  <ion-toast
+    [isOpen]="showProx"
+    message="La confirmación de cita estará disponible próximamente."
+    [duration]="3000"
+    color="primary"
+    position="bottom"
+    (didDismiss)="showProx = false"
+  ></ion-toast>
+
+</ion-content>
