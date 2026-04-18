@@ -11,6 +11,61 @@
 - Banner informativo de soporte al pie de la lista.
 - Skeleton de carga mientras se obtienen los datos del servidor.
 - Toast de error ante fallo de red o servidor.
+- Al seleccionar una especialidad navega a la vista de profesionales.
+
+---
+
+## Archivos creados
+
+- `app/src/app/features/paciente/reservar/reservar.page.ts` — Componente standalone; carga especialidades vía `PacienteService.getEspecialidades()`, gestiona búsqueda local y navegación hacia `/paciente/profesionales/:idEspecialidad`.
+- `app/src/app/features/paciente/reservar/reservar.page.html` — Plantilla: header reutilizable, barra de búsqueda, bento grid de tarjetas con `@for` y `@if`, banner de ayuda, bottom nav activo en "reservar".
+- `app/src/app/features/paciente/reservar/reservar.page.scss` — Estilos con tokens `--mc-*`; clases `.mc-esp-card__icon--{tema}` para los cinco temas de color; skeleton animation; banner degradado.
+
+---
+
+## Archivos modificados
+
+- `app/src/app/features/paciente/paciente.routes.ts` — Agregadas rutas `reservar` y `profesionales/:idEspecialidad` con lazy-load.
+- `app/src/app/core/services/paciente.service.ts` — Agregadas interfaces `Especialidad`, `EspecialidadesData`, `DisponibilidadSlot`, `MedicoProfesional`, `ProfesionalesData`; métodos `getEspecialidades()` y `getProfesionales()`.
+- `backend/src/controllers/paciente.controller.js` — Funciones `getEspecialidadesConBadge` y `getProfesionalesPorEspecialidad`.
+- `backend/src/routes/paciente.routes.js` — Rutas `GET /api/paciente/especialidades` y `GET /api/paciente/profesionales/:idEspecialidad`.
+
+---
+
+## Dependencias reutilizadas
+
+- Componente `app-paciente-header` (shared) — recibe `userName` y `noLeidas`.
+- Componente `app-paciente-bottom-nav` (shared) — recibe `activeTab="reservar"`.
+- Servicio `AuthService` — provee datos del usuario autenticado para el header.
+- Tokens de diseño en `theme/variables.scss` — no se modificaron.
+
+---
+
+## Flujo de datos
+
+- `ReservarPage.ngOnInit()` → `PacienteService.getEspecialidades()` → `GET /api/paciente/especialidades` → consulta paralela en PostgreSQL: especialidades activas + notificaciones no leídas del usuario.
+- El filtrado de especialidades es 100% en cliente (sin peticiones adicionales al servidor).
+- Al pulsar "Ver profesionales" navega a `/paciente/profesionales/:id_especialidad`.
+
+---
+
+## Seguridad
+
+- Ambos endpoints requieren JWT válido y rol `Paciente` (middleware `requireAuth` + `requireRole`).
+- El `id_usuario` se extrae exclusivamente del token JWT; nunca se acepta del cliente para prevenir IDOR.
+- El parámetro `:idEspecialidad` se valida con `parseInt` + `isNaN` + rango mínimo en backend y frontend.
+
+---
+
+## Qué se realizó
+
+- Creación de la vista de selección de especialidades para el flujo de reserva de horas médicas del paciente autenticado.
+- La vista lista las especialidades activas obtenidas desde la base de datos en tiempo real.
+- Incluye barra de búsqueda con filtrado en cliente por nombre y descripción.
+- Cada tarjeta de especialidad muestra ícono dinámico y tema de color según la especialidad.
+- Banner informativo de soporte al pie de la lista.
+- Skeleton de carga mientras se obtienen los datos del servidor.
+- Toast de error ante fallo de red o servidor.
 
 ---
 
