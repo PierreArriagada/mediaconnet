@@ -125,8 +125,8 @@ export class ProfesionalesPage implements OnInit {
     );
   }
 
-  // Placeholder: la vista de confirmación se implementará en el siguiente paso
-  verDisponibilidad(_idMedico: number): void {
-    this.showProx = true;
+  // Navegar al detalle del profesional con su disponibilidad completa
+  verDisponibilidad(idMedico: number): void {
+    this.router.navigate(['/paciente', 'detalle-profesional', idMedico]);
   }
 }
