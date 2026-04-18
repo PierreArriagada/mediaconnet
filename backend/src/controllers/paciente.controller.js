@@ -76,4 +76,41 @@ async function getDashboard(req, res) {
   }
 }
 
-module.exports = { getDashboard };
+/**
+ * GET /api/paciente/especialidades
+ * Retorna especialidades activas + noLeidas del paciente autenticado para el header.
+ * Se usa en la vista Reservar donde el paciente elige especialidad.
+ */
+async function getEspecialidadesConBadge(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    const [espResult, unreadResult] = await Promise.all([
+      pool.query(
+        `SELECT id_especialidad, nombre_especialidad, descripcion
+         FROM   especialidades
+         WHERE  estado = 'activa'
+         ORDER  BY nombre_especialidad ASC`
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS total
+         FROM   notificaciones
+         WHERE  id_usuario = $1 AND leida = FALSE`,
+        [idUsuario]
+      ),
+    ]);
+
+    return res.json({
+      especialidades: espResult.rows,
+      noLeidas: parseInt(unreadResult.rows[0].total, 10),
+    });
+  } catch (err) {
+    console.error('Error en getEspecialidadesConBadge:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+module.exports = { getDashboard, getEspecialidadesConBadge };
