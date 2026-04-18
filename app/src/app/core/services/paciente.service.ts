@@ -64,6 +64,46 @@ export interface ProfesionalesData {
   noLeidas:     number;
 }
 
+export interface DetalleMedicoData {
+  medico: {
+    id_medico:                number;
+    nombre:                   string;
+    apellido:                 string;
+    anios_experiencia:        number;
+    numero_registro:          string;
+    id_especialidad:          number;
+    nombre_especialidad:      string;
+    descripcion_especialidad: string;
+  };
+  disponibilidad: DisponibilidadSlot[];
+  noLeidas:       number;
+}
+
+export interface DisponibilidadMedicoData {
+  medico: {
+    id_medico:            number;
+    nombre:               string;
+    apellido:             string;
+    id_especialidad:      number;
+    nombre_especialidad:  string;
+  };
+  disponibilidad: DisponibilidadSlot[];
+  noLeidas:       number;
+}
+
+export interface CrearCitaPayload {
+  id_medico:          number;
+  id_especialidad:    number;
+  id_disponibilidad:  number;
+  modalidad:          'presencial' | 'telemedicina';
+  motivo_consulta:    string;
+}
+
+export interface CrearCitaResponse {
+  message: string;
+  id_cita: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PacienteService {
   private readonly http = inject(HttpClient);
@@ -79,5 +119,17 @@ export class PacienteService {
 
   getProfesionales(idEspecialidad: number): Observable<ProfesionalesData> {
     return this.http.get<ProfesionalesData>(`${this.API}/profesionales/${idEspecialidad}`);
+  }
+
+  getDetalleMedico(idMedico: number): Observable<DetalleMedicoData> {
+    return this.http.get<DetalleMedicoData>(`${this.API}/medico/${idMedico}`);
+  }
+
+  getDisponibilidadMedico(idMedico: number): Observable<DisponibilidadMedicoData> {
+    return this.http.get<DisponibilidadMedicoData>(`${this.API}/medico/${idMedico}/disponibilidad`);
+  }
+
+  crearCita(payload: CrearCitaPayload): Observable<CrearCitaResponse> {
+    return this.http.post<CrearCitaResponse>(`${this.API}/reservar`, payload);
   }
 }
