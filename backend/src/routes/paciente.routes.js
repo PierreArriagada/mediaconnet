@@ -4,6 +4,9 @@ const {
   getDashboard,
   getEspecialidadesConBadge,
   getProfesionalesPorEspecialidad,
+  getDetalleMedico,
+  getDisponibilidadMedico,
+  crearCitaPaciente,
 } = require('../controllers/paciente.controller');
 
 const router = Router();
@@ -15,5 +18,8 @@ router.use(requireRole('Paciente'));
 router.get('/dashboard', getDashboard);
 router.get('/especialidades', getEspecialidadesConBadge);
 router.get('/profesionales/:idEspecialidad', getProfesionalesPorEspecialidad);
+router.get('/medico/:idMedico', getDetalleMedico);
+router.get('/medico/:idMedico/disponibilidad', getDisponibilidadMedico);
+router.post('/reservar', crearCitaPaciente);
 
 module.exports = router;
