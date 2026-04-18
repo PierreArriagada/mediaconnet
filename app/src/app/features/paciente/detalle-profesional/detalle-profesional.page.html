@@ -1,0 +1,114 @@
+<ion-content>
+
+  <!-- ===== HEADER ===== -->
+  <app-paciente-header [userName]="userName" [noLeidas]="noLeidas"></app-paciente-header>
+
+  <main class="mc-main">
+
+    <!-- Botón volver -->
+    <button class="mc-back-btn" (click)="volver()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Volver
+    </button>
+
+    <!-- Skeleton de carga -->
+    @if (isLoading) {
+      <div class="mc-skeleton mc-skeleton--profile"></div>
+      <div class="mc-skeleton mc-skeleton--slots"></div>
+    }
+
+    @if (!isLoading && data) {
+
+      <!-- Perfil del profesional -->
+      <section class="mc-profile">
+        <div class="mc-profile__avatar mc-avatar mc-avatar--{{ temaAvatar(data.medico.id_medico) }}">
+          {{ iniciales(data.medico.nombre, data.medico.apellido) }}
+        </div>
+        <div class="mc-profile__info">
+          <h1 class="mc-profile__name">
+            {{ titulo(data.medico.nombre) }} {{ data.medico.nombre }} {{ data.medico.apellido }}
+          </h1>
+          <p class="mc-profile__specialty">{{ data.medico.nombre_especialidad }}</p>
+          <div class="mc-profile__meta">
+            <span class="mc-profile__badge">
+              <span class="material-symbols-outlined">badge</span>
+              {{ data.medico.numero_registro }}
+            </span>
+            <span class="mc-profile__badge">
+              <span class="material-symbols-outlined">work_history</span>
+              {{ data.medico.anios_experiencia }} año{{ data.medico.anios_experiencia !== 1 ? 's' : '' }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Descripción de especialidad -->
+      @if (data.medico.descripcion_especialidad) {
+        <section class="mc-section">
+          <h2 class="mc-section__title">Acerca de la especialidad</h2>
+          <p class="mc-section__text">{{ data.medico.descripcion_especialidad }}</p>
+        </section>
+      }
+
+      <!-- Disponibilidad agrupada por fecha -->
+      <section class="mc-section">
+        <h2 class="mc-section__title">Próximos horarios disponibles</h2>
+
+        @if (!gruposFecha.length) {
+          <div class="mc-empty-state" role="status">
+            <span class="material-symbols-outlined mc-empty-state__icon">event_busy</span>
+            <p class="mc-empty-state__title">Sin disponibilidad próxima</p>
+            <p class="mc-empty-state__desc">Este profesional no tiene horarios disponibles por el momento.</p>
+          </div>
+        }
+
+        @for (grupo of gruposFecha; track grupo.fecha) {
+          <div class="mc-date-group">
+            <p class="mc-date-group__label">{{ formatFecha(grupo.fecha) }}</p>
+            <div class="mc-date-group__slots">
+              @for (slot of grupo.slots; track slot.id_disponibilidad) {
+                <button
+                  class="mc-time-chip"
+                  [class.mc-time-chip--selected]="slotSeleccionado()?.id_disponibilidad === slot.id_disponibilidad"
+                  (click)="seleccionarSlot(slot)"
+                  [attr.aria-label]="'Horario ' + formatHora(slot.hora_inicio) + ' - ' + formatHora(slot.hora_fin)"
+                >
+                  {{ formatHora(slot.hora_inicio) }} - {{ formatHora(slot.hora_fin) }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </section>
+
+    }
+
+  </main>
+
+  <!-- Barra inferior de reserva -->
+  @if (slotSeleccionado()) {
+    <div class="mc-bottom-bar">
+      <div class="mc-bottom-bar__info">
+        <span class="material-symbols-outlined">event_available</span>
+        <span>{{ formatFecha(slotSeleccionado()!.fecha) }} · {{ formatHora(slotSeleccionado()!.hora_inicio) }}</span>
+      </div>
+      <button class="mc-bottom-bar__btn" (click)="reservarHora()">
+        Reservar hora
+      </button>
+    </div>
+  }
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <app-paciente-bottom-nav activeTab="reservar"></app-paciente-bottom-nav>
+
+  <!-- Toast error -->
+  <ion-toast
+    [isOpen]="showError"
+    [message]="errorMsg"
+    [duration]="3000"
+    color="danger"
+    position="bottom"
+    (didDismiss)="showError = false"
+  ></ion-toast>
+
+</ion-content>
