@@ -93,6 +93,9 @@ CREATE TABLE medicos (
     id_especialidad INTEGER NOT NULL,
     numero_registro VARCHAR(50) NOT NULL,
     anios_experiencia INTEGER DEFAULT 0 NOT NULL,
+    biografia VARCHAR(500),
+    valoracion_promedio NUMERIC(2,1) DEFAULT 0.0,
+    total_valoraciones INTEGER DEFAULT 0,
     estado VARCHAR(20) DEFAULT 'activo' NOT NULL,
     fecha_creacion TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     fecha_actualizacion TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -256,11 +259,11 @@ VALUES (2, '18765432-1', DATE '1999-08-15', 'Av. Central 123', 'Valparaiso', 'Va
 INSERT INTO pacientes (id_usuario, rut, fecha_nacimiento, direccion, comuna, ciudad, contacto_emergencia, telefono_emergencia)
 VALUES (NULL, '20111222-3', DATE '2001-05-20', 'Pasaje Norte 456', 'Concon', 'Valparaiso', 'Juan Soto', '977665544');
 
-INSERT INTO medicos (id_usuario, id_especialidad, numero_registro, anios_experiencia, estado)
-VALUES (3, 1, 'REG-MED-001', 10, 'activo');
+INSERT INTO medicos (id_usuario, id_especialidad, numero_registro, anios_experiencia, biografia, valoracion_promedio, total_valoraciones, estado)
+VALUES (3, 1, 'REG-MED-001', 10, 'Medico con amplia experiencia en atencion primaria y enfermedades cronicas. Especialista en diagnostico preventivo y seguimiento integral del paciente adulto.', 4.8, 142, 'activo');
 
-INSERT INTO medicos (id_usuario, id_especialidad, numero_registro, anios_experiencia, estado)
-VALUES (4, 3, 'REG-MED-002', 7, 'activo');
+INSERT INTO medicos (id_usuario, id_especialidad, numero_registro, anios_experiencia, biografia, valoracion_promedio, total_valoraciones, estado)
+VALUES (4, 3, 'REG-MED-002', 7, 'Dermatologa especializada en tratamientos de acne, dermatitis y lesiones cutaneas. Enfoque en dermatologia estetica y procedimientos minimamente invasivos.', 4.9, 98, 'activo');
 
 INSERT INTO disponibilidad_medica (id_medico, fecha, hora_inicio, hora_fin, estado, observacion)
 VALUES (1, DATE '2026-04-15', '09:00', '09:30', 'disponible', 'Bloque manana');
