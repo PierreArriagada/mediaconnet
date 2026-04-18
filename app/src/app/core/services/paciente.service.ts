@@ -64,6 +64,12 @@ export interface ProfesionalesData {
   noLeidas:     number;
 }
 
+export interface HorarioAtencion {
+  dia_semana:  number;
+  hora_inicio: string;
+  hora_fin:    string;
+}
+
 export interface DetalleMedicoData {
   medico: {
     id_medico:                number;
@@ -71,12 +77,17 @@ export interface DetalleMedicoData {
     apellido:                 string;
     anios_experiencia:        number;
     numero_registro:          string;
+    biografia:                string | null;
+    valoracion_promedio:      string;
+    total_valoraciones:       number;
     id_especialidad:          number;
     nombre_especialidad:      string;
     descripcion_especialidad: string;
   };
-  disponibilidad: DisponibilidadSlot[];
-  noLeidas:       number;
+  horarioAtencion: HorarioAtencion[];
+  proximoSlot:     { fecha: string; hora_inicio: string; hora_fin: string } | null;
+  totalConsultas:  number;
+  noLeidas:        number;
 }
 
 export interface DisponibilidadMedicoData {
