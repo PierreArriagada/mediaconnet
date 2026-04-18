@@ -1,0 +1,276 @@
+// Vista Reservar del paciente.
+// Tokens visuales de theme/variables.scss (prefijo --mc-*).
+
+ion-content {
+  --padding-bottom: 0;
+  --padding-top:    0;
+}
+
+// ── Contenedor principal ──────────────────────────────
+.mc-main {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 8rem;
+}
+
+// ── Encabezado editorial ──────────────────────────────
+.mc-editorial {
+  margin-bottom: 2.5rem;
+}
+
+.mc-heading-display {
+  font-family:    var(--mc-font-authority);
+  font-size:      var(--mc-type-display-lg);
+  font-weight:    800;
+  color:          var(--mc-on-surface);
+  line-height:    1.1;
+  letter-spacing: var(--mc-tracking-headline);
+  margin-bottom:  1rem;
+}
+
+.mc-heading-accent { color: var(--mc-primary); }
+
+.mc-subtitle {
+  font-family: var(--mc-font-utility);
+  font-size:   1.125rem;
+  color:       var(--mc-secondary);
+  line-height: var(--mc-leading-body);
+  max-width:   36rem;
+}
+
+// ── Barra de búsqueda ────────────────────────────────
+.mc-search-wrapper {
+  position:      relative;
+  margin-bottom: 2.5rem;
+}
+
+.mc-search-icon {
+  position:       absolute;
+  top:            50%;
+  left:           1.25rem;
+  transform:      translateY(-50%);
+  color:          var(--mc-outline);
+  pointer-events: none;
+  font-size:      1.5rem;
+}
+
+.mc-search-input {
+  width:        100%;
+  background:   var(--mc-surface-container-highest);
+  border:       none;
+  border-radius: var(--mc-radius-md);
+  padding:      1.25rem 1.5rem 1.25rem 3.5rem;
+  font-family:  var(--mc-font-utility);
+  font-size:    1rem;
+  font-weight:  500;
+  color:        var(--mc-on-surface);
+  outline:      none;
+  transition:   box-shadow 0.2s;
+
+  &::placeholder { color: var(--mc-outline); }
+
+  &:focus {
+    box-shadow: 0 0 0 2px rgba(0, 94, 164, 0.2);
+  }
+}
+
+// ── Skeleton de carga ─────────────────────────────────
+.mc-skeleton-grid {
+  display:               grid;
+  grid-template-columns: 1fr;
+  gap:                   1.5rem;
+
+  @media (min-width: 640px)  { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
+}
+
+.mc-skeleton {
+  background:       var(--mc-surface-container);
+  border-radius:    var(--mc-radius-lg);
+  animation:        mc-pulse 1.4s ease-in-out infinite;
+
+  &--card { height: 18rem; }
+}
+
+@keyframes mc-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+// ── Bento Grid de especialidades ─────────────────────
+.mc-bento-grid {
+  display:               grid;
+  grid-template-columns: 1fr;
+  gap:                   1.5rem;
+
+  @media (min-width: 640px)  { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
+}
+
+// ── Tarjeta de especialidad ───────────────────────────
+.mc-esp-card {
+  background:     var(--mc-surface-container-lowest);
+  border-radius:  var(--mc-radius-lg);
+  padding:        2rem;
+  border:         1px solid var(--mc-border-ghost);
+  display:        flex;
+  flex-direction: column;
+  gap:            1.5rem;
+  cursor:         pointer;
+  transition:     transform 0.2s, box-shadow 0.2s;
+  box-shadow:     var(--mc-shadow-fab);
+
+  &:hover  { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+  &:active { transform: scale(0.98); }
+}
+
+// Ícono con temas de color usando tokens --mc-*
+.mc-esp-card__icon {
+  width:          4rem;
+  height:         4rem;
+  border-radius:  50%;
+  display:        flex;
+  align-items:    center;
+  justify-content: center;
+  flex-shrink:    0;
+
+  .material-symbols-outlined { font-size: 1.875rem; }
+
+  // Tema: azul primario
+  &--primary {
+    background: rgba(0, 94, 164, 0.1);
+    color:      var(--mc-primary);
+  }
+
+  // Tema: naranja terciario
+  &--tertiary {
+    background: var(--mc-tertiary-fixed);
+    color:      var(--mc-tertiary);
+  }
+
+  // Tema: azul primario fijo (chips)
+  &--primary-fixed {
+    background: var(--mc-primary-fixed);
+    color:      var(--mc-on-primary-fixed-variant);
+  }
+
+  // Tema: azul secundario
+  &--secondary {
+    background: var(--mc-secondary-container);
+    color:      var(--mc-secondary);
+  }
+
+  // Tema: rojo error
+  &--error {
+    background: var(--mc-error-container);
+    color:      var(--mc-error);
+  }
+}
+
+.mc-esp-card__body { flex: 1; }
+
+.mc-esp-card__title {
+  font-family:   var(--mc-font-authority);
+  font-size:     1.5rem;
+  font-weight:   700;
+  color:         var(--mc-on-surface);
+  margin-bottom: 0.5rem;
+}
+
+.mc-esp-card__desc {
+  font-family: var(--mc-font-utility);
+  font-size:   0.875rem;
+  color:       var(--mc-secondary);
+  line-height: var(--mc-leading-body);
+}
+
+// ── Botón texto con flecha ────────────────────────────
+.mc-link-btn {
+  display:        inline-flex;
+  align-items:    center;
+  gap:            0.5rem;
+  color:          var(--mc-primary);
+  font-family:    var(--mc-font-utility);
+  font-size:      0.9375rem;
+  font-weight:    600;
+  background:     none;
+  border:         none;
+  padding:        0;
+  cursor:         pointer;
+  transition:     gap 0.2s;
+
+  &:hover { gap: 0.75rem; }
+
+  &__arrow {
+    font-size:  1.125rem;
+    transition: transform 0.2s;
+  }
+  &:hover &__arrow { transform: translateX(4px); }
+}
+
+// ── Texto sin resultados ──────────────────────────────
+.mc-empty-text {
+  font-family: var(--mc-font-utility);
+  font-size:   1rem;
+  color:       var(--mc-on-surface-variant);
+  text-align:  center;
+  padding:     3rem 0;
+}
+
+// ── Banner de ayuda ───────────────────────────────────
+.mc-help-banner {
+  position:     relative;
+  margin-top:   4rem;
+  border-radius: var(--mc-radius-lg);
+  overflow:     hidden;
+  min-height:   15rem;
+  display:      flex;
+  align-items:  center;
+  // Fondo degradado sin imagen externa para evitar dependencias de red
+  background: linear-gradient(135deg, var(--mc-primary) 0%, var(--mc-primary-container) 100%);
+}
+
+.mc-help-banner__overlay {
+  position:   absolute;
+  inset:      0;
+  background: linear-gradient(to right, var(--mc-primary), transparent);
+  opacity:    0.5;
+}
+
+.mc-help-banner__content {
+  position: relative;
+  z-index:  1;
+  padding:  3rem;
+  max-width: 38rem;
+}
+
+.mc-help-banner__title {
+  font-family:   var(--mc-font-authority);
+  font-size:     1.875rem;
+  font-weight:   700;
+  color:         var(--mc-on-primary);
+  margin-bottom: 1rem;
+}
+
+.mc-help-banner__desc {
+  font-family:   var(--mc-font-utility);
+  font-size:     1.0625rem;
+  color:         rgba(255, 255, 255, 0.85);
+  line-height:   var(--mc-leading-body);
+  margin-bottom: 1.5rem;
+}
+
+.mc-btn-help {
+  background:    var(--mc-surface-container-lowest);
+  color:         var(--mc-primary);
+  border:        none;
+  border-radius: var(--mc-radius-xl);
+  padding:       0.875rem 2rem;
+  font-family:   var(--mc-font-utility);
+  font-size:     1rem;
+  font-weight:   700;
+  cursor:        pointer;
+  transition:    background 0.2s;
+
+  &:hover { background: var(--mc-surface-container-low); }
+}
