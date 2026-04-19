@@ -115,6 +115,41 @@ export interface CrearCitaResponse {
   id_cita: number;
 }
 
+export interface DetalleCita {
+  id_cita:                  number;
+  fecha_cita:               string;
+  hora_cita:                string;
+  estado_cita:              string;
+  motivo_consulta:          string;
+  modalidad:                string;
+  observaciones:            string | null;
+  fecha_creacion:           string;
+  fecha_actualizacion:      string;
+  id_disponibilidad:        number | null;
+  id_medico:                number;
+  id_especialidad:          number;
+  anios_experiencia:        number;
+  biografia:                string | null;
+  valoracion_promedio:      string;
+  total_valoraciones:       number;
+  medico_nombre:            string;
+  medico_apellido:          string;
+  nombre_especialidad:      string;
+  descripcion_especialidad: string;
+  disp_fecha:               string | null;
+  disp_hora_inicio:         string | null;
+  disp_hora_fin:            string | null;
+}
+
+export interface DetalleCitaData {
+  cita:     DetalleCita;
+  noLeidas: number;
+}
+
+export interface MensajeResponse {
+  message: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PacienteService {
   private readonly http = inject(HttpClient);
@@ -142,5 +177,17 @@ export class PacienteService {
 
   crearCita(payload: CrearCitaPayload): Observable<CrearCitaResponse> {
     return this.http.post<CrearCitaResponse>(`${this.API}/reservar`, payload);
+  }
+
+  getDetalleCita(idCita: number): Observable<DetalleCitaData> {
+    return this.http.get<DetalleCitaData>(`${this.API}/cita/${idCita}`);
+  }
+
+  cancelarCita(idCita: number): Observable<MensajeResponse> {
+    return this.http.patch<MensajeResponse>(`${this.API}/cita/${idCita}/cancelar`, {});
+  }
+
+  reagendarCita(idCita: number, idDisponibilidad: number): Observable<MensajeResponse> {
+    return this.http.patch<MensajeResponse>(`${this.API}/cita/${idCita}/reagendar`, { id_disponibilidad: idDisponibilidad });
   }
 }
