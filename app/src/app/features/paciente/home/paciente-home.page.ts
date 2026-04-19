@@ -107,8 +107,13 @@ export class PacienteHomePage implements OnInit {
     this.router.navigate(['/auth/login']);
   }
 
-  /** Navega a rutas dentro del módulo /paciente/ */
+  /** Navega a rutas simples dentro del módulo /paciente/ */
   ir(path: string): void {
     this.router.navigate(['/paciente', path]);
+  }
+
+  /** Navega al detalle de una cita específica */
+  verCita(idCita: number): void {
+    this.router.navigate(['/paciente', 'citas', idCita]);
   }
 }

@@ -45,7 +45,7 @@
         @if (data?.proximaCita) {
           <article
             class="mc-featured-card"
-            (click)="ir('citas/' + data!.proximaCita!.id_cita)"
+            (click)="verCita(data!.proximaCita!.id_cita)"
             role="button"
             tabindex="0"
             aria-label="Ver detalles de la cita"
@@ -84,7 +84,7 @@
               </div>
               <button
                 class="mc-btn-primary"
-                (click)="$event.stopPropagation(); ir('citas/' + data!.proximaCita!.id_cita)"
+                (click)="$event.stopPropagation(); verCita(data!.proximaCita!.id_cita)"
               >
                 Ver detalles
               </button>
