@@ -78,3 +78,26 @@ docker exec mediconnect-postgres psql -U postgres -d mediconnect -c "SELECT id_u
 4. Si cambias [database/01_init.sql](database/01_init.sql), debes usar `docker compose down -v` antes de volver a levantar para que se regenere la base con `pgcrypto` y los nuevos datos.
 5. Los roles canónicos del sistema son los que vienen desde la base de datos: `Administrador`, `Paciente` y `Medico`.
 6. El registro actual crea la cuenta de autenticación en `usuarios`; el perfil clínico de `pacientes` sigue pendiente porque requiere campos que hoy no están en la vista de registro.
+
+
+
+---
+
+## Base de datos y seeds automáticos
+
+El contenedor PostgreSQL ejecuta automáticamente todos los scripts SQL ubicados en la carpeta `database/` cuando la base de datos se crea desde cero (volumen vacío).
+
+Actualmente se aplican en este orden:
+
+1. `01_init.sql`
+2. `02_seed_actualizado.sql`
+3. `03_seed_medicos_extra.sql`
+
+Esto permite contar con estructura, datos base y ampliación médica sin ejecutar comandos manuales.
+
+---
+
+## Primer uso del proyecto
+
+```bash
+docker compose up -d --build
