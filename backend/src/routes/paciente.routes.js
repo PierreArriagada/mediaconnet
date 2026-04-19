@@ -7,6 +7,9 @@ const {
   getDetalleMedico,
   getDisponibilidadMedico,
   crearCitaPaciente,
+  getDetalleCita,
+  cancelarCita,
+  reagendarCita,
 } = require('../controllers/paciente.controller');
 
 const router = Router();
@@ -21,5 +24,8 @@ router.get('/profesionales/:idEspecialidad', getProfesionalesPorEspecialidad);
 router.get('/medico/:idMedico', getDetalleMedico);
 router.get('/medico/:idMedico/disponibilidad', getDisponibilidadMedico);
 router.post('/reservar', crearCitaPaciente);
+router.get('/cita/:idCita', getDetalleCita);
+router.patch('/cita/:idCita/cancelar', cancelarCita);
+router.patch('/cita/:idCita/reagendar', reagendarCita);
 
 module.exports = router;
