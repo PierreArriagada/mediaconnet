@@ -90,6 +90,7 @@
 
 ## Funcionalidades
 * **Timeline de progreso:** muestra pasos dinámicos según el estado de la cita (pendiente → confirmada → completada), con estados especiales para cancelada y reprogramada
+* **Banner de Pendiente:** Ajuste visual en el diseño del banner de solicitudes pendientes, modificando el radio de los bordes y eliminando el borde izquierdo para que no se deforme con el `border-radius` grande, respetando el sistema de diseño global.
 * **Información completa:** profesional asignado, fecha, hora, modalidad, motivo de consulta, observaciones
 * **Contacto del centro:** dirección y teléfono del centro médico
 * **Acción Cancelar:** diálogo de confirmación con `AlertController`, cancela la cita y libera el horario
