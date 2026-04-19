@@ -126,6 +126,7 @@ export interface DetalleCita {
   fecha_creacion:           string;
   fecha_actualizacion:      string;
   id_disponibilidad:        number | null;
+  es_invitado:              boolean;
   id_medico:                number;
   id_especialidad:          number;
   anios_experiencia:        number;
