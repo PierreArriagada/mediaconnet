@@ -130,9 +130,11 @@ Response 409:
 
 Importante:
 
-- el registro actual inserta solo en `usuarios`
+- el registro crea en una transacción: el usuario en `usuarios` (rol `Paciente`) y un perfil provisional en `pacientes`
+- el `rut` provisional se genera como `USR-{id_usuario}` hasta que el paciente complete su perfil
+- `fecha_nacimiento` provisional: `2000-01-01`
+- esto garantiza que el usuario recién registrado puede reservar citas inmediatamente
 - el rol queda forzado a `Paciente`
-- `rut` se acepta en el contrato, pero todavía no se persiste en `pacientes`
 - el frontend exige reglas de contraseña más estrictas por UX, pero el backend hoy solo garantiza longitud mínima 8
 
 ### POST `/api/auth/forgot-password`
@@ -253,15 +255,59 @@ Principios vigentes:
 
 ---
 
-## Endpoints planificados
+## Endpoints del paciente (completos)
 
-| Método | Endpoint | Feature | Descripción |
-|---|---|---|---|
-| `GET` | `/api/especialidades` | Citas | Listar especialidades activas |
-| `GET` | `/api/medicos?especialidad=:id` | Citas | Médicos por especialidad |
-| `GET` | `/api/disponibilidad/:medicoId` | Citas | Horarios disponibles |
-| `POST` | `/api/citas` | Citas | Crear cita médica |
-| `GET` | `/api/citas/paciente/:id` | Citas | Citas del paciente |
-| `PATCH` | `/api/citas/:id` | Citas | Cancelar o reprogramar cita |
-| `GET` | `/api/notificaciones` | Notificaciones | Lista de notificaciones |
-| `PATCH` | `/api/notificaciones/:id/leer` | Notificaciones | Marcar como leída |
+Todos requieren `Authorization: Bearer <token>` con rol `Paciente`.
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| `GET` | `/api/paciente/dashboard` | Próxima cita + últimas 5 notificaciones + badge no leídas |
+| `GET` | `/api/paciente/especialidades` | Especialidades activas + badge no leídas |
+| `GET` | `/api/paciente/profesionales/:idEspecialidad` | Médicos activos de la especialidad con sus próximos 3 slots |
+| `GET` | `/api/paciente/medico/:idMedico` | Perfil enriquecido del médico: bio, valoración, horario, próximo slot |
+| `GET` | `/api/paciente/medico/:idMedico/disponibilidad` | Slots disponibles del médico agrupados por fecha |
+| `POST` | `/api/paciente/reservar` | Crear cita médica (transaccional, FOR UPDATE en slot) |
+| `GET` | `/api/paciente/cita/:idCita` | Detalle completo de una cita del paciente autenticado |
+| `PATCH` | `/api/paciente/cita/:idCita/cancelar` | Cancelar cita pendiente o confirmada, libera slot |
+| `PATCH` | `/api/paciente/cita/:idCita/reagendar` | Reagendar cita a nuevo slot del mismo médico |
+
+### GET `/api/paciente/cita/:idCita`
+
+- prevención IDOR: verifica que la cita pertenezca al paciente del JWT
+- devuelve datos del médico (nombre, biografía, valoración), especialidad, disponibilidad y estado
+- campos: `id_cita`, `fecha_cita`, `hora_cita`, `estado_cita`, `motivo_consulta`, `modalidad`, `observaciones`, datos del médico y especialidad
+
+### PATCH `/api/paciente/cita/:idCita/cancelar`
+
+- solo acepta citas con `estado_cita IN ('pendiente', 'confirmada')`
+- libera el slot: `disponibilidad_medica.estado = 'disponible'`
+- crea notificación de tipo `cancelacion`
+- operación transaccional
+
+### PATCH `/api/paciente/cita/:idCita/reagendar`
+
+Request body:
+- `id_disponibilidad`: nuevo slot del mismo médico
+
+- verifica que el nuevo slot pertenezca al mismo médico y esté disponible
+- usa doble `FOR UPDATE` para evitar condición de carrera
+- libera slot anterior, reserva nuevo slot, actualiza `fecha_cita` y `hora_cita` en la cita
+- crea notificación de tipo `reprogramacion`
+- operación transaccional
+
+## Endpoints públicos de citas
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| `GET` | `/api/citas/especialidades` | Especialidades activas (sin autenticación) |
+| `POST` | `/api/citas/invitado` | Crear cita como invitado sin cuenta |
+
+## Endpoints pendientes de implementar
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| `GET` | `/api/notificaciones` | Lista paginada de notificaciones |
+| `PATCH` | `/api/notificaciones/:id/leer` | Marcar notificación como leída |
+| `GET` | `/api/paciente/historial` | Historial de atenciones completadas |
+| `GET` | `/api/paciente/perfil` | Perfil clínico del paciente |
+| `PATCH` | `/api/paciente/perfil` | Actualizar perfil (rut, fecha_nacimiento, etc.) |
