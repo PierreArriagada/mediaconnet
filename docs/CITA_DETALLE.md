@@ -104,3 +104,39 @@
 * Operaciones de cancelar y reagendar usan transacciones con `FOR UPDATE` para evitar condiciones de carrera
 * Validación de estados permitidos (solo pendiente/confirmada pueden modificarse)
 * Diálogo de confirmación antes de cancelar para evitar acciones accidentales
+
+---
+
+## Actualización — Diferenciación de flujos (Usuario Registrado vs. Invitado)
+
+### Qué se realizó
+* Se diferenció completamente la experiencia de la vista de detalle según el origen de la cita
+* Citas reservadas por usuario registrado (con slot real en `disponibilidad_medica`) muestran una **tarjeta de estado simple** con icono y descripción, sin pasos de progreso innecesarios
+* Solicitudes de invitado continúan mostrando el **timeline de 4 pasos** con mensajes adaptados a cada estado del proceso de revisión
+* Se agregó un **banner informativo** para solicitudes de invitado con estado `pendiente`
+
+### Qué se modificó
+
+#### Backend
+* **`backend/src/controllers/paciente.controller.js`**
+  - `getDetalleCita`: se añadió `c.es_invitado` al SELECT para que el frontend discrimine el tipo de cita
+  - `crearCitaPaciente`: el INSERT usa `estado_cita = 'confirmada'` (antes `'pendiente'`), reflejando que el bloqueo del slot implica hora otorgada
+
+#### Frontend
+* **`app/src/app/core/services/paciente.service.ts`**
+  - Interfaz `DetalleCita`: se agregó el campo `es_invitado: boolean`
+* **`app/src/app/features/paciente/citas/cita-detalle.page.ts`**
+  - Se agregó el getter `esCitaDirecta` (`id_disponibilidad !== null && !es_invitado`)
+  - Se agregó el getter `estadoSimple` con icono, título y descripción por estado para citas directas
+  - Se refactorizó el getter `pasos`: 4 pasos semánticos de solicitud (Solicitud enviada → En revisión → Hora asignada → Atención médica)
+  - Se actualizó `chipEstado`: invitados `pendiente` → "En revisión"; citas directas `pendiente` → "Confirmada"
+  - Se añadió el valor `'cancelado'` al tipo `PasoTimeline`
+* **`app/src/app/features/paciente/citas/cita-detalle.page.html`**
+  - Columna izquierda condicional: muestra `.mc-estado-simple` si `esCitaDirecta`, o timeline + banner si no
+  - Timeline incluye soporte para paso con estado `cancelado`
+* **`app/src/app/features/paciente/citas/cita-detalle.page.scss`**
+  - Se añadieron estilos para `.mc-estado-simple` (variantes: `--success`, `--completed`, `--cancelled`, `--warning`)
+  - Se añadieron estilos para `.mc-pending-banner`
+  - Se añadieron estilos para `.mc-timeline__dot--cancelado` e `icon--cancel`
+  - Se añadieron ajustes de modo oscuro para los nuevos componentes
+
