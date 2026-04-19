@@ -1,0 +1,24 @@
+<div class="mc-alert">
+  <!-- Ícono y Cabecera -->
+  <div class="mc-alert__header" [ngClass]="'mc-alert__header--' + colorConfirmar">
+    <div class="mc-alert__icon">
+      <span class="material-symbols-outlined">{{ icono }}</span>
+    </div>
+    <h2 class="mc-alert__title">{{ titulo }}</h2>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="mc-alert__body">
+    <p class="mc-alert__message">{{ mensaje }}</p>
+  </div>
+
+  <!-- Botones de Acción -->
+  <div class="mc-alert__footer">
+    <button class="mc-btn-outline" (click)="cancelar()">
+      {{ btnCancelar }}
+    </button>
+    <button class="mc-btn" [ngClass]="'mc-btn--' + colorConfirmar" (click)="confirmar()">
+      {{ btnConfirmar }}
+    </button>
+  </div>
+</div>
