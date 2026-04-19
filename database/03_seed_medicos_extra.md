@@ -26,7 +26,18 @@ El script fue diseñado como **idempotente**, por lo tanto puede ejecutarse más
 ## Cómo ejecutar en entorno Docker
 
 ```bash
+
+ Importante, comando solo valido en Mac
+
 docker exec -i mediconnect-postgres psql -U postgres -d mediconnect < database/03_seed_medicos_extra.sql
+
+comando valido en windows
+
+inserta en el contenedor
+docker cp database/03_seed_medicos_extra.sql mediconnect-postgres:/tmp/seed.sql
+
+se ejecuta
+docker exec -it mediconnect-postgres psql -U postgres -d mediconnect -f /tmp/seed.sql
 
 
 Validaciones sugeridas
