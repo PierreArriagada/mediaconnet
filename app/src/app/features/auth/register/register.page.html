@@ -103,11 +103,9 @@
               }
             </div>
 
-            <!-- RUT (opcional) -->
+            <!-- RUT (requerido para vincular solicitudes realizadas como invitado) -->
             <div class="field">
-              <label class="field__label" for="rut">
-                RUT <span class="field__label--optional">(opcional)</span>
-              </label>
+              <label class="field__label" for="rut">RUT</label>
               <input
                 class="field__input"
                 id="rut"
@@ -120,7 +118,11 @@
                 (input)="onRutInput($event)"
                 [class.field__input--error]="hasError('rut')"
               />
-              @if (hasError('rut', 'rutFormat')) {
+              @if (hasError('rut', 'required')) {
+                <span class="field__error">
+                  <span class="material-symbols-outlined field__error-icon">error</span>RUT requerido
+                </span>
+              } @else if (hasError('rut', 'rutFormat')) {
                 <span class="field__error">
                   <span class="material-symbols-outlined field__error-icon">error</span>Formato inválido (ej: 12.345.678-9)
                 </span>

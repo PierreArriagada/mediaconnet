@@ -25,7 +25,7 @@ const RUT_RE = /^\d{1,3}\.?\d{3}\.?\d{3}-[\dkK]$/;
 function rutValidator(): ValidatorFn {
   return (ctrl: AbstractControl): ValidationErrors | null => {
     const val: string = (ctrl.value ?? '').trim();
-    if (!val) return null; // campo opcional
+    if (!val) return { required: true }; // RUT requerido para vincular solicitudes de invitado
 
     if (!RUT_RE.test(val)) return { rutFormat: true };
 
@@ -171,8 +171,8 @@ export class RegisterPage {
       apellido: raw.apellido.trim(),
       correo:   raw.correo.trim().toLowerCase(),
       password: raw.password,
+      rut:      raw.rut.trim(),
       ...(raw.telefono?.trim() && { telefono: raw.telefono.trim() }),
-      ...(raw.rut?.trim()      && { rut: raw.rut.trim() }),
     };
 
     this.authService.register(payload).subscribe({
