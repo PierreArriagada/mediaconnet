@@ -27,7 +27,8 @@ const registerValidators = [
   body('correo').isEmail().normalizeEmail(),
   body('password').isLength({ min: 8 }),
   body('telefono').optional({ nullable: true }).trim().isLength({ max: 20 }),
-  body('rut').optional({ nullable: true }).trim().isLength({ max: 12 }),
+  // RUT requerido: clave para vincular solicitudes de invitado con la nueva cuenta
+  body('rut').trim().notEmpty().isLength({ min: 8, max: 12 }),
 ];
 
 router.post('/login',           authLimiter, loginValidators,    login);
