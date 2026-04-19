@@ -396,13 +396,13 @@ async function crearCitaPaciente(req, res) {
       [idDisp]
     );
 
-    // Crear cita médica
+    // Crear cita médica — nace como 'confirmada' porque el slot ya fue bloqueado
     const citaResult = await client.query(
       `INSERT INTO citas_medicas (
          id_paciente, id_medico, id_especialidad, id_disponibilidad,
          modalidad, fecha_cita, hora_cita, estado_cita, motivo_consulta,
          es_invitado
-       ) VALUES ($1, $2, $3, $4, $5, $6::date, $7::time, 'pendiente', $8, FALSE)
+       ) VALUES ($1, $2, $3, $4, $5, $6::date, $7::time, 'confirmada', $8, FALSE)
        RETURNING id_cita`,
       [idPaciente, idMedico, idEsp, idDisp, modalidad.trim(), slot.fecha, slot.hora_inicio, motivo_consulta.trim()]
     );
@@ -449,7 +449,7 @@ async function getDetalleCita(req, res) {
          c.id_cita, c.fecha_cita::text, c.hora_cita::text,
          c.estado_cita, c.motivo_consulta, c.modalidad, c.observaciones,
          c.fecha_creacion, c.fecha_actualizacion,
-         c.id_disponibilidad, c.id_medico, c.id_especialidad,
+         c.id_disponibilidad, c.id_medico, c.id_especialidad, c.es_invitado,
          m.id_medico, m.anios_experiencia, m.biografia,
          m.valoracion_promedio, m.total_valoraciones,
          u.nombre AS medico_nombre, u.apellido AS medico_apellido,
