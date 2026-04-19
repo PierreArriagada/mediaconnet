@@ -1,0 +1,209 @@
+<ion-content [scrollEvents]="true">
+
+  <!-- ===== HEADER ===== -->
+  <app-paciente-header
+    [userName]="userName"
+    [noLeidas]="noLeidas"
+  ></app-paciente-header>
+
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
+  <main class="mc-main">
+
+    <!-- Botón volver -->
+    <button class="mc-back-btn" (click)="volver()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      <span>Volver</span>
+    </button>
+
+    <!-- Encabezado editorial -->
+    <div class="mc-header-group">
+      <span class="mc-overline">Detalle de Solicitud</span>
+      <h1 class="mc-page-title">Estado de tu cita</h1>
+    </div>
+
+    <!-- Skeleton de carga -->
+    @if (isLoading) {
+      <div class="mc-skeleton-wrapper">
+        <div class="mc-skeleton mc-skeleton--timeline"></div>
+        <div class="mc-skeleton mc-skeleton--card-lg"></div>
+        <div class="mc-skeleton mc-skeleton--card-md"></div>
+      </div>
+    }
+
+    @if (!isLoading && cita) {
+      <div class="mc-layout-grid">
+
+        <!-- ══ COLUMNA IZQUIERDA ══ -->
+        <div class="mc-layout-grid__left">
+
+          <!-- Tarjeta de progreso / timeline -->
+          <section class="mc-card mc-card--surface">
+            <h3 class="mc-card__title">Progreso</h3>
+            <div class="mc-timeline">
+              <div class="mc-timeline__line"></div>
+              @for (paso of pasos; track paso.label) {
+                <div class="mc-timeline__step">
+                  <div class="mc-timeline__dot mc-timeline__dot--{{ paso.estado }}" [attr.aria-label]="paso.label">
+                    @if (paso.estado === 'completado') {
+                      <span class="material-symbols-outlined mc-timeline__icon">check</span>
+                    }
+                    @if (paso.estado === 'activo') {
+                      <div class="mc-timeline__pulse"></div>
+                    }
+                    @if (paso.estado === 'pendiente') {
+                      <div class="mc-timeline__dot-inner"></div>
+                    }
+                  </div>
+                  <div class="mc-timeline__content">
+                    <p class="mc-timeline__label" [class.mc-timeline__label--activo]="paso.estado === 'activo'"
+                       [class.mc-timeline__label--pendiente]="paso.estado === 'pendiente'">
+                      {{ paso.label }}
+                    </p>
+                    <p class="mc-timeline__sublabel" [class.mc-timeline__sublabel--activo]="paso.estado === 'activo'">
+                      {{ paso.sublabel }}
+                    </p>
+                  </div>
+                </div>
+              }
+            </div>
+          </section>
+
+          <!-- Contacto del centro -->
+          <section class="mc-card mc-card--surface">
+            <h3 class="mc-card__title">Contacto del centro</h3>
+            <div class="mc-contact-list">
+              <div class="mc-contact-item">
+                <span class="material-symbols-outlined mc-contact-item__icon">location_on</span>
+                <div>
+                  <p class="mc-contact-item__label">Dirección</p>
+                  <p class="mc-contact-item__value">Centro Médico MediConnect, Santiago</p>
+                </div>
+              </div>
+              <div class="mc-contact-item">
+                <span class="material-symbols-outlined mc-contact-item__icon">call</span>
+                <div>
+                  <p class="mc-contact-item__label">Teléfono</p>
+                  <p class="mc-contact-item__value">+56 2 2345 6789</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- ══ COLUMNA DERECHA ══ -->
+        <div class="mc-layout-grid__right">
+
+          <!-- Tarjeta principal de datos -->
+          <section class="mc-data-card">
+            <div class="mc-data-card__header">
+              <div>
+                <span class="mc-chip" [ngClass]="chipEstado.clase">
+                  {{ chipEstado.label }}
+                </span>
+                <span class="mc-chip mc-chip--id">ID: #MC-{{ cita.id_cita }}</span>
+                <h2 class="mc-data-card__specialty">{{ cita.nombre_especialidad }}</h2>
+              </div>
+              @if (puedeModificar) {
+                <div class="mc-data-card__actions">
+                  <button class="mc-btn-outline" (click)="reagendar()">
+                    Reagendar
+                  </button>
+                  <button class="mc-btn-danger" (click)="confirmarCancelar()" [disabled]="isCancelling()">
+                    {{ isCancelling() ? 'Cancelando...' : 'Cancelar' }}
+                  </button>
+                </div>
+              }
+            </div>
+
+            <!-- Grid informativo bento -->
+            <div class="mc-info-grid">
+              <div class="mc-info-cell">
+                <span class="material-symbols-outlined mc-info-cell__icon">person_check</span>
+                <p class="mc-info-cell__label">Profesional</p>
+                <p class="mc-info-cell__value">{{ titulo }} {{ cita.medico_nombre }} {{ cita.medico_apellido }}</p>
+              </div>
+              <div class="mc-info-cell">
+                <span class="material-symbols-outlined mc-info-cell__icon">calendar_month</span>
+                <p class="mc-info-cell__label">Fecha</p>
+                <p class="mc-info-cell__value">{{ formatFecha(cita.fecha_cita) }}</p>
+              </div>
+              <div class="mc-info-cell">
+                <span class="material-symbols-outlined mc-info-cell__icon">schedule</span>
+                <p class="mc-info-cell__label">Horario</p>
+                <p class="mc-info-cell__value">{{ formatHora(cita.hora_cita) }}</p>
+              </div>
+              <div class="mc-info-cell">
+                <span class="material-symbols-outlined mc-info-cell__icon">videocam</span>
+                <p class="mc-info-cell__label">Modalidad</p>
+                <p class="mc-info-cell__value mc-info-cell__value--capitalize">{{ cita.modalidad }}</p>
+              </div>
+            </div>
+
+            <!-- Notas y motivo de consulta -->
+            <div class="mc-notes-section">
+              <h4 class="mc-notes-section__title">Motivo de consulta</h4>
+              <div class="mc-notes-block">
+                <p class="mc-notes-block__text">{{ cita.motivo_consulta }}</p>
+              </div>
+            </div>
+
+            @if (cita.observaciones) {
+              <div class="mc-notes-section">
+                <h4 class="mc-notes-section__title">Observaciones</h4>
+                <div class="mc-notes-block mc-notes-block--warn">
+                  <p class="mc-notes-block__text">{{ cita.observaciones }}</p>
+                </div>
+              </div>
+            }
+          </section>
+
+          <!-- Tarjeta del médico -->
+          <section class="mc-doctor-card">
+            <div class="mc-doctor-card__avatar" [attr.data-theme]="cita.id_medico % 3">
+              {{ iniciales }}
+            </div>
+            <div class="mc-doctor-card__info">
+              <h4 class="mc-doctor-card__name">{{ titulo }} {{ cita.medico_nombre }} {{ cita.medico_apellido }}</h4>
+              <p class="mc-doctor-card__specialty">{{ cita.nombre_especialidad }}</p>
+              @if (cita.biografia) {
+                <p class="mc-doctor-card__bio">{{ cita.biografia }}</p>
+              }
+              <div class="mc-doctor-card__stats">
+                <span class="mc-tag">{{ cita.anios_experiencia }} años exp.</span>
+                @if (cita.total_valoraciones > 0) {
+                  <span class="mc-tag">⭐ {{ cita.valoracion_promedio }}</span>
+                }
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    }
+
+  </main>
+
+  <!-- ===== BOTTOM NAV ===== -->
+  <app-paciente-bottom-nav activeTab="home"></app-paciente-bottom-nav>
+
+  <!-- Toasts -->
+  <ion-toast
+    [isOpen]="showError"
+    [message]="errorMsg"
+    [duration]="3000"
+    color="danger"
+    position="bottom"
+    (didDismiss)="showError = false"
+  ></ion-toast>
+
+  <ion-toast
+    [isOpen]="showSuccess"
+    [message]="successMsg"
+    [duration]="2500"
+    color="success"
+    position="bottom"
+    (didDismiss)="showSuccess = false"
+  ></ion-toast>
+
+</ion-content>
