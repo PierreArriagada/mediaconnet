@@ -205,6 +205,10 @@ Espera ~20 segundos y verifica que compiló:
 docker exec mediconnect-app sh -c "cat /tmp/serve.log"
 ```
 
+borrar cache de ser necesario para ajustes nuevos
+
+docker exec mediconnect-app sh -c "rm -rf /workspace/.angular/cache"
+
 Debes ver `✔ Compiled successfully.` al final. Luego abrir `http://localhost:8100`.
 
 > **¿Cuándo usar el resumen completo (con `--build` y `npm install`)?** Solo cuando hay cambios en `Dockerfile`, `backend/Dockerfile`, `docker-compose.yml`, `app/package.json`, o si ejecutaste `docker compose down -v`.
@@ -313,13 +317,13 @@ Estás ejecutando el comando en Windows. Ionic está dentro del contenedor Docke
 
 ### Me registré y no encuentro el usuario en la base
 
-Consulta la tabla `usuarios`, no `pacientes`:
+Consulta la tabla `usuarios`:
 
 ```bash
 docker exec mediconnect-postgres psql -U postgres -d mediconnect -c "SELECT id_usuario, correo, id_rol FROM usuarios WHERE correo = 'tu_correo@ejemplo.com';"
 ```
 
-El registro actual crea la cuenta de autenticación y el rol `Paciente`, pero todavía no crea el perfil clínico en `pacientes`.
+El registro crea en una transacción: la cuenta en `usuarios` (rol `Paciente`) y un perfil provisional en `pacientes` con `rut = 'USR-{id}'` y `fecha_nacimiento = '2000-01-01'`. El usuario puede reservar citas inmediatamente.
 
 ### `docker exec -it mediconnect-postgres psql ...` falla en la terminal integrada
 
