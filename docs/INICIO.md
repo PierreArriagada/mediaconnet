@@ -101,7 +101,7 @@ docker exec mediconnect-app sh -c "pkill -f 'ionic'; pkill -f 'ng run app:serve'
 ## Paso 6 — Iniciar el servidor de desarrollo del frontend
 
 ```bash
-docker exec -d mediconnect-app sh -c "cd /workspace && ionic serve --host=0.0.0.0 --port=8100 --poll=1000 --no-open --no-interactive > /tmp/serve.log 2>&1"
+docker exec -d mediconnect-app sh -c "cd /workspace && ionic serve --host=0.0.0.0 --port=8100 --live-reload-port=49153 --poll=1000 --no-open --no-interactive > /tmp/serve.log 2>&1"
 ```
 
 Esto inicia Ionic en segundo plano dentro del contenedor. El `-d` hace que la terminal no se quede bloqueada.
@@ -165,7 +165,7 @@ docker compose up -d --build
 docker exec mediconnect-app sh -c "cd /workspace && npm install"
 docker compose logs mediconnect-api --tail=30
 docker exec mediconnect-app sh -c "pkill -f 'ionic'; pkill -f 'ng run app:serve'; echo ok"
-docker exec -d mediconnect-app sh -c "cd /workspace && ionic serve --host=0.0.0.0 --port=8100 --poll=1000 --no-open --no-interactive > /tmp/serve.log 2>&1"
+docker exec -d mediconnect-app sh -c "cd /workspace && ionic serve --host=0.0.0.0 --port=8100 --live-reload-port=49153 --poll=1000 --no-open --no-interactive > /tmp/serve.log 2>&1"
 docker exec mediconnect-app sh -c "cat /tmp/serve.log"
 ```
 
@@ -196,7 +196,7 @@ docker exec mediconnect-app sh -c "pkill -f 'ionic'; pkill -f 'ng run app:serve'
 Inicia el servidor de desarrollo:
 
 ```bash
-docker exec -d mediconnect-app sh -c "cd /workspace && ionic serve --host=0.0.0.0 --port=8100 --poll=1000 --no-open --no-interactive > /tmp/serve.log 2>&1"
+docker exec -d mediconnect-app sh -c "cd /workspace && ionic serve --host=0.0.0.0 --port=8100 --live-reload-port=49153 --poll=1000 --no-open --no-interactive > /tmp/serve.log 2>&1"
 ```
 
 Espera ~20 segundos y verifica que compiló:
@@ -205,9 +205,11 @@ Espera ~20 segundos y verifica que compiló:
 docker exec mediconnect-app sh -c "cat /tmp/serve.log"
 ```
 
-borrar cache de ser necesario para ajustes nuevos
+Borrar caché de Angular si los cambios no se reflejan:
 
+```bash
 docker exec mediconnect-app sh -c "rm -rf /workspace/.angular/cache"
+```
 
 Debes ver `✔ Compiled successfully.` al final. Luego abrir `http://localhost:8100`.
 
