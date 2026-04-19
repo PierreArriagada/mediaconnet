@@ -27,8 +27,8 @@ app/src/app/
 ├── shared/           componentes, pipes y directivas reutilizables
 ├── features/
 │   ├── auth/         login, registro y restablecimiento de contraseña
-│   ├── dashboard/    vista principal protegida
-│   └── appointments/ feature reservada para citas
+│   ├── dashboard/    vista de redireccionamiento post-login
+│   └── paciente/     módulo completo del paciente (home, reservar, citas, etc.)
 ├── layouts/          shells reutilizables
 ├── app.routes.ts     rutas raíz con lazy loading
 ├── app.config.ts     providers globales
@@ -65,7 +65,8 @@ Esta estructura es suficiente para crecer sin convertir el backend en un archivo
 Estado actual:
 
 - login real implementado
-- registro real implementado
+- registro real implementado — crea `usuarios` + perfil provisional en `pacientes` en una sola transacción
+- el usuario recién registrado puede reservar citas inmediatamente (perfil provisional `rut=USR-{id}`, `fecha_nacimiento=2000-01-01`)
 - recuperación de contraseña con respuesta genérica implementada
 - refresh token, revocación y expiración persistida todavía no implementados
 
@@ -84,8 +85,8 @@ No se requiere instalar Node, Angular CLI, Ionic CLI ni PostgreSQL en la máquin
 - Motor actual: PostgreSQL 18.
 - `database/01_init.sql` crea esquema, índices, triggers, datos semilla y la extensión `pgcrypto`.
 - Las contraseñas semilla ya no son placeholders: se generan con `crypt(..., gen_salt('bf', 12))`.
-- El endpoint de registro inserta en `usuarios` con `id_rol = 2` (`Paciente`).
-- El perfil en `pacientes` aún no se crea automáticamente porque la tabla exige datos que la vista de registro todavía no solicita, como `fecha_nacimiento`.
+- El endpoint de registro inserta en `usuarios` con `id_rol = 2` (`Paciente`) **y** crea un perfil provisional en `pacientes` dentro de la misma transacción.
+- El perfil provisional usa `rut = 'USR-{id_usuario}'` como valor temporal y `fecha_nacimiento = '2000-01-01'` hasta que el paciente actualice su perfil.
 
 ## 7. Seguridad aplicada
 
