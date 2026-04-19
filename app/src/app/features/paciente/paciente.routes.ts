@@ -36,4 +36,9 @@ export const PACIENTE_ROUTES: Routes = [
     loadComponent: () =>
       import('./confirmar-reserva/confirmar-reserva.page'),
   },
+  {
+    path: 'citas/:idCita',
+    loadComponent: () =>
+      import('./citas/cita-detalle.page'),
+  },
 ];
