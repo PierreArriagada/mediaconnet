@@ -1,0 +1,112 @@
+.mc-alert {
+  background: var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: var(--mc-shadow-fab);
+  text-align: center;
+  align-items: center;
+
+  &__icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    margin-bottom: 1.5rem;
+    background: var(--mc-primary-fixed);
+    color: var(--mc-primary);
+
+    span {
+      font-size: 2rem;
+    }
+  }
+
+  &__header--danger &__icon {
+    background: var(--mc-error-container);
+    color: var(--mc-error);
+  }
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--mc-on-surface);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  &__body {
+    width: 100%;
+  }
+
+  &__message {
+    font-family: var(--mc-font-utility);
+    font-size: 1rem;
+    color: var(--mc-on-surface-variant);
+    line-height: var(--mc-leading-body);
+    margin: 0;
+  }
+
+  &__footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    width: 100%;
+    margin-top: 0.5rem;
+    flex-wrap: wrap; // para pantallas pequeñas
+
+    > button {
+      flex: 1;
+      min-width: 8rem;
+    }
+  }
+}
+
+// ── Botones de acción ─────────────────────────────────
+
+.mc-btn-outline {
+  background: transparent;
+  border: 2px solid var(--mc-primary);
+  border-radius: var(--mc-radius-md);
+  color: var(--mc-primary);
+  font-family: var(--mc-font-authority);
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+
+  &:hover  { background: var(--mc-primary-fixed); }
+  &:active { transform: scale(0.97); }
+}
+
+.mc-btn {
+  border: none;
+  border-radius: var(--mc-radius-md);
+  font-family: var(--mc-font-authority);
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+
+  &--primary {
+    background: var(--mc-primary);
+    color: var(--mc-on-primary);
+    
+    &:hover  { opacity: 0.9; }
+    &:active { transform: scale(0.97); }
+  }
+
+  &--danger {
+    background: var(--mc-error);
+    color: var(--mc-on-error);
+
+    &:hover  { opacity: 0.9; }
+    &:active { transform: scale(0.97); }
+  }
+}
