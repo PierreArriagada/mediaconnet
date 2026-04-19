@@ -18,10 +18,20 @@
   - Todas protegidas por JWT + rol Paciente
 
 ### Frontend
+* **Estilos Globales:** `app/src/global.scss`
+  - Se agregó la clase `.mc-alert-modal` con variables `--width` y `--border-radius` para el layout del web-modal custom
 * **Nuevo componente:** `app/src/app/features/paciente/citas/`
-  - `cita-detalle.page.ts` — Lógica: carga de datos, timeline dinámico según estado, acciones de cancelar (con diálogo de confirmación) y reagendar (redirige al flujo de elegir-horario)
-  - `cita-detalle.page.html` — Template con layout de 2 columnas: izquierda (timeline + contacto del centro) y derecha (tarjeta de datos con info grid bento + notas + tarjeta del médico)
-  - `cita-detalle.page.scss` — Estilos con `--mc-*`, soporte modo oscuro, responsive mobile-first, skeletons de carga; el gap del layout grid se aplica en todos los breakpoints para evitar que las cards colisionen en mobile
+  - `cita-detalle.page.ts` — Lógica: carga de datos, reemplaza el `AlertController` y utiliza el `ModalController` con el UI system de MediConnect para la confirmación (`McAlertComponent`)
+  - `cita-detalle.page.html` — Template con layout de 2 columnas: izquierda (timeline + `<app-centro-contacto>`) y derecha (tarjeta de datos con info grid bento + notas + tarjeta del médico)
+  - `cita-detalle.page.scss` — Estilos con `--mc-*`, soporte modo oscuro, responsive mobile-first, skeletons de carga; los estilos de contacto fueron movidos al componente `centro-contacto`
+* **Nuevo componente compartido:** `app/src/app/shared/components/alertas-sistema/mc-alert/`
+  - `mc-alert.component.ts` — Componente standalone de IonModal reutilizable que reemplaza los Alerts nativos
+  - `mc-alert.component.html` — Layout de la alerta (título, mensaje, botones dinámicos)
+  - `mc-alert.component.scss` — Estilos de UI siguiendo variables CSS `--mc-*`
+* **Nuevo componente compartido:** `app/src/app/shared/components/centro-contacto/`
+  - `centro-contacto.component.ts` — Componente standalone con `@Input()` para `titulo`, `direccion` y `telefono`; reutilizable en cualquier vista
+  - `centro-contacto.component.html` — Tarjeta con items de dirección y teléfono
+  - `centro-contacto.component.scss` — Estilos `.mc-card`, `.mc-contact-list` y `.mc-contact-item` encapsulados en el componente
 * **Servicio:** `app/src/app/core/services/paciente.service.ts`
   - Se agregaron interfaces: `DetalleCita`, `DetalleCitaData`, `MensajeResponse`
   - Se agregaron métodos: `getDetalleCita()`, `cancelarCita()`, `reagendarCita()`
@@ -30,11 +40,11 @@
 * **Home:** `app/src/app/features/paciente/home/paciente-home.page.html` y `paciente-home.page.ts`
   - La tarjeta de próxima cita navega con el método `verCita(id)` que llama `router.navigate(['/paciente', 'citas', id])` — segmentos separados, sin string-slash que Angular URL-encodaría como `%2F`
 
-## Funcionalidades
-* **Timeline de progreso:** pasos dinámicos según `estado_cita` (pendiente / confirmada / completada / cancelada / reprogramada)
+* **Funcionalidades:**
+  - **Acción Cancelar:** diálogo de confirmación custom con `McAlertComponent`; cancela y libera el slot
+  - **Timeline de progreso:** pasos dinámicos según `estado_cita` (pendiente / confirmada / completada / cancelada / reprogramada)
 * **Información completa:** profesional, fecha, hora, modalidad, motivo de consulta, observaciones
 * **Contacto del centro:** dirección y teléfono del centro médico
-* **Acción Cancelar:** diálogo de confirmación con `AlertController`; cancela y libera el slot
 * **Acción Reagendar:** navega a `elegir-horario/:idMedico` con queryParam `reagendarCita` para el nuevo slot
 * **Chips de estado:** colores diferenciados por estado
 * **Tarjeta del médico:** avatar con iniciales, biografía, experiencia y valoraciones
