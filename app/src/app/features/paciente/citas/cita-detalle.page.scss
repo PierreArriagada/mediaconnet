@@ -1,0 +1,533 @@
+// Detalle de solicitud — vista completa de una cita médica.
+// Tokens visuales: theme/variables.scss (--mc-*).
+
+ion-content {
+  --padding-bottom: 0;
+  --padding-top:    0;
+}
+
+// ── Contenedor principal ──────────────────────────────
+.mc-main {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 8rem;
+}
+
+// ── Botón volver ──────────────────────────────────────
+.mc-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--mc-primary);
+  font-family: var(--mc-font-utility);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  margin-bottom: 1.5rem;
+  transition: opacity 0.15s;
+
+  &:hover { opacity: 0.7; }
+
+  .material-symbols-outlined { font-size: 1.25rem; }
+}
+
+// ── Encabezado editorial ──────────────────────────────
+.mc-header-group {
+  margin-bottom: 2.5rem;
+}
+
+.mc-overline {
+  color: var(--mc-primary);
+  font-family: var(--mc-font-authority);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.mc-page-title {
+  font-family: var(--mc-font-authority);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  color: var(--mc-on-surface);
+  letter-spacing: var(--mc-tracking-headline);
+  line-height: 1.1;
+}
+
+// ── Grid principal (2 columnas) ───────────────────────
+.mc-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 2fr;
+  }
+
+  &__left,
+  &__right {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+}
+
+// ── Tarjeta base ──────────────────────────────────────
+.mc-card {
+  border-radius: var(--mc-radius-lg);
+  padding: 2rem;
+
+  &--surface {
+    background: var(--mc-surface-container-low);
+  }
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--mc-on-surface);
+    margin-bottom: 2rem;
+  }
+}
+
+// ── Timeline vertical ─────────────────────────────────
+.mc-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+
+  &__line {
+    position: absolute;
+    left: 0.6875rem; // centrado con el dot de 22px
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 2px;
+    background: var(--mc-outline-variant);
+    opacity: 0.3;
+  }
+
+  &__step {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+
+  &__dot {
+    z-index: 1;
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    ring: 4px solid var(--mc-surface-container-low);
+
+    &--completado {
+      background: var(--mc-primary);
+      box-shadow: 0 0 0 4px var(--mc-surface-container-low);
+    }
+
+    &--activo {
+      background: var(--mc-primary-container);
+      box-shadow: 0 0 0 4px var(--mc-surface-container-low);
+      animation: mc-pulse 2s infinite;
+    }
+
+    &--pendiente {
+      background: var(--mc-surface-container-highest);
+      box-shadow: 0 0 0 4px var(--mc-surface-container-low);
+    }
+  }
+
+  &__icon {
+    font-size: 0.875rem;
+    color: var(--mc-on-primary);
+    font-variation-settings: 'FILL' 1;
+  }
+
+  &__pulse {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--mc-on-primary);
+  }
+
+  &__dot-inner {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--mc-outline-variant);
+  }
+
+  &__content {
+    padding-top: 0.1rem;
+  }
+
+  &__label {
+    font-family: var(--mc-font-authority);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--mc-on-surface);
+
+    &--activo  { color: var(--mc-primary); }
+    &--pendiente { color: var(--mc-outline); }
+  }
+
+  &__sublabel {
+    font-family: var(--mc-font-utility);
+    font-size: 0.8125rem;
+    color: var(--mc-on-surface-variant);
+    margin-top: 0.125rem;
+
+    &--activo { color: var(--mc-primary); }
+  }
+}
+
+@keyframes mc-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.6; }
+}
+
+// ── Contacto del centro ───────────────────────────────
+.mc-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mc-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-md);
+  padding: 1rem 1.25rem;
+
+  &__icon {
+    color: var(--mc-primary);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  &__label {
+    font-family: var(--mc-font-utility);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--mc-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__value {
+    font-family: var(--mc-font-utility);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--mc-on-surface);
+    margin-top: 0.125rem;
+  }
+}
+
+// ── Tarjeta principal de datos ────────────────────────
+.mc-data-card {
+  background: var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  padding: 2.5rem;
+  box-shadow: var(--mc-shadow-fab);
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+  }
+
+  &__specialty {
+    font-family: var(--mc-font-authority);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--mc-on-surface);
+    margin-top: 0.75rem;
+    line-height: 1.2;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+}
+
+// ── Chips de estado ───────────────────────────────────
+.mc-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.875rem;
+  border-radius: var(--mc-radius-xl);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-right: 0.5rem;
+
+  &--primary   { background: var(--mc-primary-fixed);       color: var(--mc-on-primary-fixed);       }
+  &--secondary { background: var(--mc-secondary-container);  color: var(--mc-on-secondary-container); }
+  &--warning   { background: #fff3e0; color: #e65100; }
+  &--error     { background: var(--mc-error-container);      color: var(--mc-on-error-container);     }
+  &--success   { background: #e8f5e9; color: #2e7d32; }
+  &--id        { background: var(--mc-secondary-container);  color: var(--mc-on-secondary-container); }
+}
+
+// ── Botones de acción ─────────────────────────────────
+.mc-btn-outline {
+  background: transparent;
+  border: 2px solid var(--mc-primary);
+  border-radius: var(--mc-radius-md);
+  color: var(--mc-primary);
+  font-family: var(--mc-font-authority);
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+
+  &:hover  { background: var(--mc-primary-fixed); }
+  &:active { transform: scale(0.97); }
+}
+
+.mc-btn-danger {
+  background: var(--mc-error-container);
+  border: none;
+  border-radius: var(--mc-radius-md);
+  color: var(--mc-error);
+  font-family: var(--mc-font-authority);
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+
+  &:hover  { opacity: 0.8; }
+  &:active { transform: scale(0.97); }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ── Grid informativo (bento) ──────────────────────────
+.mc-info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @media (min-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.mc-info-cell {
+  background: var(--mc-surface-container-low);
+  border-radius: var(--mc-radius-md);
+  padding: 1.5rem;
+
+  &__icon {
+    color: var(--mc-primary-container);
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  &__label {
+    font-family: var(--mc-font-utility);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--mc-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+
+  &__value {
+    font-family: var(--mc-font-authority);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--mc-on-surface);
+
+    &--capitalize { text-transform: capitalize; }
+  }
+}
+
+// ── Sección de notas ──────────────────────────────────
+.mc-notes-section {
+  margin-top: 2rem;
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--mc-on-surface);
+    margin-bottom: 0.75rem;
+  }
+}
+
+.mc-notes-block {
+  background: var(--mc-primary-fixed);
+  border-left: 4px solid var(--mc-primary);
+  border-radius: var(--mc-radius-sm);
+  padding: 1.25rem 1.5rem;
+  opacity: 0.85;
+
+  &--warn {
+    background: var(--mc-tertiary-fixed);
+    border-left-color: var(--mc-tertiary);
+    opacity: 0.85;
+  }
+
+  &__text {
+    font-family: var(--mc-font-utility);
+    font-size: 0.9375rem;
+    color: var(--mc-on-surface);
+    line-height: var(--mc-leading-body);
+  }
+}
+
+// ── Tarjeta del médico ────────────────────────────────
+.mc-doctor-card {
+  background: var(--mc-surface-container-low);
+  border-radius: var(--mc-radius-lg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  &__avatar {
+    flex-shrink: 0;
+    width: 5rem;
+    height: 5rem;
+    border-radius: var(--mc-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mc-font-authority);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--mc-on-primary);
+    background: var(--mc-gradient-primary);
+
+    &[data-theme="1"] {
+      background: linear-gradient(135deg, var(--mc-tertiary) 0%, var(--mc-tertiary-container) 100%);
+    }
+    &[data-theme="2"] {
+      background: linear-gradient(135deg, var(--mc-secondary) 0%, var(--mc-secondary-container) 100%);
+    }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+
+    @media (min-width: 768px) { text-align: left; }
+  }
+
+  &__name {
+    font-family: var(--mc-font-authority);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--mc-on-surface);
+    margin-bottom: 0.25rem;
+  }
+
+  &__specialty {
+    font-family: var(--mc-font-utility);
+    font-size: 0.875rem;
+    color: var(--mc-on-surface-variant);
+    margin-bottom: 0.5rem;
+  }
+
+  &__bio {
+    font-family: var(--mc-font-utility);
+    font-size: 0.875rem;
+    color: var(--mc-on-surface-variant);
+    line-height: var(--mc-leading-body);
+    margin-bottom: 0.75rem;
+  }
+
+  &__stats {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    @media (min-width: 768px) { justify-content: flex-start; }
+  }
+}
+
+// ── Tags ──────────────────────────────────────────────
+.mc-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  background: var(--mc-surface-container-lowest);
+  border: 1px solid var(--mc-border-ghost);
+  border-radius: var(--mc-radius-xl);
+  font-family: var(--mc-font-utility);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--mc-on-surface-variant);
+}
+
+// ── Skeleton shimmer ──────────────────────────────────
+.mc-skeleton-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.mc-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--mc-surface-container)      25%,
+    var(--mc-surface-container-high) 50%,
+    var(--mc-surface-container)      75%
+  );
+  background-size: 200% 100%;
+  animation: mc-shimmer 1.4s infinite;
+  border-radius: var(--mc-radius-lg);
+
+  &--timeline { height: 16rem; }
+  &--card-lg  { height: 22rem; }
+  &--card-md  { height: 10rem; }
+}
+
+@keyframes mc-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// ── Modo oscuro: ajustes de chips de color fijo ───────
+@media (prefers-color-scheme: dark) {
+  .mc-chip--warning { background: rgba(255, 243, 224, 0.15); color: #ffb74d; }
+  .mc-chip--success { background: rgba(232, 245, 233, 0.15); color: #81c784; }
+}

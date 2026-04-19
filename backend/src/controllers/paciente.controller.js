@@ -429,4 +429,232 @@ async function crearCitaPaciente(req, res) {
   }
 }
 
-module.exports = { getDashboard, getEspecialidadesConBadge, getProfesionalesPorEspecialidad, getDetalleMedico, getDisponibilidadMedico, crearCitaPaciente };
+/**
+ * GET /api/paciente/cita/:idCita
+ * Detalle completo de una cita médica del paciente autenticado.
+ * Incluye datos del médico, especialidad, disponibilidad y estado.
+ */
+async function getDetalleCita(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idCita    = parseInt(req.params.idCita, 10);
+
+  if (isNaN(idUsuario) || isNaN(idCita) || idCita < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  try {
+    // Prevención IDOR: se verifica que la cita pertenezca al paciente del usuario autenticado
+    const citaResult = await pool.query(
+      `SELECT
+         c.id_cita, c.fecha_cita::text, c.hora_cita::text,
+         c.estado_cita, c.motivo_consulta, c.modalidad, c.observaciones,
+         c.fecha_creacion, c.fecha_actualizacion,
+         c.id_disponibilidad, c.id_medico, c.id_especialidad,
+         m.id_medico, m.anios_experiencia, m.biografia,
+         m.valoracion_promedio, m.total_valoraciones,
+         u.nombre AS medico_nombre, u.apellido AS medico_apellido,
+         e.nombre_especialidad, e.descripcion AS descripcion_especialidad,
+         d.fecha::text AS disp_fecha, d.hora_inicio::text AS disp_hora_inicio,
+         d.hora_fin::text AS disp_hora_fin
+       FROM   citas_medicas    c
+       JOIN   pacientes        p ON c.id_paciente     = p.id_paciente
+       JOIN   medicos          m ON c.id_medico        = m.id_medico
+       JOIN   usuarios         u ON m.id_usuario       = u.id_usuario
+       JOIN   especialidades   e ON c.id_especialidad  = e.id_especialidad
+       LEFT JOIN disponibilidad_medica d ON c.id_disponibilidad = d.id_disponibilidad
+       WHERE  c.id_cita      = $1
+         AND  p.id_usuario   = $2`,
+      [idCita, idUsuario]
+    );
+
+    if (citaResult.rowCount === 0) {
+      return res.status(404).json({ message: 'Cita no encontrada.' });
+    }
+
+    const unreadResult = await pool.query(
+      `SELECT COUNT(*) AS total FROM notificaciones WHERE id_usuario = $1 AND leida = FALSE`,
+      [idUsuario]
+    );
+
+    return res.json({
+      cita:     citaResult.rows[0],
+      noLeidas: parseInt(unreadResult.rows[0].total, 10),
+    });
+  } catch (err) {
+    console.error('Error en getDetalleCita:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * PATCH /api/paciente/cita/:idCita/cancelar
+ * Cancela una cita pendiente o confirmada del paciente autenticado.
+ * Libera el slot de disponibilidad dentro de una transacción.
+ */
+async function cancelarCita(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idCita    = parseInt(req.params.idCita, 10);
+
+  if (isNaN(idUsuario) || isNaN(idCita) || idCita < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Verificar propiedad y estado cancelable (solo pendiente o confirmada)
+    const citaResult = await client.query(
+      `SELECT c.id_cita, c.id_disponibilidad, c.estado_cita
+       FROM   citas_medicas c
+       JOIN   pacientes     p ON c.id_paciente = p.id_paciente
+       WHERE  c.id_cita    = $1
+         AND  p.id_usuario = $2
+       FOR UPDATE OF c`,
+      [idCita, idUsuario]
+    );
+
+    if (citaResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ message: 'Cita no encontrada.' });
+    }
+
+    const cita = citaResult.rows[0];
+
+    if (!['pendiente', 'confirmada'].includes(cita.estado_cita)) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ message: 'Solo se pueden cancelar citas pendientes o confirmadas.' });
+    }
+
+    // Cancelar la cita
+    await client.query(
+      `UPDATE citas_medicas SET estado_cita = 'cancelada' WHERE id_cita = $1`,
+      [idCita]
+    );
+
+    // Liberar slot de disponibilidad si existe
+    if (cita.id_disponibilidad) {
+      await client.query(
+        `UPDATE disponibilidad_medica SET estado = 'disponible' WHERE id_disponibilidad = $1`,
+        [cita.id_disponibilidad]
+      );
+    }
+
+    // Notificación de cancelación
+    await client.query(
+      `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+       VALUES ($1, 'Cita cancelada', 'Tu cita médica fue cancelada correctamente.', 'cancelacion', FALSE)`,
+      [idUsuario]
+    );
+
+    await client.query('COMMIT');
+    return res.json({ message: 'Cita cancelada correctamente.' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error en cancelarCita:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * PATCH /api/paciente/cita/:idCita/reagendar
+ * Reprograma una cita: libera el slot anterior y asigna uno nuevo.
+ * Requiere { id_disponibilidad } en el body con el nuevo slot.
+ */
+async function reagendarCita(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idCita    = parseInt(req.params.idCita, 10);
+  const nuevoIdDisp = parseInt(req.body.id_disponibilidad, 10);
+
+  if (isNaN(idUsuario) || isNaN(idCita) || idCita < 1 || isNaN(nuevoIdDisp) || nuevoIdDisp < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Verificar propiedad y estado reagendable
+    const citaResult = await client.query(
+      `SELECT c.id_cita, c.id_disponibilidad, c.estado_cita, c.id_medico
+       FROM   citas_medicas c
+       JOIN   pacientes     p ON c.id_paciente = p.id_paciente
+       WHERE  c.id_cita    = $1
+         AND  p.id_usuario = $2
+       FOR UPDATE OF c`,
+      [idCita, idUsuario]
+    );
+
+    if (citaResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ message: 'Cita no encontrada.' });
+    }
+
+    const cita = citaResult.rows[0];
+
+    if (!['pendiente', 'confirmada'].includes(cita.estado_cita)) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ message: 'Solo se pueden reagendar citas pendientes o confirmadas.' });
+    }
+
+    // Bloquear y verificar nuevo slot disponible (mismo médico)
+    const nuevoSlot = await client.query(
+      `SELECT id_disponibilidad, fecha::text, hora_inicio::text
+       FROM   disponibilidad_medica
+       WHERE  id_disponibilidad = $1
+         AND  id_medico         = $2
+         AND  estado            = 'disponible'
+       FOR UPDATE`,
+      [nuevoIdDisp, cita.id_medico]
+    );
+
+    if (nuevoSlot.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ message: 'El horario seleccionado ya no está disponible.' });
+    }
+
+    const slot = nuevoSlot.rows[0];
+
+    // Liberar slot anterior
+    if (cita.id_disponibilidad) {
+      await client.query(
+        `UPDATE disponibilidad_medica SET estado = 'disponible' WHERE id_disponibilidad = $1`,
+        [cita.id_disponibilidad]
+      );
+    }
+
+    // Reservar nuevo slot
+    await client.query(
+      `UPDATE disponibilidad_medica SET estado = 'reservada' WHERE id_disponibilidad = $1`,
+      [nuevoIdDisp]
+    );
+
+    // Actualizar cita con nuevo horario
+    await client.query(
+      `UPDATE citas_medicas
+       SET    id_disponibilidad = $1, fecha_cita = $2::date, hora_cita = $3::time, estado_cita = 'pendiente'
+       WHERE  id_cita = $4`,
+      [nuevoIdDisp, slot.fecha, slot.hora_inicio, idCita]
+    );
+
+    // Notificación de reprogramación
+    await client.query(
+      `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+       VALUES ($1, 'Cita reagendada', 'Tu cita médica fue reprogramada correctamente.', 'reprogramacion', FALSE)`,
+      [idUsuario]
+    );
+
+    await client.query('COMMIT');
+    return res.json({ message: 'Cita reagendada correctamente.' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error en reagendarCita:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  } finally {
+    client.release();
+  }
+}
+
+module.exports = { getDashboard, getEspecialidadesConBadge, getProfesionalesPorEspecialidad, getDetalleMedico, getDisponibilidadMedico, crearCitaPaciente, getDetalleCita, cancelarCita, reagendarCita };
