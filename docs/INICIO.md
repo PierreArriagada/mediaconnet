@@ -325,7 +325,7 @@ Consulta la tabla `usuarios`:
 docker exec mediconnect-postgres psql -U postgres -d mediconnect -c "SELECT id_usuario, correo, id_rol FROM usuarios WHERE correo = 'tu_correo@ejemplo.com';"
 ```
 
-El registro crea en una transacción: la cuenta en `usuarios` (rol `Paciente`) y un perfil provisional en `pacientes` con `rut = 'USR-{id}'` y `fecha_nacimiento = '2000-01-01'`. El usuario puede reservar citas inmediatamente.
+El registro crea en una transacción: la cuenta en `usuarios` (rol `Paciente`) y un perfil en `pacientes` con el RUT real ingresado. Si el RUT ya tenía una solicitud como invitado, ese registro se vincula automáticamente.
 
 ### `docker exec -it mediconnect-postgres psql ...` falla en la terminal integrada
 
