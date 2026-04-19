@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonContent, IonToast, AlertController } from '@ionic/angular/standalone';
+import { IonContent, IonToast, ModalController } from '@ionic/angular/standalone';
 import {
   PacienteService,
   DetalleCitaData,
@@ -10,6 +10,8 @@ import {
 import { AuthService } from '../../../core/services/auth.service';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
+import { CentroContactoComponent } from '../../../shared/components/centro-contacto/centro-contacto.component';
+import { McAlertComponent } from '../../../shared/components/alertas-sistema/mc-alert/mc-alert.component';
 
 /** Pasos del timeline según el estado de la cita */
 interface PasoTimeline {
@@ -23,14 +25,14 @@ interface PasoTimeline {
   selector: 'app-cita-detalle',
   templateUrl: './cita-detalle.page.html',
   styleUrls: ['./cita-detalle.page.scss'],
-  imports: [CommonModule, IonContent, IonToast, PacienteHeaderComponent, PacienteBottomNavComponent],
+  imports: [CommonModule, IonContent, IonToast, PacienteHeaderComponent, PacienteBottomNavComponent, CentroContactoComponent],
 })
 export default class CitaDetallePage implements OnInit {
   private readonly route      = inject(ActivatedRoute);
   private readonly router     = inject(Router);
   private readonly svc        = inject(PacienteService);
   private readonly authSvc    = inject(AuthService);
-  private readonly alertCtrl  = inject(AlertController);
+  private readonly modalCtrl  = inject(ModalController);
 
   userName  = '';
   noLeidas  = 0;
@@ -133,15 +135,23 @@ export default class CitaDetallePage implements OnInit {
   // ── Acciones ──────────────────────────────────────────
 
   async confirmarCancelar(): Promise<void> {
-    const alert = await this.alertCtrl.create({
-      header: 'Cancelar cita',
-      message: '¿Estás seguro de que deseas cancelar esta cita? Esta acción no se puede deshacer.',
-      buttons: [
-        { text: 'No', role: 'cancel' },
-        { text: 'Sí, cancelar', role: 'destructive', handler: () => this.cancelar() },
-      ],
+    const modal = await this.modalCtrl.create({
+      component: McAlertComponent,
+      cssClass: 'mc-alert-modal',
+      componentProps: {
+        titulo: 'Cancelar cita',
+        mensaje: '¿Estás seguro de que deseas cancelar esta cita? Esta acción no se puede deshacer.',
+        btnConfirmar: 'Sí, cancelar',
+        colorConfirmar: 'danger',
+        icono: 'cancel'
+      },
     });
-    await alert.present();
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    if (data?.confirmado) {
+      this.cancelar();
+    }
   }
 
   private cancelar(): void {
