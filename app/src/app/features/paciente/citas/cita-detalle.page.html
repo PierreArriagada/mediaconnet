@@ -36,37 +36,68 @@
         <!-- ══ COLUMNA IZQUIERDA ══ -->
         <div class="mc-layout-grid__left">
 
-          <!-- Tarjeta de progreso / timeline -->
-          <section class="mc-card mc-card--surface">
-            <h3 class="mc-card__title">Progreso</h3>
-            <div class="mc-timeline">
-              <div class="mc-timeline__line"></div>
-              @for (paso of pasos; track paso.label) {
-                <div class="mc-timeline__step">
-                  <div class="mc-timeline__dot mc-timeline__dot--{{ paso.estado }}" [attr.aria-label]="paso.label">
-                    @if (paso.estado === 'completado') {
-                      <span class="material-symbols-outlined mc-timeline__icon">check</span>
-                    }
-                    @if (paso.estado === 'activo') {
-                      <div class="mc-timeline__pulse"></div>
-                    }
-                    @if (paso.estado === 'pendiente') {
-                      <div class="mc-timeline__dot-inner"></div>
-                    }
+          <!-- ── Tarjeta de estado simple (citas directas con slot reservado) ── -->
+          @if (esCitaDirecta) {
+            <section class="mc-estado-simple" [ngClass]="estadoSimple.clase">
+              <span class="material-symbols-outlined mc-estado-simple__icono">{{ estadoSimple.icono }}</span>
+              <div class="mc-estado-simple__body">
+                <h3 class="mc-estado-simple__titulo">{{ estadoSimple.titulo }}</h3>
+                <p class="mc-estado-simple__desc">{{ estadoSimple.descripcion }}</p>
+              </div>
+            </section>
+          }
+
+          <!-- ── Timeline de progreso (solo solicitudes de invitado) ── -->
+          @if (!esCitaDirecta) {
+
+            <!-- Banner informativo cuando está pendiente de revisión -->
+            @if (cita?.estado_cita === 'pendiente') {
+              <div class="mc-pending-banner">
+                <span class="material-symbols-outlined mc-pending-banner__icono">info</span>
+                <p class="mc-pending-banner__texto">
+                  Tu solicitud está siendo revisada. Nuestro equipo se pondrá en contacto
+                  contigo para confirmar fecha y hora definitiva.
+                </p>
+              </div>
+            }
+
+            <section class="mc-card mc-card--surface">
+              <h3 class="mc-card__title">Progreso de solicitud</h3>
+              <div class="mc-timeline">
+                <div class="mc-timeline__line"></div>
+                @for (paso of pasos; track paso.label) {
+                  <div class="mc-timeline__step">
+                    <div class="mc-timeline__dot mc-timeline__dot--{{ paso.estado }}" [attr.aria-label]="paso.label">
+                      @if (paso.estado === 'completado') {
+                        <span class="material-symbols-outlined mc-timeline__icon">check</span>
+                      }
+                      @if (paso.estado === 'cancelado') {
+                        <span class="material-symbols-outlined mc-timeline__icon mc-timeline__icon--cancel">close</span>
+                      }
+                      @if (paso.estado === 'activo') {
+                        <div class="mc-timeline__pulse"></div>
+                      }
+                      @if (paso.estado === 'pendiente') {
+                        <div class="mc-timeline__dot-inner"></div>
+                      }
+                    </div>
+                    <div class="mc-timeline__content">
+                      <p class="mc-timeline__label"
+                         [class.mc-timeline__label--activo]="paso.estado === 'activo'"
+                         [class.mc-timeline__label--pendiente]="paso.estado === 'pendiente'"
+                         [class.mc-timeline__label--cancelado]="paso.estado === 'cancelado'">
+                        {{ paso.label }}
+                      </p>
+                      <p class="mc-timeline__sublabel"
+                         [class.mc-timeline__sublabel--activo]="paso.estado === 'activo'">
+                        {{ paso.sublabel }}
+                      </p>
+                    </div>
                   </div>
-                  <div class="mc-timeline__content">
-                    <p class="mc-timeline__label" [class.mc-timeline__label--activo]="paso.estado === 'activo'"
-                       [class.mc-timeline__label--pendiente]="paso.estado === 'pendiente'">
-                      {{ paso.label }}
-                    </p>
-                    <p class="mc-timeline__sublabel" [class.mc-timeline__sublabel--activo]="paso.estado === 'activo'">
-                      {{ paso.sublabel }}
-                    </p>
-                  </div>
-                </div>
-              }
-            </div>
-          </section>
+                }
+              </div>
+            </section>
+          }
 
           <!-- Contacto del centro -->
           <app-centro-contacto></app-centro-contacto>

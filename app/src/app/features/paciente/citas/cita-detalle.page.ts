@@ -13,11 +13,11 @@ import { PacienteBottomNavComponent } from '../../../shared/components/paciente-
 import { CentroContactoComponent } from '../../../shared/components/centro-contacto/centro-contacto.component';
 import { McAlertComponent } from '../../../shared/components/alertas-sistema/mc-alert/mc-alert.component';
 
-/** Pasos del timeline según el estado de la cita */
+/** Pasos del timeline según el estado de la cita (solo invitados/solicitudes) */
 interface PasoTimeline {
   label:       string;
   sublabel:    string;
-  estado:      'completado' | 'activo' | 'pendiente';
+  estado:      'completado' | 'activo' | 'pendiente' | 'cancelado';
 }
 
 @Component({
@@ -73,46 +73,68 @@ export default class CitaDetallePage implements OnInit {
     });
   }
 
-  // ── Timeline dinámico según estado_cita ───────────────
+  // ── Determina si la cita fue reservada directamente (usuario registrado + slot real) ──
+  get esCitaDirecta(): boolean {
+    return this.cita?.id_disponibilidad !== null && !this.cita?.es_invitado;
+  }
+
+  /** Info del estado para citas directas (sin timeline) */
+  get estadoSimple(): { icono: string; titulo: string; descripcion: string; clase: string } {
+    const estado = this.cita?.estado_cita ?? 'confirmada';
+    const mapa: Record<string, { icono: string; titulo: string; descripcion: string; clase: string }> = {
+      confirmada:   { icono: 'event_available', titulo: 'Hora confirmada',    descripcion: 'Tu hora está reservada. Te esperamos en la fecha indicada.', clase: 'mc-estado-simple--success'   },
+      pendiente:    { icono: 'event_available', titulo: 'Hora reservada',     descripcion: 'Tu cita fue registrada correctamente.',                        clase: 'mc-estado-simple--success'   },
+      completada:   { icono: 'task_alt',        titulo: 'Atención realizada', descripcion: 'Tu consulta médica fue completada satisfactoriamente.',         clase: 'mc-estado-simple--completed' },
+      cancelada:    { icono: 'event_busy',      titulo: 'Cita cancelada',     descripcion: 'Esta cita fue cancelada.',                                      clase: 'mc-estado-simple--cancelled' },
+      reprogramada: { icono: 'update',          titulo: 'Cita reprogramada',  descripcion: 'Se asignó un nuevo horario a tu cita.',                         clase: 'mc-estado-simple--warning'   },
+    };
+    return mapa[estado] ?? mapa['confirmada'];
+  }
+
+  // ── Timeline dinámico para solicitudes de invitado ────────
   get pasos(): PasoTimeline[] {
     const estado = this.cita?.estado_cita ?? 'pendiente';
 
     if (estado === 'cancelada') {
       return [
-        { label: 'Recibida',   sublabel: this.formatFechaCorta(this.cita!.fecha_creacion), estado: 'completado' },
-        { label: 'Cancelada',  sublabel: 'La cita fue cancelada', estado: 'activo' },
-      ];
-    }
-
-    if (estado === 'reprogramada') {
-      return [
-        { label: 'Recibida',       sublabel: this.formatFechaCorta(this.cita!.fecha_creacion), estado: 'completado' },
-        { label: 'Reprogramada',   sublabel: 'Se asignó un nuevo horario', estado: 'activo' },
-        { label: 'Confirmada',     sublabel: 'Pendiente de confirmación', estado: 'pendiente' },
+        { label: 'Solicitud enviada', sublabel: this.formatFechaCorta(this.cita!.fecha_creacion), estado: 'completado' },
+        { label: 'Cancelada',         sublabel: 'La solicitud fue cancelada',                     estado: 'cancelado'  },
       ];
     }
 
     if (estado === 'completada') {
       return [
-        { label: 'Recibida',    sublabel: this.formatFechaCorta(this.cita!.fecha_creacion), estado: 'completado' },
-        { label: 'Confirmada',  sublabel: 'Cita confirmada', estado: 'completado' },
-        { label: 'Completada',  sublabel: 'Atención realizada', estado: 'completado' },
+        { label: 'Solicitud enviada', sublabel: this.formatFechaCorta(this.cita!.fecha_creacion), estado: 'completado' },
+        { label: 'Revisada',          sublabel: 'Revisada por el equipo',                         estado: 'completado' },
+        { label: 'Hora asignada',     sublabel: 'Hora confirmada',                                estado: 'completado' },
+        { label: 'Atención realizada',sublabel: 'Consulta completada',                            estado: 'completado' },
       ];
     }
 
     if (estado === 'confirmada') {
       return [
-        { label: 'Recibida',    sublabel: this.formatFechaCorta(this.cita!.fecha_creacion), estado: 'completado' },
-        { label: 'Confirmada',  sublabel: 'Tu cita está confirmada', estado: 'activo' },
-        { label: 'Completada',  sublabel: 'Pendiente de atención', estado: 'pendiente' },
+        { label: 'Solicitud enviada', sublabel: this.formatFechaCorta(this.cita!.fecha_creacion), estado: 'completado' },
+        { label: 'Revisada',          sublabel: 'Revisada por el equipo',                         estado: 'completado' },
+        { label: 'Hora asignada',     sublabel: this.formatFecha(this.cita!.fecha_cita),          estado: 'activo'     },
+        { label: 'Atención médica',   sublabel: 'Pendiente de atención',                          estado: 'pendiente'  },
       ];
     }
 
-    // pendiente
+    if (estado === 'reprogramada') {
+      return [
+        { label: 'Solicitud enviada', sublabel: this.formatFechaCorta(this.cita!.fecha_creacion), estado: 'completado' },
+        { label: 'Revisada',          sublabel: 'Revisada por el equipo',                         estado: 'completado' },
+        { label: 'Reprogramada',      sublabel: 'Se asignó un nuevo horario',                     estado: 'activo'     },
+        { label: 'Atención médica',   sublabel: 'Pendiente de confirmación',                      estado: 'pendiente'  },
+      ];
+    }
+
+    // pendiente — en revisión por el equipo
     return [
-      { label: 'Recibida',    sublabel: this.formatFechaCorta(this.cita!.fecha_creacion), estado: 'completado' },
-      { label: 'Confirmada',  sublabel: 'Pendiente de confirmación', estado: 'pendiente' },
-      { label: 'Completada',  sublabel: 'Pendiente de atención', estado: 'pendiente' },
+      { label: 'Solicitud enviada',    sublabel: this.formatFechaCorta(this.cita!.fecha_creacion), estado: 'completado' },
+      { label: 'En revisión',          sublabel: 'Nuestro equipo la está revisando',               estado: 'activo'     },
+      { label: 'Confirmación de hora', sublabel: 'Pendiente de asignación',                        estado: 'pendiente'  },
+      { label: 'Atención médica',      sublabel: 'Pendiente de atención',                          estado: 'pendiente'  },
     ];
   }
 
@@ -122,14 +144,19 @@ export default class CitaDetallePage implements OnInit {
   }
 
   get chipEstado(): { label: string; clase: string } {
+    const estado = this.cita?.estado_cita ?? 'pendiente';
+    const esDirect = this.esCitaDirecta;
     const mapa: Record<string, { label: string; clase: string }> = {
-      pendiente:     { label: 'Pendiente',     clase: 'mc-chip--warning' },
-      confirmada:    { label: 'Confirmada',    clase: 'mc-chip--primary' },
-      cancelada:     { label: 'Cancelada',     clase: 'mc-chip--error' },
-      reprogramada:  { label: 'Reprogramada',  clase: 'mc-chip--secondary' },
-      completada:    { label: 'Completada',    clase: 'mc-chip--success' },
+      // Para citas directas 'pendiente' se muestra como 'Confirmada' (el slot ya está bloqueado)
+      pendiente:     esDirect
+                       ? { label: 'Confirmada',    clase: 'mc-chip--success'    }
+                       : { label: 'En revisión',   clase: 'mc-chip--warning'    },
+      confirmada:    { label: 'Confirmada',    clase: 'mc-chip--success'    },
+      cancelada:     { label: 'Cancelada',     clase: 'mc-chip--error'      },
+      reprogramada:  { label: 'Reprogramada',  clase: 'mc-chip--secondary'  },
+      completada:    { label: 'Completada',    clase: 'mc-chip--primary'    },
     };
-    return mapa[this.cita?.estado_cita ?? 'pendiente'] ?? mapa['pendiente'];
+    return mapa[estado] ?? mapa['pendiente'];
   }
 
   // ── Acciones ──────────────────────────────────────────
