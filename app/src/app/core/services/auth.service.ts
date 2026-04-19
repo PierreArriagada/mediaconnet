@@ -14,7 +14,7 @@ export interface RegisterPayload {
   correo: string;
   password: string;
   telefono?: string;
-  rut?: string;
+  rut: string;
 }
 
 export interface ForgotPasswordPayload {
