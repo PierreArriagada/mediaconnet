@@ -61,8 +61,13 @@ async function register(req, res) {
     return res.status(400).json({ message: 'Datos inválidos' });
   }
 
-  const { nombre, apellido, correo, password, telefono } = req.body;
-  // El campo rut se completará al crear el perfil de paciente (requiere fecha_nacimiento)
+  const { nombre, apellido, correo, password, telefono, rut } = req.body;
+
+  // RUT es requerido para poder vincular solicitudes de invitado y como identificador único
+  if (!rut || typeof rut !== 'string' || rut.trim().length < 8) {
+    return res.status(400).json({ message: 'RUT requerido.' });
+  }
+  const rutNormalizado = rut.trim().toUpperCase();
 
   try {
     const existing = await pool.query(
@@ -75,7 +80,17 @@ async function register(req, res) {
       });
     }
 
-    // Transacción: crea usuario + perfil de paciente juntos
+    // Verificar que el RUT no esté ya vinculado a otra cuenta
+    const rutConCuenta = await pool.query(
+      'SELECT 1 FROM pacientes WHERE rut = $1 AND id_usuario IS NOT NULL',
+      [rutNormalizado]
+    );
+    if (rutConCuenta.rowCount > 0) {
+      return res.status(409).json({
+        message: 'Este RUT ya está vinculado a una cuenta existente.',
+      });
+    }
+
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
@@ -89,14 +104,28 @@ async function register(req, res) {
       );
 
       const idUsuario = userResult.rows[0].id_usuario;
-      // rut provisional único hasta que el paciente complete su perfil
-      const rutTemp = `USR-${idUsuario}`;
 
-      await client.query(
-        `INSERT INTO pacientes (id_usuario, rut, fecha_nacimiento)
-         VALUES ($1, $2, '2000-01-01')`,
-        [idUsuario, rutTemp]
+      // Verificar si existe un paciente invitado con este RUT (id_usuario IS NULL)
+      // para vincularlo en lugar de crear un registro duplicado
+      const pacienteInvitado = await client.query(
+        'SELECT id_paciente FROM pacientes WHERE rut = $1 AND id_usuario IS NULL',
+        [rutNormalizado]
       );
+
+      if (pacienteInvitado.rowCount > 0) {
+        // Vincular el registro existente del invitado con la nueva cuenta
+        await client.query(
+          'UPDATE pacientes SET id_usuario = $1, fecha_actualizacion = NOW() WHERE id_paciente = $2',
+          [idUsuario, pacienteInvitado.rows[0].id_paciente]
+        );
+      } else {
+        // No existe registro previo: crear nuevo paciente con RUT real
+        await client.query(
+          `INSERT INTO pacientes (id_usuario, rut, fecha_nacimiento)
+           VALUES ($1, $2, '2000-01-01')`,
+          [idUsuario, rutNormalizado]
+        );
+      }
 
       await client.query('COMMIT');
     } catch (txErr) {
