@@ -60,6 +60,22 @@
 
 ---
 
+## Actualización — Vinculación automática por RUT al registrarse
+
+### Qué se realizó
+* Se implementó la vinculación automática entre solicitudes de invitado y cuentas nuevas usando el RUT como identificador único.
+* Al registrarse, si el RUT ingresado corresponde a un paciente invitado existente (`id_usuario IS NULL`), ese registro se actualiza con el nuevo `id_usuario` en lugar de crear uno duplicado.
+* Las citas enviadas como invitado quedan visibles inmediatamente al iniciar sesión con la cuenta recién creada.
+
+### Qué se modificó
+* **`backend/src/controllers/auth.controller.js`:** La función `register` ahora acepta `rut` como campo requerido; verifica que el RUT no esté ya vinculado a otra cuenta; busca paciente invitado por RUT y hace `UPDATE` si lo encuentra, `INSERT` si no.
+* **`backend/src/routes/auth.routes.js`:** El validador de `rut` pasó de `optional` a `notEmpty()` requerido.
+* **`app/src/app/core/services/auth.service.ts`:** `rut` en la interfaz `RegisterPayload` cambió de `string?` a `string` requerido.
+* **`app/src/app/features/auth/register/register.page.ts`:** El `rutValidator` retorna `{ required: true }` cuando el campo está vacío; el payload siempre incluye `rut`.
+* **`app/src/app/features/auth/register/register.page.html`:** La etiqueta del campo RUT eliminó el texto "(opcional)" y se agregó el error de campo requerido.
+
+---
+
 ## Estilos
 
 * Implementación con tokens `--mc-*` del sistema de diseño del proyecto (sin Tailwind).
