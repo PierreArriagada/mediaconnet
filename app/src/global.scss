@@ -35,3 +35,19 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+// Custom Dialog / Modal
+.mc-alert-modal {
+  --width: 90%;
+  --max-width: 400px;
+  --height: auto;
+  --border-radius: var(--mc-radius-lg);
+  --background: transparent;
+  
+  &::part(content) {
+    overflow: visible; // To allow shadow outside if any.
+    background: transparent;
+    box-shadow: none;
+  }
+}
+
