@@ -14,6 +14,7 @@ services:
     ports:
       - "8100:8100"   # Ionic Dev Server
       - "4200:4200"   # Angular CLI alternativo
+      - "49153:49153" # Live Reload WebSocket (auto-recarga el browser al compilar)
     working_dir: /workspace
     stdin_open: true
     tty: true
