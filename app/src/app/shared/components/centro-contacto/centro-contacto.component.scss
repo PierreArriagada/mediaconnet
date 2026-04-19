@@ -1,0 +1,59 @@
+// Componente reutilizable de contacto del centro médico.
+// Tokens visuales: theme/variables.scss (--mc-*).
+
+// ── Tarjeta contenedora ───────────────────────────────
+.mc-card {
+  border-radius: var(--mc-radius-lg);
+  padding: 2rem;
+
+  &--surface {
+    background: var(--mc-surface-container-low);
+  }
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--mc-on-surface);
+    margin-bottom: 2rem;
+  }
+}
+
+// ── Lista de contacto ─────────────────────────────────
+.mc-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mc-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-md);
+  padding: 1rem 1.25rem;
+
+  &__icon {
+    color: var(--mc-primary);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  &__label {
+    font-family: var(--mc-font-utility);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--mc-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__value {
+    font-family: var(--mc-font-utility);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--mc-on-surface);
+    margin-top: 0.125rem;
+  }
+}
