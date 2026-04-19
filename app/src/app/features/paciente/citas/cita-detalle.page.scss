@@ -196,45 +196,6 @@ ion-content {
   50%      { opacity: 0.6; }
 }
 
-// ── Contacto del centro ───────────────────────────────
-.mc-contact-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.mc-contact-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: var(--mc-surface-container-lowest);
-  border-radius: var(--mc-radius-md);
-  padding: 1rem 1.25rem;
-
-  &__icon {
-    color: var(--mc-primary);
-    font-size: 1.5rem;
-    flex-shrink: 0;
-  }
-
-  &__label {
-    font-family: var(--mc-font-utility);
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--mc-on-surface-variant);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  &__value {
-    font-family: var(--mc-font-utility);
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--mc-on-surface);
-    margin-top: 0.125rem;
-  }
-}
-
 // ── Tarjeta principal de datos ────────────────────────
 .mc-data-card {
   background: var(--mc-surface-container-lowest);
