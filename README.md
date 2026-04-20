@@ -1,103 +1,37 @@
-# MediConnect — Plataforma médica híbrida
+# MediConnect
 
-Monorepo full-stack con frontend Ionic/Angular, backend Express y PostgreSQL, todo dockerizado para desarrollo local.
+Monorepo full-stack para gestión médica con frontend Ionic/Angular, backend Express y PostgreSQL, operado con datos reales y flujo local basado en Docker.
 
-## Estado actual
+## Punto de entrada
 
-- Frontend validado sobre Angular 21.2, Ionic 8.8, Capacitor 8.3 y TypeScript 5.9.
-- Backend REST incluido en [backend](backend) con Node 24 + Express.
-- Autenticación real contra PostgreSQL 18 mediante `pgcrypto`, JWT y consultas parametrizadas.
-- Registro operativo: crea cuentas en `usuarios` con rol `Paciente` (`id_rol = 2`).
-- Recuperación de contraseña operativa a nivel de endpoint: responde de forma genérica y segura, pero todavía no envía correos.
-- Entorno local compuesto por tres contenedores: `mediconnect-app`, `mediconnect-api` y `mediconnect-postgres`.
+- Índice general de documentación: [docs/README.md](docs/README.md)
+- Guía de arranque del entorno: [docs/proyecto/INICIO.md](docs/proyecto/INICIO.md)
+- Flujo diario de desarrollo: [docs/proyecto/DEV_MODE.md](docs/proyecto/DEV_MODE.md)
 
-## Guía principal de arranque
+## Estructura del repositorio
 
-La documentación completa para levantar el proyecto en otra máquina está en [docs/INICIO.md](docs/INICIO.md).
+- [app](app) contiene el frontend Ionic/Angular standalone.
+- [backend](backend) contiene la API REST Express con JWT y acceso a PostgreSQL.
+- [database](database) contiene el esquema oficial, extensiones y seeds.
+- [docs](docs) contiene la documentación separada por paciente, medico, admin y proyecto.
 
-Ese documento incluye:
+## Documentación por ámbito
 
-- construcción y arranque de Docker
-- instalación de dependencias del frontend dentro del contenedor
-- verificación del backend y la base de datos
-- inicio del servidor Ionic
-- validaciones de login, registro y consultas SQL
-- mantenimiento, reinicio completo y solución de problemas
+- [docs/proyecto/README.md](docs/proyecto/README.md) agrupa arquitectura, contrato API, seguridad, arranque, modo desarrollo y lineamientos técnicos.
+- [docs/paciente/README.md](docs/paciente/README.md) agrupa reserva, historial, perfil, detalle de cita y flujos asociados al paciente.
+- [docs/medico/README.md](docs/medico/README.md) agrupa funciones exclusivas del profesional de salud.
+- [docs/admin/README.md](docs/admin/README.md) reserva la documentación de backoffice y administración.
 
-## Inicio rápido
+## Estado validado
 
-Desde la raíz del proyecto:
+- Frontend validado con Angular 21.2, Ionic 8.8, Capacitor 8.3 y TypeScript 5.9.
+- Backend real en Node 24 + Express.
+- PostgreSQL 18 inicializado desde [database](database).
+- Roles canónicos del sistema: Administrador, Paciente y Medico.
 
-```bash
-docker compose up -d --build
-docker exec mediconnect-app sh -c "cd /workspace && npm install"
-docker compose logs mediconnect-api --tail=30
-docker exec -d mediconnect-app sh -c "cd /workspace && ionic serve --host=0.0.0.0 --port=8100 --poll=1000 --no-open --no-interactive > /tmp/serve.log 2>&1"
-docker exec mediconnect-app sh -c "cat /tmp/serve.log"
-```
+## Reglas operativas
 
-Cuando veas `Compiled successfully`, abre:
-
-```text
-http://localhost:8100
-```
-
-## Infraestructura actual
-
-- [Dockerfile](Dockerfile): imagen del frontend con Node 24 Alpine, Angular CLI 21.2.7, Ionic CLI, Capacitor CLI 8.3.1 y Chromium para tests headless.
-- [docker-compose.yml](docker-compose.yml): orquesta `mediconnect-app`, `mediconnect-api` y `mediconnect-postgres`.
-- [backend/package.json](backend/package.json): dependencias del backend (`express`, `pg`, `helmet`, `jsonwebtoken`, `express-validator`, `express-rate-limit`).
-- [backend/src](backend/src): API REST modular con `config`, `controllers`, `db`, `middleware` y `routes`.
-- [app/package.json](app/package.json): stack actual del frontend.
-- [database/01_init.sql](database/01_init.sql): esquema PostgreSQL, extensión `pgcrypto`, índices, triggers y datos semilla.
-- [app/src/tests](app/src/tests): pruebas unitarias del frontend.
-
-## Verificación rápida
-
-```bash
-docker exec mediconnect-app sh -c "cd /workspace && npm run build"
-docker exec mediconnect-app sh -c "cd /workspace && npm run lint"
-docker exec mediconnect-app sh -c "cd /workspace && npm run test:ci"
-docker exec mediconnect-postgres psql -U postgres -d mediconnect -c "SELECT id_usuario, correo, id_rol, estado FROM usuarios ORDER BY id_usuario;"
-```
-
-## Documentación disponible
-
-- [docs/INICIO.md](docs/INICIO.md)
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- [docs/API_CONTRACT.md](docs/API_CONTRACT.md)
-- [docs/BACKEND_PLAN.md](docs/BACKEND_PLAN.md)
-- [docs/DEV_MODE.md](docs/DEV_MODE.md)
-- [docs/SECURITY_PASSWORD.md](docs/SECURITY_PASSWORD.md)
-
-## Notas importantes
-
-1. Todo el flujo de desarrollo corre dentro de Docker.
-2. `docker compose up -d --build` inicia backend y base de datos automáticamente, pero no ejecuta `ionic serve`; ese paso sigue siendo manual.
-3. PostgreSQL ejecuta los scripts de [database](database) solo cuando el volumen está vacío.
-4. Si cambias [database/01_init.sql](database/01_init.sql), debes usar `docker compose down -v` antes de volver a levantar para que se regenere la base con `pgcrypto` y los nuevos datos.
-5. Los roles canónicos del sistema son los que vienen desde la base de datos: `Administrador`, `Paciente` y `Medico`.
-6. El registro actual crea la cuenta de autenticación en `usuarios`; el perfil clínico de `pacientes` sigue pendiente porque requiere campos que hoy no están en la vista de registro.
-
-
-
----
-
-## Base de datos y seeds automáticos
-
-El contenedor PostgreSQL ejecuta automáticamente todos los scripts SQL ubicados en la carpeta `database/` cuando la base de datos se crea desde cero (volumen vacío).
-
-Actualmente se aplican en este orden:
-
-1. `01_init.sql`
-2. `02_seed_actualizado.sql`
-3. `03_seed_medicos_extra.sql`
-
-Esto permite contar con estructura, datos base y ampliación médica sin ejecutar comandos manuales.
-
----
-
-## Primer uso del proyecto
-
-```bash
-docker compose up -d --build
+- El desarrollo local corre dentro de Docker.
+- Los comandos de frontend se ejecutan dentro del contenedor `mediconnect-app`.
+- La base de datos fuente está en [database](database) y la documentación debe reflejar datos reales de esa estructura.
+- Todo cambio funcional debe documentarse en la carpeta correcta dentro de [docs](docs).

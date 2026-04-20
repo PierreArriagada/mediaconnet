@@ -53,5 +53,5 @@ Limitación actual:
 * `backend/src/controllers/auth.controller.js` — Inserta hash en el registro y valida la contraseña en login.
 * `backend/src/routes/auth.routes.js` — Define validaciones y rate limiting para autenticación.
 * `backend/src/config/jwt.config.js` — Centraliza secreto y expiración del token.
-* `docs/API_CONTRACT.md` — Contrato HTTP actual de `login`, `register` y `forgot-password`.
+* [API_CONTRACT.md](./API_CONTRACT.md) — Contrato HTTP actual de `login`, `register` y `forgot-password`.
 * `database/01_init.sql` — Habilita `pgcrypto` y genera hashes reales para usuarios semilla.
