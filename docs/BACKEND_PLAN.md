@@ -29,6 +29,8 @@ backend/
     │   └── jwt.config.js
     ├── controllers/
     │   ├── auth.controller.js
+    │   ├── citas.controller.js
+    │   ├── medico.controller.js
     │   └── paciente.controller.js
     ├── db/
     │   └── pool.js
@@ -37,6 +39,8 @@ backend/
     │   └── error.middleware.js
     ├── routes/
     │   ├── auth.routes.js
+    │   ├── citas.routes.js
+    │   ├── medico.routes.js
     │   └── paciente.routes.js
     └── server.js
 ```
@@ -49,6 +53,10 @@ backend/
 | `POST` | `/api/auth/register` | Público | Crea cuenta en `usuarios` con rol `Paciente` |
 | `POST` | `/api/auth/forgot-password` | Público | Responde siempre `200` con mensaje genérico |
 | `GET` | `/api/paciente/dashboard` | JWT + rol `Paciente` | Devuelve próxima cita y últimas 5 notificaciones del paciente autenticado |
+| `GET` | `/api/medico/dashboard` | JWT + rol `Medico` | Devuelve citas de hoy, pendientes de marcar y próxima cita del médico |
+| `GET` | `/api/medico/citas-hoy` | JWT + rol `Medico` | Citas pasadas o de hoy del médico con estado de asistencia |
+| `GET` | `/api/medico/citas-proximas` | JWT + rol `Medico` | Citas futuras confirmadas del médico |
+| `PATCH` | `/api/medico/cita/:idCita/marcar-asistencia` | JWT + rol `Medico` | Marca si el paciente asistió o no y completa la cita |
 
 ## Seguridad actual
 
