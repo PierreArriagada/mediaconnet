@@ -475,7 +475,7 @@ async function getDetalleCita(req, res) {
          c.id_cita, c.fecha_cita::text, c.hora_cita::text,
          c.estado_cita, c.motivo_consulta, c.modalidad, c.observaciones,
          c.fecha_creacion, c.fecha_actualizacion,
-         c.id_disponibilidad, c.id_medico, c.id_especialidad, c.es_invitado,
+         c.id_disponibilidad, c.id_medico, c.id_especialidad, c.es_invitado, c.asistio_cita,
          m.id_medico, m.anios_experiencia, m.biografia,
          m.valoracion_promedio, m.total_valoraciones,
          u.nombre AS medico_nombre, u.apellido AS medico_apellido,
@@ -824,6 +824,7 @@ async function getHistorialCitas(req, res) {
          c.observaciones,
          c.es_invitado,
          c.id_disponibilidad,
+         c.asistio_cita,
          u.nombre             AS medico_nombre,
          u.apellido           AS medico_apellido,
          e.nombre_especialidad,
@@ -858,4 +859,93 @@ async function getHistorialCitas(req, res) {
   }
 }
 
-module.exports = { getDashboard, getEspecialidadesConBadge, getProfesionalesPorEspecialidad, getDetalleMedico, getDisponibilidadMedico, crearCitaPaciente, getDetalleCita, cancelarCita, reagendarCita, confirmarAsistencia, getHistorialCitas };
+/**
+ * GET /api/paciente/perfil
+ * Retorna los datos del perfil del paciente autenticado.
+ * Combina datos de usuarios + pacientes para evitar múltiples llamadas.
+ * El id_usuario viene siempre del token JWT para prevenir IDOR.
+ */
+async function getPerfil(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    // Datos base del usuario y paciente (JOIN protegido por id_usuario del JWT)
+    const perfilResult = await pool.query(
+      `SELECT
+         u.nombre,
+         u.apellido,
+         u.correo,
+         u.telefono,
+         u.estado,
+         u.fecha_registro,
+         p.rut,
+         p.fecha_nacimiento,
+         p.direccion,
+         p.comuna,
+         p.ciudad,
+         p.contacto_emergencia,
+         p.telefono_emergencia
+       FROM   usuarios  u
+       LEFT JOIN pacientes p ON p.id_usuario = u.id_usuario
+       WHERE  u.id_usuario = $1`,
+      [idUsuario]
+    );
+
+    if (perfilResult.rowCount === 0) {
+      return res.status(404).json({ message: 'Perfil no encontrado.' });
+    }
+
+    // Próxima cita para el bento de estadísticas
+    const citaResult = await pool.query(
+      `SELECT
+         c.fecha_cita,
+         e.nombre_especialidad
+       FROM   citas_medicas    c
+       JOIN   pacientes        p ON c.id_paciente    = p.id_paciente
+       JOIN   especialidades   e ON c.id_especialidad = e.id_especialidad
+       WHERE  p.id_usuario   = $1
+         AND  c.estado_cita  IN ('pendiente', 'confirmada')
+         AND  c.fecha_cita   >= CURRENT_DATE
+       ORDER  BY c.fecha_cita ASC, c.hora_cita ASC
+       LIMIT  1`,
+      [idUsuario]
+    );
+
+    // Alertas = notificaciones no leídas del usuario
+    const alertasResult = await pool.query(
+      `SELECT COUNT(*) AS total
+       FROM   notificaciones
+       WHERE  id_usuario = $1
+         AND  leida = FALSE`,
+      [idUsuario]
+    );
+
+    const perfil = perfilResult.rows[0];
+
+    return res.json({
+      nombre:                perfil.nombre,
+      apellido:              perfil.apellido,
+      correo:                perfil.correo,
+      telefono:              perfil.telefono,
+      estado:                perfil.estado,
+      fecha_registro:        perfil.fecha_registro,
+      rut:                   perfil.rut,
+      fecha_nacimiento:      perfil.fecha_nacimiento,
+      direccion:             perfil.direccion,
+      comuna:                perfil.comuna,
+      ciudad:                perfil.ciudad,
+      contacto_emergencia:   perfil.contacto_emergencia,
+      telefono_emergencia:   perfil.telefono_emergencia,
+      proxima_cita:          citaResult.rows[0] ?? null,
+      alertas:               parseInt(alertasResult.rows[0].total, 10),
+    });
+  } catch (err) {
+    console.error('Error en getPerfil:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+module.exports = { getDashboard, getEspecialidadesConBadge, getProfesionalesPorEspecialidad, getDetalleMedico, getDisponibilidadMedico, crearCitaPaciente, getDetalleCita, cancelarCita, reagendarCita, confirmarAsistencia, getHistorialCitas, getPerfil };
