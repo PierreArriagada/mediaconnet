@@ -10,6 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import {
   PacienteService,
   DashboardData,
+  CitaPendienteConfirmacion,
 } from '../../../core/services/paciente.service';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
@@ -38,6 +39,11 @@ export class PacienteHomePage implements OnInit {
   errorMsg   = '';
   showError  = false;
 
+  // Modal de confirmación de asistencia 24h
+  showConfirmModal   = false;
+  citaConfirmar: CitaPendienteConfirmacion | null = null;
+  confirmLoading     = false;
+
   /** Primer nombre del usuario para el saludo */
   get firstName(): string {
     return this.user?.name?.split(' ')[0] ?? '';
@@ -53,6 +59,11 @@ export class PacienteHomePage implements OnInit {
         this.data      = d;
         this.isLoading = false;
         event?.target?.complete();
+        // Si hay cita dentro de 24h sin confirmar → mostrar modal
+        if (d.citaPendienteConfirmacion) {
+          this.citaConfirmar   = d.citaPendienteConfirmacion;
+          this.showConfirmModal = true;
+        }
       },
       error: (err) => {
         this.isLoading = false;
@@ -100,6 +111,44 @@ export class PacienteHomePage implements OnInit {
       general:        'info',
     };
     return mapa[tipo] ?? 'notifications';
+  }
+
+  /** El paciente confirma que asistirá a la cita */
+  onConfirmarAsistencia(): void {
+    if (!this.citaConfirmar || this.confirmLoading) return;
+    this.confirmLoading = true;
+    this.svc.confirmarAsistencia(this.citaConfirmar.id_cita).subscribe({
+      next: () => {
+        this.confirmLoading  = false;
+        this.showConfirmModal = false;
+        this.citaConfirmar   = null;
+        this.loadDashboard();
+      },
+      error: (err) => {
+        this.confirmLoading = false;
+        this.errorMsg  = err?.error?.message ?? 'Error al confirmar asistencia.';
+        this.showError = true;
+      },
+    });
+  }
+
+  /** El paciente cancela la cita desde el modal de confirmación */
+  onCancelarDesdeModal(): void {
+    if (!this.citaConfirmar || this.confirmLoading) return;
+    this.confirmLoading = true;
+    this.svc.cancelarCita(this.citaConfirmar.id_cita).subscribe({
+      next: () => {
+        this.confirmLoading  = false;
+        this.showConfirmModal = false;
+        this.citaConfirmar   = null;
+        this.loadDashboard();
+      },
+      error: (err) => {
+        this.confirmLoading = false;
+        this.errorMsg  = err?.error?.message ?? 'Error al cancelar la cita.';
+        this.showError = true;
+      },
+    });
   }
 
   cerrarSesion(): void {

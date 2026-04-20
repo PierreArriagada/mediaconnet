@@ -187,6 +187,86 @@
   <!-- ===== BOTTOM NAV (componente reutilizable) ===== -->
   <app-paciente-bottom-nav activeTab="home"></app-paciente-bottom-nav>
 
+  <!-- ===== MODAL CONFIRMACIÓN DE ASISTENCIA (24h antes) ===== -->
+  @if (showConfirmModal && citaConfirmar) {
+    <div class="mc-confirm-overlay" (click)="$event.stopPropagation()">
+      <div class="mc-confirm-modal" role="dialog" aria-modal="true"
+           aria-labelledby="confirm-title">
+        <!-- Icono decorativo -->
+        <div class="mc-confirm-modal__icon-wrap" aria-hidden="true">
+          <span class="material-symbols-outlined mc-confirm-modal__icon">event_available</span>
+        </div>
+
+        <h2 id="confirm-title" class="mc-confirm-modal__title">
+          ¿Asistirás a tu cita?
+        </h2>
+
+        <p class="mc-confirm-modal__desc">
+          Tu cita es en las próximas 24 horas. Confirma tu asistencia o cancélala
+          para liberar el horario.
+        </p>
+
+        <!-- Datos de la cita -->
+        <div class="mc-confirm-modal__card">
+          <div class="mc-confirm-modal__row">
+            <span class="material-symbols-outlined mc-confirm-modal__row-icon">stethoscope</span>
+            <div>
+              <p class="mc-confirm-modal__label">Médico</p>
+              <p class="mc-confirm-modal__value">
+                Dr. {{ citaConfirmar.medico_nombre }} {{ citaConfirmar.medico_apellido }}
+              </p>
+            </div>
+          </div>
+          <div class="mc-confirm-modal__row">
+            <span class="material-symbols-outlined mc-confirm-modal__row-icon">local_hospital</span>
+            <div>
+              <p class="mc-confirm-modal__label">Especialidad</p>
+              <p class="mc-confirm-modal__value">{{ citaConfirmar.nombre_especialidad }}</p>
+            </div>
+          </div>
+          <div class="mc-confirm-modal__row">
+            <span class="material-symbols-outlined mc-confirm-modal__row-icon">calendar_today</span>
+            <div>
+              <p class="mc-confirm-modal__label">Fecha</p>
+              <p class="mc-confirm-modal__value">{{ formatFecha(citaConfirmar.fecha_cita) }}</p>
+            </div>
+          </div>
+          <div class="mc-confirm-modal__row">
+            <span class="material-symbols-outlined mc-confirm-modal__row-icon">alarm</span>
+            <div>
+              <p class="mc-confirm-modal__label">Hora</p>
+              <p class="mc-confirm-modal__value">{{ formatHora(citaConfirmar.hora_cita) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="mc-confirm-modal__actions">
+          <button
+            class="mc-confirm-modal__btn mc-confirm-modal__btn--confirm"
+            [disabled]="confirmLoading"
+            (click)="onConfirmarAsistencia()"
+          >
+            @if (confirmLoading) {
+              <span class="mc-confirm-modal__spinner"></span>
+            } @else {
+              <span class="material-symbols-outlined">check_circle</span>
+              Sí, asistiré
+            }
+          </button>
+          <button
+            class="mc-confirm-modal__btn mc-confirm-modal__btn--cancel"
+            [disabled]="confirmLoading"
+            (click)="onCancelarDesdeModal()"
+          >
+            <span class="material-symbols-outlined">cancel</span>
+            Cancelar cita
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
   <!-- Toast de error -->
   <ion-toast
     [isOpen]="showError"
