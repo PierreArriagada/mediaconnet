@@ -28,6 +28,7 @@ app/src/app/
 ├── features/
 │   ├── auth/         login, registro y restablecimiento de contraseña
 │   ├── dashboard/    vista de redireccionamiento post-login
+│   ├── medico/       módulo completo del médico (home, marcar asistencia)
 │   └── paciente/     módulo completo del paciente (home, reservar, citas, etc.)
 ├── layouts/          shells reutilizables
 ├── app.routes.ts     rutas raíz con lazy loading
@@ -44,7 +45,7 @@ El backend ya existe dentro de `backend/` y está organizado por capas simples y
 ```text
 backend/src/
 ├── config/       configuración centralizada (JWT)
-├── controllers/  lógica HTTP de cada endpoint
+├── controllers/  lógica HTTP de cada endpoint (auth, paciente, medico, citas)
 ├── db/           conexión PostgreSQL
 ├── middleware/   autenticación, autorización y manejo de errores
 ├── routes/       definición de rutas Express
