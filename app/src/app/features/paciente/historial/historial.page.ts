@@ -5,7 +5,6 @@ import {
   IonContent,
   IonRefresher,
   IonRefresherContent,
-  IonSpinner,
   ToastController,
 } from '@ionic/angular/standalone';
 
@@ -33,7 +32,7 @@ interface BadgeInfo {
   standalone: true,
   imports: [
     TitleCasePipe,
-    IonContent, IonRefresher, IonRefresherContent, IonSpinner,
+    IonContent, IonRefresher, IonRefresherContent,
     PacienteHeaderComponent,
     PacienteBottomNavComponent,
   ],
