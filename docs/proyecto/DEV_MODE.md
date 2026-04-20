@@ -14,7 +14,7 @@ El proyecto ya corre como un entorno full-stack local:
 
 ## Credenciales semilla
 
-Estas credenciales están creadas en [database/01_init.sql](../database/01_init.sql) y autentican contra la base real:
+Estas credenciales están creadas en [database/01_init.sql](../../database/01_init.sql) y autentican contra la base real:
 
 | Rol | Correo | Contraseña |
 |---|---|---|

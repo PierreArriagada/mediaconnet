@@ -370,7 +370,8 @@ MediConnect/
 
 ## Documentos complementarios
 
-- [README.md](../README.md) — Visión general del monorepo
+- [../../README.md](../../README.md) — README principal del proyecto
+- [../README.md](../README.md) — Indice general de documentacion
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — Arquitectura actual de frontend, backend y base de datos
 - [API_CONTRACT.md](./API_CONTRACT.md) — Contrato HTTP real del backend
 - [BACKEND_PLAN.md](./BACKEND_PLAN.md) — Estado actual del backend y roadmap
