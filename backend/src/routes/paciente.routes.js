@@ -10,6 +10,7 @@ const {
   getDetalleCita,
   cancelarCita,
   reagendarCita,
+  getHistorialCitas,
 } = require('../controllers/paciente.controller');
 
 const router = Router();
@@ -27,5 +28,6 @@ router.post('/reservar', crearCitaPaciente);
 router.get('/cita/:idCita', getDetalleCita);
 router.patch('/cita/:idCita/cancelar', cancelarCita);
 router.patch('/cita/:idCita/reagendar', reagendarCita);
+router.get('/historial', getHistorialCitas);
 
 module.exports = router;
