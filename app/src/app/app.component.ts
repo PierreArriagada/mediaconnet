@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+
+import { NotificacionesNativasService } from './core/services/notificaciones-nativas.service';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +9,10 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
   standalone: true,
   imports: [IonApp, IonRouterOutlet],
 })
-export class AppComponent {}
+export class AppComponent implements OnInit {
+  private readonly notificacionesNativas = inject(NotificacionesNativasService);
+
+  ngOnInit(): void {
+    void this.notificacionesNativas.inicializar();
+  }
+}
