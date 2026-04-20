@@ -1,0 +1,240 @@
+<ion-content [scrollEvents]="true">
+
+  <!-- Pull-to-refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="loadDashboard($any($event))">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- ===== HEADER DEL MÉDICO ===== -->
+  <header class="md-header">
+    <div class="md-header__inner">
+      <div class="md-header__left">
+        <div class="md-header__avatar">
+          <span class="material-symbols-outlined">stethoscope</span>
+        </div>
+        <div>
+          <p class="md-header__label">Panel médico</p>
+          <p class="md-header__name">{{ user?.name ?? '' }}</p>
+        </div>
+      </div>
+      <button class="md-header__logout" (click)="cerrarSesion()" title="Cerrar sesión">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== CONTENIDO PRINCIPAL ===== -->
+  <main class="md-main">
+
+    <!-- Saludo -->
+    <section class="md-greeting">
+      <h1 class="md-heading-display">
+        Hola, <span class="md-heading-accent">Dr. {{ firstName }}</span>
+      </h1>
+      <p class="md-subtitle">Gestiona la asistencia de tus pacientes.</p>
+    </section>
+
+    <!-- Skeleton de carga -->
+    @if (isLoading) {
+      <div class="md-skeleton-wrap">
+        <div class="md-skeleton md-skeleton--stats"></div>
+        <div class="md-skeleton md-skeleton--card"></div>
+        <div class="md-skeleton md-skeleton--card"></div>
+      </div>
+    }
+
+    @if (!isLoading && data) {
+
+      <!-- ── Tarjetas resumen ── -->
+      <div class="md-stats">
+        <div class="md-stat-card md-stat-card--pending">
+          <span class="material-symbols-outlined md-stat-card__icon">pending_actions</span>
+          <div>
+            <p class="md-stat-card__value">{{ data.pendientesMarcar }}</p>
+            <p class="md-stat-card__label">Pendientes de marcar</p>
+          </div>
+        </div>
+        <div class="md-stat-card md-stat-card--today">
+          <span class="material-symbols-outlined md-stat-card__icon">today</span>
+          <div>
+            <p class="md-stat-card__value">{{ data.citasHoy.length }}</p>
+            <p class="md-stat-card__label">Citas hoy</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Próxima cita futura ── -->
+      @if (data.proximaCita) {
+        <section class="md-next-card">
+          <div class="md-next-card__glow" aria-hidden="true"></div>
+          <span class="md-chip md-chip--primary">Próxima cita</span>
+          <h2 class="md-next-card__title">
+            {{ data.proximaCita.paciente_nombre }} {{ data.proximaCita.paciente_apellido }}
+          </h2>
+          <p class="md-next-card__sub">{{ data.proximaCita.nombre_especialidad }}</p>
+          <div class="md-next-card__meta">
+            <div>
+              <p class="md-meta-label">Fecha</p>
+              <p class="md-meta-value">{{ formatFecha(data.proximaCita.fecha_cita) }}</p>
+            </div>
+            <div>
+              <p class="md-meta-label">Hora</p>
+              <p class="md-meta-value">{{ formatHora(data.proximaCita.hora_cita) }}</p>
+            </div>
+            <div>
+              <p class="md-meta-label">Modalidad</p>
+              <p class="md-meta-value">{{ data.proximaCita.modalidad | titlecase }}</p>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- ── Tabs ── -->
+      <nav class="md-tabs" role="tablist" aria-label="Filtro de citas del médico">
+        <button
+          class="md-tabs__btn"
+          [class.md-tabs__btn--active]="tabActivo() === 'hoy'"
+          (click)="cambiarTab('hoy')"
+        >Citas pasadas / hoy</button>
+        <button
+          class="md-tabs__btn"
+          [class.md-tabs__btn--active]="tabActivo() === 'proximas'"
+          (click)="cambiarTab('proximas')"
+        >Próximas</button>
+      </nav>
+
+      <!-- Skeleton de tab -->
+      @if (isLoadingTab) {
+        <div class="md-skeleton-wrap">
+          <div class="md-skeleton md-skeleton--card"></div>
+          <div class="md-skeleton md-skeleton--card"></div>
+        </div>
+      }
+
+      <!-- ── Grid de citas ── -->
+      @if (!isLoadingTab) {
+        <div class="md-grid" role="list">
+          @for (cita of citasTab(); track cita.id_cita) {
+            <article class="md-card" role="listitem">
+
+              <!-- Badge de asistencia si ya fue marcada -->
+              @if (badgeAsistencia(cita); as badge) {
+                <div class="md-card__badge-row">
+                  <span class="md-badge" [class]="badge.clase">
+                    <span class="material-symbols-outlined md-badge__icon">{{ badge.icono }}</span>
+                    {{ badge.label }}
+                  </span>
+                </div>
+              }
+
+              <!-- Paciente -->
+              <div class="md-card__patient">
+                <div class="md-card__patient-avatar" aria-hidden="true">
+                  <span class="material-symbols-outlined">person</span>
+                </div>
+                <div>
+                  <h3 class="md-card__patient-name">
+                    {{ cita.paciente_nombre }} {{ cita.paciente_apellido }}
+                  </h3>
+                  <p class="md-card__patient-esp">{{ cita.nombre_especialidad }}</p>
+                </div>
+              </div>
+
+              <!-- Fecha y hora -->
+              <div class="md-card__meta">
+                <div class="md-card__meta-item">
+                  <span class="material-symbols-outlined md-card__meta-icon">calendar_today</span>
+                  <span>{{ formatFecha(cita.fecha_cita) }}</span>
+                </div>
+                <div class="md-card__meta-item">
+                  <span class="material-symbols-outlined md-card__meta-icon">alarm</span>
+                  <span>{{ formatHora(cita.hora_cita) }}</span>
+                </div>
+                <div class="md-card__meta-item">
+                  <span class="material-symbols-outlined md-card__meta-icon">
+                    {{ cita.modalidad === 'telemedicina' ? 'video_call' : 'local_hospital' }}
+                  </span>
+                  <span>{{ cita.modalidad | titlecase }}</span>
+                </div>
+              </div>
+
+              <!-- Pre-confirmación del paciente -->
+              @if (cita.confirmada_asistencia === true) {
+                <div class="md-card__preconfirm">
+                  <span class="material-symbols-outlined md-card__preconfirm-icon">how_to_reg</span>
+                  <span>Paciente pre-confirmó asistencia</span>
+                </div>
+              }
+
+              <!-- Motivo -->
+              <div class="md-card__motivo">
+                <p class="md-card__motivo-label">Motivo:</p>
+                <p class="md-card__motivo-text">{{ cita.motivo_consulta }}</p>
+              </div>
+
+              <!-- Acciones: solo si no tiene asistencia marcada y es tab 'hoy' -->
+              @if (cita.asistio_cita === null && tabActivo() === 'hoy') {
+                <div class="md-card__actions">
+                  <button
+                    class="md-btn md-btn--success"
+                    [disabled]="marcandoCita() !== null"
+                    (click)="confirmarMarcar(cita, true)"
+                  >
+                    <span class="material-symbols-outlined">check_circle</span>
+                    Asistió
+                  </button>
+                  <button
+                    class="md-btn md-btn--danger"
+                    [disabled]="marcandoCita() !== null"
+                    (click)="confirmarMarcar(cita, false)"
+                  >
+                    <span class="material-symbols-outlined">cancel</span>
+                    No asistió
+                  </button>
+                </div>
+              }
+
+            </article>
+          }
+
+          <!-- Estado vacío -->
+          @if (citasTab().length === 0) {
+            <div class="md-empty">
+              <span class="material-symbols-outlined md-empty__icon">event_busy</span>
+              <p class="md-empty__title">Sin citas en esta sección</p>
+              <p class="md-empty__body">
+                @if (tabActivo() === 'hoy') {
+                  No tienes citas pasadas o de hoy por revisar.
+                }
+                @if (tabActivo() === 'proximas') {
+                  No tienes citas futuras confirmadas.
+                }
+              </p>
+            </div>
+          }
+        </div>
+      }
+    }
+
+  </main>
+
+  <!-- Toasts -->
+  <ion-toast
+    [isOpen]="showError"
+    [message]="errorMsg"
+    [duration]="3500"
+    color="danger"
+    position="bottom"
+    (didDismiss)="showError = false"
+  ></ion-toast>
+
+  <ion-toast
+    [isOpen]="showSuccess"
+    [message]="successMsg"
+    [duration]="2500"
+    color="success"
+    position="bottom"
+    (didDismiss)="showSuccess = false"
+  ></ion-toast>
+
+</ion-content>
