@@ -28,4 +28,11 @@ export const routes: Routes = [
       import('./features/paciente/paciente.routes').then((m) => m.PACIENTE_ROUTES),
     canActivate: [authGuard],
   },
+  // Módulo del médico (protegido por authGuard)
+  {
+    path: 'medico',
+    loadChildren: () =>
+      import('./features/medico/medico.routes').then((m) => m.MEDICO_ROUTES),
+    canActivate: [authGuard],
+  },
 ];
