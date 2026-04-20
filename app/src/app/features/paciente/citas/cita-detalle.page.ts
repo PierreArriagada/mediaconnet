@@ -81,6 +81,15 @@ export default class CitaDetallePage implements OnInit {
   /** Info del estado para citas directas (sin timeline) */
   get estadoSimple(): { icono: string; titulo: string; descripcion: string; clase: string } {
     const estado = this.cita?.estado_cita ?? 'confirmada';
+
+    // Si la cita fue completada y el doctor marcó asistencia, mostrar ese resultado
+    if (estado === 'completada' && this.cita?.asistio_cita === true) {
+      return { icono: 'how_to_reg', titulo: 'Asistió a la cita', descripcion: 'Tu asistencia fue registrada por el médico. ¡Gracias por asistir!', clase: 'mc-estado-simple--success' };
+    }
+    if (estado === 'completada' && this.cita?.asistio_cita === false) {
+      return { icono: 'person_off', titulo: 'No asistió a la cita', descripcion: 'El médico registró que no asististe a esta cita.', clase: 'mc-estado-simple--cancelled' };
+    }
+
     const mapa: Record<string, { icono: string; titulo: string; descripcion: string; clase: string }> = {
       confirmada:   { icono: 'event_available', titulo: 'Hora confirmada',    descripcion: 'Tu hora está reservada. Te esperamos en la fecha indicada.', clase: 'mc-estado-simple--success'   },
       pendiente:    { icono: 'event_available', titulo: 'Hora reservada',     descripcion: 'Tu cita fue registrada correctamente.',                        clase: 'mc-estado-simple--success'   },
