@@ -657,4 +657,80 @@ async function reagendarCita(req, res) {
   }
 }
 
-module.exports = { getDashboard, getEspecialidadesConBadge, getProfesionalesPorEspecialidad, getDetalleMedico, getDisponibilidadMedico, crearCitaPaciente, getDetalleCita, cancelarCita, reagendarCita };
+/**
+ * GET /api/paciente/historial?tab=pendientes|confirmadas|pasadas
+ * Devuelve todas las citas del paciente autenticado, filtradas por pestaña.
+ * - pendientes  → 'pendiente', 'reprogramada'
+ * - confirmadas → 'confirmada'
+ * - pasadas     → 'completada', 'cancelada'
+ * Incluye es_invitado e id_disponibilidad para que el frontend
+ * distinga el badge correcto ("En revisión" solo para invitados).
+ * Anti-IDOR: id_usuario siempre del JWT, nunca del cliente.
+ */
+async function getHistorialCitas(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  const tab = req.query.tab ?? '';
+
+  // Mapa de tab a lista de estados permitidos
+  const filtroEstado = {
+    pendientes:  ["'pendiente'",  "'reprogramada'"],
+    confirmadas: ["'confirmada'"],
+    pasadas:     ["'completada'", "'cancelada'"],
+  };
+
+  const estados = filtroEstado[tab];
+  const whereEstado = estados
+    ? `AND c.estado_cita IN (${estados.join(',')})`
+    : '';
+
+  try {
+    const citasResult = await pool.query(
+      `SELECT
+         c.id_cita,
+         c.fecha_cita,
+         c.hora_cita,
+         c.estado_cita,
+         c.motivo_consulta,
+         c.modalidad,
+         c.observaciones,
+         c.es_invitado,
+         c.id_disponibilidad,
+         u.nombre             AS medico_nombre,
+         u.apellido           AS medico_apellido,
+         e.nombre_especialidad,
+         ha.diagnostico,
+         ha.tratamiento
+       FROM   citas_medicas     c
+       JOIN   pacientes         p  ON c.id_paciente    = p.id_paciente
+       JOIN   medicos           m  ON c.id_medico       = m.id_medico
+       JOIN   usuarios          u  ON m.id_usuario      = u.id_usuario
+       JOIN   especialidades    e  ON c.id_especialidad = e.id_especialidad
+       LEFT JOIN historial_atenciones ha ON ha.id_cita  = c.id_cita
+       WHERE  p.id_usuario = $1
+       ${whereEstado}
+       ORDER  BY c.fecha_cita DESC, c.hora_cita DESC`,
+      [idUsuario]
+    );
+
+    const unreadResult = await pool.query(
+      `SELECT COUNT(*) AS total
+       FROM   notificaciones
+       WHERE  id_usuario = $1 AND leida = FALSE`,
+      [idUsuario]
+    );
+
+    return res.json({
+      citas:    citasResult.rows,
+      noLeidas: parseInt(unreadResult.rows[0].total, 10),
+    });
+  } catch (err) {
+    console.error('Error en getHistorialCitas:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+module.exports = { getDashboard, getEspecialidadesConBadge, getProfesionalesPorEspecialidad, getDetalleMedico, getDisponibilidadMedico, crearCitaPaciente, getDetalleCita, cancelarCita, reagendarCita, getHistorialCitas };
