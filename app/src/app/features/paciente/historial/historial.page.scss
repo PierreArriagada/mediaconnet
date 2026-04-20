@@ -113,19 +113,10 @@ ion-content {
 
   &__top {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     gap: 0.75rem;
     flex-wrap: wrap;
-  }
-
-  &__id {
-    font-family: var(--mc-font-utility);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--mc-outline);
   }
 
   &__doctor {

@@ -67,13 +67,12 @@
         @for (cita of citas(); track cita.id_cita) {
           <article class="hs-card" role="listitem">
 
-            <!-- Badge de estado + ID -->
+            <!-- Badge de estado -->
             <div class="hs-card__top">
               <span class="hs-badge hs-badge--{{ badgeEstado(cita).modifier }}">
                 <span class="material-symbols-outlined hs-badge__icon">{{ badgeEstado(cita).icon }}</span>
                 {{ badgeEstado(cita).label }}
               </span>
-              <span class="hs-card__id">ID: {{ cita.id_cita }}</span>
             </div>
 
             <!-- Médico y especialidad -->
