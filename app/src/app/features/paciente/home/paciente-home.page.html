@@ -262,6 +262,13 @@
             <span class="material-symbols-outlined">cancel</span>
             Cancelar cita
           </button>
+          <button
+            class="mc-confirm-modal__btn mc-confirm-modal__btn--dismiss"
+            [disabled]="confirmLoading"
+            (click)="onCerrarModal()"
+          >
+            Ahora no
+          </button>
         </div>
       </div>
     </div>
