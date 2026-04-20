@@ -41,4 +41,9 @@ export const PACIENTE_ROUTES: Routes = [
     loadComponent: () =>
       import('./citas/cita-detalle.page'),
   },
+  {
+    path: 'historial',
+    loadComponent: () =>
+      import('./historial/historial.page').then((m) => m.HistorialPage),
+  },
 ];
