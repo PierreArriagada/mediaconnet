@@ -122,6 +122,16 @@ export class DashboardPage implements OnInit {
   ngOnInit() {
     const user = this.auth.getCurrentUser();
     if (user) {
+      // Redirección por rol al módulo correspondiente
+      if (user.role === 'Paciente') {
+        this.router.navigate(['/paciente/home'], { replaceUrl: true });
+        return;
+      }
+      if (user.role === 'Medico') {
+        this.router.navigate(['/medico/home'], { replaceUrl: true });
+        return;
+      }
+
       this.userName = user.name;
       this.roleLabel = ROLE_LABEL[user.role] ?? user.role;
       this.roleColor = ROLE_COLOR[user.role] ?? 'primary';
