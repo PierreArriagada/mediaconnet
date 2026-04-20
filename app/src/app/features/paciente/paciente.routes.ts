@@ -46,4 +46,9 @@ export const PACIENTE_ROUTES: Routes = [
     loadComponent: () =>
       import('./historial/historial.page').then((m) => m.HistorialPage),
   },
+  {
+    path: 'perfil',
+    loadComponent: () =>
+      import('./perfil/perfil.page').then((m) => m.PerfilPage),
+  },
 ];
