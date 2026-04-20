@@ -113,10 +113,17 @@ async function register(req, res) {
       );
 
       if (pacienteInvitado.rowCount > 0) {
+        const idPacienteVinculado = pacienteInvitado.rows[0].id_paciente;
         // Vincular el registro existente del invitado con la nueva cuenta
         await client.query(
           'UPDATE pacientes SET id_usuario = $1, fecha_actualizacion = NOW() WHERE id_paciente = $2',
-          [idUsuario, pacienteInvitado.rows[0].id_paciente]
+          [idUsuario, idPacienteVinculado]
+        );
+        // Las citas creadas como invitado ahora pertenecen a un usuario registrado.
+        // Limpiar es_invitado para que los badges muestren el estado real (no "En revisión").
+        await client.query(
+          'UPDATE citas_medicas SET es_invitado = FALSE, fecha_actualizacion = NOW() WHERE id_paciente = $1',
+          [idPacienteVinculado]
         );
       } else {
         // No existe registro previo: crear nuevo paciente con RUT real
