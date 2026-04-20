@@ -24,10 +24,21 @@ export interface Notificacion {
   fecha_envio:     string;
 }
 
+export interface CitaPendienteConfirmacion {
+  id_cita:              number;
+  fecha_cita:           string;
+  hora_cita:            string;
+  modalidad:            string;
+  medico_nombre:        string;
+  medico_apellido:      string;
+  nombre_especialidad:  string;
+}
+
 export interface DashboardData {
-  proximaCita:    ProximaCita | null;
-  notificaciones: Notificacion[];
-  noLeidas:       number;
+  proximaCita:               ProximaCita | null;
+  citaPendienteConfirmacion: CitaPendienteConfirmacion | null;
+  notificaciones:            Notificacion[];
+  noLeidas:                  number;
 }
 
 export interface Especialidad {
@@ -208,6 +219,10 @@ export class PacienteService {
 
   cancelarCita(idCita: number): Observable<MensajeResponse> {
     return this.http.patch<MensajeResponse>(`${this.API}/cita/${idCita}/cancelar`, {});
+  }
+
+  confirmarAsistencia(idCita: number): Observable<MensajeResponse> {
+    return this.http.patch<MensajeResponse>(`${this.API}/cita/${idCita}/confirmar-asistencia`, {});
   }
 
   reagendarCita(idCita: number, idDisponibilidad: number): Observable<MensajeResponse> {
