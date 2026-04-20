@@ -508,6 +508,19 @@ ion-content {
         filter: none;
       }
     }
+
+    &--dismiss {
+      background: transparent;
+      color: var(--mc-outline);
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.5rem;
+
+      &:hover:not(:disabled) {
+        color: var(--mc-secondary);
+        filter: none;
+      }
+    }
   }
 
   &__spinner {
