@@ -138,6 +138,7 @@ export interface DetalleCita {
   fecha_actualizacion:      string;
   id_disponibilidad:        number | null;
   es_invitado:              boolean;
+  asistio_cita:             boolean | null;
   id_medico:                number;
   id_especialidad:          number;
   anios_experiencia:        number;
@@ -177,11 +178,35 @@ export interface CitaHistorial {
   nombre_especialidad:  string;
   diagnostico:          string | null;
   tratamiento:          string | null;
+  asistio_cita:         boolean | null;
 }
 
 export interface HistorialData {
   citas:    CitaHistorial[];
   noLeidas: number;
+}
+
+export interface PerfilProximaCita {
+  fecha_cita:          string;
+  nombre_especialidad: string;
+}
+
+export interface PerfilData {
+  nombre:               string;
+  apellido:             string;
+  correo:               string;
+  telefono:             string | null;
+  estado:               string;
+  fecha_registro:       string;
+  rut:                  string | null;
+  fecha_nacimiento:     string | null;
+  direccion:            string | null;
+  comuna:               string | null;
+  ciudad:               string | null;
+  contacto_emergencia:  string | null;
+  telefono_emergencia:  string | null;
+  proxima_cita:         PerfilProximaCita | null;
+  alertas:              number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -232,5 +257,9 @@ export class PacienteService {
   getHistorial(tab: string): Observable<HistorialData> {
     const params = tab ? `?tab=${encodeURIComponent(tab)}` : '';
     return this.http.get<HistorialData>(`${this.API}/historial${params}`);
+  }
+
+  getPerfil(): Observable<PerfilData> {
+    return this.http.get<PerfilData>(`${this.API}/perfil`);
   }
 }
