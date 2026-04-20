@@ -1,0 +1,360 @@
+// Iconos Material Symbols
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  font-size: 1.5rem;
+  line-height: 1;
+  display: inline-block;
+  user-select: none;
+}
+
+ion-content {
+  --background: var(--mc-surface);
+  --padding-bottom: 0;
+  --padding-top: 0;
+}
+
+// ── Contenedor principal ──────────────────────────────────────
+.pf-main {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 9rem; // espacio inferior para bottom nav
+}
+
+// ── Layout asimétrico ─────────────────────────────────────────
+// En móvil: columna única. En ≥1024px: 5/12 perfil + 7/12 menú
+.pf-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 5fr 7fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  COLUMNA IZQUIERDA — Identidad del paciente
+// ════════════════════════════════════════════════════════
+
+.pf-profile-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// ── Tarjeta de identidad ─────────────────────────────────
+.pf-identity-card {
+  background: var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  @media (min-width: 1024px) {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+// ── Avatar con iniciales ──────────────────────────────────
+.pf-avatar-wrap {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.pf-avatar {
+  width: 8rem;
+  height: 8rem;
+  border-radius: 9999px;
+  background: var(--mc-gradient-primary);
+  color: var(--mc-on-primary);
+  font-family: var(--mc-font-authority);
+  font-size: 2.5rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.05em;
+  user-select: none;
+}
+
+// Anillo decorativo exterior del avatar
+.pf-avatar-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 4px solid var(--mc-primary-fixed);
+  z-index: 0;
+}
+
+// ── Datos de identidad ────────────────────────────────────
+.pf-name {
+  font-family: var(--mc-font-authority);
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: var(--mc-on-surface);
+  letter-spacing: var(--mc-tracking-headline);
+  margin: 0 0 0.5rem;
+  line-height: 1.1;
+}
+
+.pf-email {
+  font-family: var(--mc-font-utility);
+  font-size: 0.9375rem;
+  color: var(--mc-secondary);
+  font-weight: 500;
+  margin: 0 0 0.25rem;
+}
+
+.pf-phone {
+  font-family: var(--mc-font-utility);
+  font-size: 0.875rem;
+  color: var(--mc-outline);
+  margin: 0;
+}
+
+// ── Chips de estado ───────────────────────────────────────
+.pf-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  justify-content: center;
+
+  @media (min-width: 1024px) { justify-content: flex-start; }
+}
+
+.pf-chip {
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  font-family: var(--mc-font-utility);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+
+  &--primary {
+    background: var(--mc-primary-fixed);
+    color: var(--mc-on-primary-fixed-variant);
+  }
+
+  &--tertiary {
+    background: var(--mc-tertiary-fixed);
+    color: var(--mc-on-tertiary-fixed-variant);
+  }
+}
+
+// ── Bento de estadísticas ─────────────────────────────────
+.pf-bento-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.pf-bento-card {
+  background: var(--mc-surface-container-low);
+  border-radius: var(--mc-radius-lg);
+  padding: 1.5rem;
+
+  // Variante con acento izquierdo para alertas
+  &--alert {
+    border-left: 4px solid var(--mc-tertiary);
+  }
+}
+
+.pf-bento-label {
+  display: block;
+  font-family: var(--mc-font-utility);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--mc-outline);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.pf-bento-value {
+  font-family: var(--mc-font-authority);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+  line-height: 1.2;
+
+  &--primary  { color: var(--mc-primary); }
+  &--tertiary { color: var(--mc-tertiary); }
+}
+
+.pf-bento-sub {
+  font-family: var(--mc-font-utility);
+  font-size: 0.8125rem;
+  color: var(--mc-on-surface-variant);
+  margin: 0;
+}
+
+// ════════════════════════════════════════════════════════
+//  COLUMNA DERECHA — Menú de configuración
+// ════════════════════════════════════════════════════════
+
+.pf-menu-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.pf-section-title {
+  font-family: var(--mc-font-authority);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--mc-on-surface);
+  letter-spacing: var(--mc-tracking-headline);
+  margin: 0 0 1.5rem;
+  padding: 0 0.25rem;
+}
+
+// ── Lista de menú ─────────────────────────────────────────
+.pf-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+// ── Ítem de menú ─────────────────────────────────────────
+.pf-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--mc-surface-container-low);
+  border-radius: var(--mc-radius-lg);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.15s ease, transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover { background: var(--mc-surface-container-highest); }
+  &:active { transform: scale(0.98); }
+
+  // Variante peligrosa (cerrar sesión)
+  &--danger {
+    background: rgba(186, 26, 26, 0.06);
+    margin-top: 0.5rem;
+
+    &:hover { background: rgba(186, 26, 26, 0.12); }
+  }
+
+  // Lado izquierdo del ítem (ícono + textos)
+  > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+  }
+}
+
+// ── Contenedor del ícono ──────────────────────────────────
+.pf-menu-item__icon-wrap {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--mc-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &--primary   { background: var(--mc-primary-fixed);    color: var(--mc-primary); }
+  &--secondary { background: var(--mc-secondary-container); color: var(--mc-secondary); }
+  &--neutral   { background: var(--mc-surface-container-high); color: var(--mc-on-surface-variant); }
+  &--error     { background: var(--mc-error-container);  color: var(--mc-error); }
+}
+
+// ── Textos del ítem ───────────────────────────────────────
+.pf-menu-item__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.pf-menu-item__title {
+  font-family: var(--mc-font-authority);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--mc-on-surface);
+  display: block;
+
+  &--error { color: var(--mc-error); }
+}
+
+.pf-menu-item__sub {
+  font-family: var(--mc-font-utility);
+  font-size: 0.8125rem;
+  color: var(--mc-outline);
+  display: block;
+
+  &--error { color: rgba(186, 26, 26, 0.7); }
+}
+
+// ── Flecha derecha (chevron) ──────────────────────────────
+.pf-menu-item__arrow {
+  color: var(--mc-outline);
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+
+  .pf-menu-item:hover & { transform: translateX(3px); }
+}
+
+// ════════════════════════════════════════════════════════
+//  SKELETON DE CARGA
+// ════════════════════════════════════════════════════════
+
+.pf-skeleton-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+@keyframes pf-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+// Mixin visual compartido por todas las variantes de skeleton
+%skeleton-base {
+  background: linear-gradient(
+    90deg,
+    var(--mc-surface-container-low)    0%,
+    var(--mc-surface-container-high)  50%,
+    var(--mc-surface-container-low)  100%
+  );
+  background-size: 800px 100%;
+  animation: pf-shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--mc-radius-md);
+}
+
+.pf-skeleton {
+  @extend %skeleton-base;
+
+  &--avatar  { width: 8rem; height: 8rem; border-radius: 9999px; }
+  &--name    { width: 14rem; height: 2rem; }
+  &--email   { width: 10rem; height: 1.25rem; }
+  &--chips   { width: 12rem; height: 2rem; border-radius: 9999px; }
+  &--bento   { height: 6rem; border-radius: var(--mc-radius-lg); }
+  &--menu    { width: 100%; height: 4.5rem; border-radius: var(--mc-radius-lg); }
+}
+
+.pf-bento-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}

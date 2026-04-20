@@ -1,0 +1,193 @@
+<ion-content [scrollEvents]="true">
+
+  <!-- Pull-to-refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="cargarPerfil($any($event))">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Header reutilizable -->
+  <app-paciente-header
+    [userName]="nombreCompleto"
+    [noLeidas]="noLeidas"
+  ></app-paciente-header>
+
+  <main class="pf-main">
+
+    <!-- ── Skeleton de carga ──────────────────────────── -->
+    @if (isLoading) {
+      <div class="pf-skeleton-wrap">
+        <div class="pf-skeleton pf-skeleton--avatar"></div>
+        <div class="pf-skeleton pf-skeleton--name"></div>
+        <div class="pf-skeleton pf-skeleton--email"></div>
+        <div class="pf-skeleton pf-skeleton--chips"></div>
+        <div class="pf-bento-grid">
+          <div class="pf-skeleton pf-skeleton--bento"></div>
+          <div class="pf-skeleton pf-skeleton--bento"></div>
+        </div>
+        <div class="pf-skeleton pf-skeleton--menu"></div>
+        <div class="pf-skeleton pf-skeleton--menu"></div>
+        <div class="pf-skeleton pf-skeleton--menu"></div>
+      </div>
+    }
+
+    @if (!isLoading && perfil) {
+      <!-- ── Layout asimétrico: perfil + menú ──────────── -->
+      <div class="pf-layout">
+
+        <!-- ══ Columna izquierda: datos del usuario ══ -->
+        <section class="pf-profile-col" aria-labelledby="pf-user-name">
+
+          <!-- Tarjeta de identidad -->
+          <div class="pf-identity-card">
+            <div class="pf-avatar-wrap">
+              <!-- Avatar generado con iniciales (no hay foto en BD) -->
+              <div class="pf-avatar" aria-hidden="true">{{ initiales }}</div>
+              <div class="pf-avatar-ring" aria-hidden="true"></div>
+            </div>
+
+            <h1 class="pf-name" id="pf-user-name">{{ nombreCompleto }}</h1>
+            <p class="pf-email">{{ perfil.correo }}</p>
+            @if (perfil.telefono) {
+              <p class="pf-phone">{{ perfil.telefono }}</p>
+            }
+
+            <!-- Chips de estado -->
+            <div class="pf-chips" role="list" aria-label="Estado de la cuenta">
+              <span class="pf-chip pf-chip--primary" role="listitem">
+                Paciente {{ perfil.estado | titlecase }}
+              </span>
+              @if (perfil.ciudad) {
+                <span class="pf-chip pf-chip--tertiary" role="listitem">
+                  {{ perfil.ciudad }}
+                </span>
+              }
+            </div>
+          </div>
+
+          <!-- Bento de estadísticas -->
+          <div class="pf-bento-grid" role="list">
+            <div class="pf-bento-card" role="listitem">
+              <span class="pf-bento-label">Próxima cita</span>
+              @if (perfil.proxima_cita) {
+                <p class="pf-bento-value pf-bento-value--primary">
+                  {{ formatFechaBento(perfil.proxima_cita.fecha_cita) }}
+                </p>
+                <p class="pf-bento-sub">{{ perfil.proxima_cita.nombre_especialidad }}</p>
+              } @else {
+                <p class="pf-bento-value pf-bento-value--primary">Sin citas</p>
+                <p class="pf-bento-sub">Reserva una hora</p>
+              }
+            </div>
+            <div class="pf-bento-card pf-bento-card--alert" role="listitem">
+              <span class="pf-bento-label">Alertas</span>
+              <p class="pf-bento-value pf-bento-value--tertiary">
+                {{ perfil.alertas }} {{ perfil.alertas === 1 ? 'Activa' : 'Activas' }}
+              </p>
+              <p class="pf-bento-sub">Notificaciones</p>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ══ Columna derecha: menú de configuración ══ -->
+        <section class="pf-menu-col" aria-labelledby="pf-config-title">
+          <h2 class="pf-section-title" id="pf-config-title">Configuración de cuenta</h2>
+
+          <div class="pf-menu" role="list">
+
+            <!-- Mis datos -->
+            <button
+              class="pf-menu-item"
+              (click)="navegar('perfil/mis-datos')"
+              role="listitem"
+              aria-label="Ir a Mis datos: información personal y contacto"
+            >
+              <div class="pf-menu-item__icon-wrap pf-menu-item__icon-wrap--primary">
+                <span class="material-symbols-outlined" aria-hidden="true">person</span>
+              </div>
+              <div class="pf-menu-item__content">
+                <span class="pf-menu-item__title">Mis datos</span>
+                <span class="pf-menu-item__sub">Información personal y contacto</span>
+              </div>
+              <span class="material-symbols-outlined pf-menu-item__arrow" aria-hidden="true">chevron_right</span>
+            </button>
+
+            <!-- Seguridad -->
+            <button
+              class="pf-menu-item"
+              (click)="navegar('perfil/seguridad')"
+              role="listitem"
+              aria-label="Ir a Seguridad: contraseña y verificación"
+            >
+              <div class="pf-menu-item__icon-wrap pf-menu-item__icon-wrap--secondary">
+                <span class="material-symbols-outlined" aria-hidden="true">security</span>
+              </div>
+              <div class="pf-menu-item__content">
+                <span class="pf-menu-item__title">Seguridad</span>
+                <span class="pf-menu-item__sub">Contraseña y verificación</span>
+              </div>
+              <span class="material-symbols-outlined pf-menu-item__arrow" aria-hidden="true">chevron_right</span>
+            </button>
+
+            <!-- Preferencias -->
+            <button
+              class="pf-menu-item"
+              (click)="navegar('perfil/preferencias')"
+              role="listitem"
+              aria-label="Ir a Preferencias: notificaciones y temas"
+            >
+              <div class="pf-menu-item__icon-wrap pf-menu-item__icon-wrap--neutral">
+                <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+              </div>
+              <div class="pf-menu-item__content">
+                <span class="pf-menu-item__title">Preferencias</span>
+                <span class="pf-menu-item__sub">Notificaciones y temas</span>
+              </div>
+              <span class="material-symbols-outlined pf-menu-item__arrow" aria-hidden="true">chevron_right</span>
+            </button>
+
+            <!-- Soporte -->
+            <button
+              class="pf-menu-item"
+              (click)="navegar('perfil/soporte')"
+              role="listitem"
+              aria-label="Ir a Soporte: centro de ayuda y contacto"
+            >
+              <div class="pf-menu-item__icon-wrap pf-menu-item__icon-wrap--neutral">
+                <span class="material-symbols-outlined" aria-hidden="true">help</span>
+              </div>
+              <div class="pf-menu-item__content">
+                <span class="pf-menu-item__title">Soporte</span>
+                <span class="pf-menu-item__sub">Centro de ayuda y contacto</span>
+              </div>
+              <span class="material-symbols-outlined pf-menu-item__arrow" aria-hidden="true">chevron_right</span>
+            </button>
+
+            <!-- Cerrar sesión -->
+            <button
+              class="pf-menu-item pf-menu-item--danger"
+              (click)="cerrarSesion()"
+              role="listitem"
+              aria-label="Cerrar sesión"
+            >
+              <div class="pf-menu-item__icon-wrap pf-menu-item__icon-wrap--error">
+                <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+              </div>
+              <div class="pf-menu-item__content">
+                <span class="pf-menu-item__title pf-menu-item__title--error">Cerrar sesión</span>
+                <span class="pf-menu-item__sub pf-menu-item__sub--error">Finalizar sesión actual</span>
+              </div>
+            </button>
+
+          </div>
+        </section>
+
+      </div>
+    }
+
+  </main>
+
+  <!-- Bottom nav fijo -->
+  <app-paciente-bottom-nav [activeTab]="'perfil'"></app-paciente-bottom-nav>
+
+</ion-content>
