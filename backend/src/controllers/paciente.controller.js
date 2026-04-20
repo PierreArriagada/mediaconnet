@@ -65,10 +65,36 @@ async function getDashboard(req, res) {
       [idUsuario]
     );
 
+    // Cita que requiere confirmación de asistencia:
+    // confirmada + dentro de las próximas 24h + aún no confirmó asistencia
+    const confirmResult = await pool.query(
+      `SELECT
+         c.id_cita,
+         c.fecha_cita,
+         c.hora_cita,
+         c.modalidad,
+         u.nombre    AS medico_nombre,
+         u.apellido  AS medico_apellido,
+         e.nombre_especialidad
+       FROM   citas_medicas    c
+       JOIN   pacientes        p ON c.id_paciente     = p.id_paciente
+       JOIN   medicos          m ON c.id_medico        = m.id_medico
+       JOIN   usuarios         u ON m.id_usuario       = u.id_usuario
+       JOIN   especialidades   e ON c.id_especialidad  = e.id_especialidad
+       WHERE  p.id_usuario            = $1
+         AND  c.estado_cita           = 'confirmada'
+         AND  c.confirmada_asistencia IS NOT TRUE
+         AND  (c.fecha_cita + c.hora_cita) BETWEEN NOW() AND (NOW() + INTERVAL '24 hours')
+       ORDER  BY c.fecha_cita ASC, c.hora_cita ASC
+       LIMIT  1`,
+      [idUsuario]
+    );
+
     return res.json({
-      proximaCita:    citaResult.rows[0] ?? null,
-      notificaciones: notifResult.rows,
-      noLeidas:       parseInt(unreadResult.rows[0].total, 10),
+      proximaCita:              citaResult.rows[0] ?? null,
+      citaPendienteConfirmacion: confirmResult.rows[0] ?? null,
+      notificaciones:           notifResult.rows,
+      noLeidas:                 parseInt(unreadResult.rows[0].total, 10),
     });
   } catch (err) {
     console.error('Error en getDashboard paciente:', err);
@@ -505,9 +531,13 @@ async function cancelarCita(req, res) {
 
     // Verificar propiedad y estado cancelable (solo pendiente o confirmada)
     const citaResult = await client.query(
-      `SELECT c.id_cita, c.id_disponibilidad, c.estado_cita
+      `SELECT c.id_cita, c.id_disponibilidad, c.estado_cita, c.fecha_cita, c.hora_cita,
+              m.id_usuario AS id_usuario_medico,
+              up.nombre AS paciente_nombre, up.apellido AS paciente_apellido
        FROM   citas_medicas c
-       JOIN   pacientes     p ON c.id_paciente = p.id_paciente
+       JOIN   pacientes     p  ON c.id_paciente = p.id_paciente
+       JOIN   usuarios      up ON p.id_usuario  = up.id_usuario
+       JOIN   medicos       m  ON c.id_medico   = m.id_medico
        WHERE  c.id_cita    = $1
          AND  p.id_usuario = $2
        FOR UPDATE OF c`,
@@ -540,11 +570,23 @@ async function cancelarCita(req, res) {
       );
     }
 
-    // Notificación de cancelación
+    // Notificación de cancelación al paciente
     await client.query(
       `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
        VALUES ($1, 'Cita cancelada', 'Tu cita médica fue cancelada correctamente.', 'cancelacion', FALSE)`,
       [idUsuario]
+    );
+
+    // Notificar al médico que el paciente canceló
+    await client.query(
+      `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+       VALUES ($1, 'Cita cancelada por paciente',
+               $2 || ' ha cancelado su cita del ' ||
+               to_char($3::date, 'DD/MM/YYYY') || ' a las ' || to_char($4::time, 'HH24:MI') || '.',
+               'cancelacion', FALSE)`,
+      [cita.id_usuario_medico,
+       cita.paciente_nombre + ' ' + cita.paciente_apellido,
+       cita.fecha_cita, cita.hora_cita]
     );
 
     await client.query('COMMIT');
@@ -631,10 +673,11 @@ async function reagendarCita(req, res) {
       [nuevoIdDisp]
     );
 
-    // Actualizar cita con nuevo horario
+    // Actualizar cita con nuevo horario — 'confirmada' porque el slot ya fue reservado
     await client.query(
       `UPDATE citas_medicas
-       SET    id_disponibilidad = $1, fecha_cita = $2::date, hora_cita = $3::time, estado_cita = 'pendiente'
+       SET    id_disponibilidad = $1, fecha_cita = $2::date, hora_cita = $3::time,
+              estado_cita = 'confirmada', confirmada_asistencia = NULL
        WHERE  id_cita = $4`,
       [nuevoIdDisp, slot.fecha, slot.hora_inicio, idCita]
     );
@@ -651,6 +694,88 @@ async function reagendarCita(req, res) {
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Error en reagendarCita:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * PATCH /api/paciente/cita/:idCita/confirmar-asistencia
+ * El paciente confirma que asistirá a la cita.
+ * Se notifica al médico asignado para que sepa que el paciente asistirá.
+ * Anti-IDOR: verificación de propiedad vía JWT.
+ */
+async function confirmarAsistencia(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idCita    = parseInt(req.params.idCita, 10);
+
+  if (isNaN(idUsuario) || isNaN(idCita) || idCita < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Verificar propiedad + que sea confirmable (solo citas confirmadas sin asistencia previa)
+    const citaResult = await client.query(
+      `SELECT c.id_cita, c.fecha_cita, c.hora_cita, c.confirmada_asistencia,
+              m.id_usuario AS id_usuario_medico,
+              up.nombre AS paciente_nombre, up.apellido AS paciente_apellido
+       FROM   citas_medicas c
+       JOIN   pacientes     p  ON c.id_paciente = p.id_paciente
+       JOIN   usuarios      up ON p.id_usuario  = up.id_usuario
+       JOIN   medicos       m  ON c.id_medico   = m.id_medico
+       WHERE  c.id_cita    = $1
+         AND  p.id_usuario = $2
+         AND  c.estado_cita = 'confirmada'
+       FOR UPDATE OF c`,
+      [idCita, idUsuario]
+    );
+
+    if (citaResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ message: 'Cita no encontrada o no es confirmable.' });
+    }
+
+    const cita = citaResult.rows[0];
+
+    if (cita.confirmada_asistencia === true) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ message: 'Ya confirmaste tu asistencia a esta cita.' });
+    }
+
+    // Marcar asistencia confirmada
+    await client.query(
+      'UPDATE citas_medicas SET confirmada_asistencia = TRUE WHERE id_cita = $1',
+      [idCita]
+    );
+
+    // Notificar al médico que el paciente confirmó asistencia
+    await client.query(
+      `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+       VALUES ($1, 'Asistencia confirmada',
+               $2 || ' ha confirmado asistencia a la cita del ' ||
+               to_char($3::date, 'DD/MM/YYYY') || ' a las ' || to_char($4::time, 'HH24:MI') || '.',
+               'confirmacion', FALSE)`,
+      [cita.id_usuario_medico,
+       cita.paciente_nombre + ' ' + cita.paciente_apellido,
+       cita.fecha_cita, cita.hora_cita]
+    );
+
+    // Notificar al paciente para su historial
+    await client.query(
+      `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+       VALUES ($1, 'Asistencia confirmada', 'Confirmaste tu asistencia a la cita. ¡Te esperamos!', 'confirmacion', FALSE)`,
+      [idUsuario]
+    );
+
+    await client.query('COMMIT');
+    return res.json({ message: 'Asistencia confirmada correctamente.' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error en confirmarAsistencia:', err);
     return res.status(500).json({ message: 'Error interno del servidor.' });
   } finally {
     client.release();
@@ -733,4 +858,4 @@ async function getHistorialCitas(req, res) {
   }
 }
 
-module.exports = { getDashboard, getEspecialidadesConBadge, getProfesionalesPorEspecialidad, getDetalleMedico, getDisponibilidadMedico, crearCitaPaciente, getDetalleCita, cancelarCita, reagendarCita, getHistorialCitas };
+module.exports = { getDashboard, getEspecialidadesConBadge, getProfesionalesPorEspecialidad, getDetalleMedico, getDisponibilidadMedico, crearCitaPaciente, getDetalleCita, cancelarCita, reagendarCita, confirmarAsistencia, getHistorialCitas };
