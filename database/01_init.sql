@@ -137,6 +137,7 @@ CREATE TABLE citas_medicas (
     observaciones VARCHAR(255),
     es_invitado BOOLEAN DEFAULT FALSE NOT NULL,
     confirmada_asistencia BOOLEAN DEFAULT NULL,
+    asistio_cita BOOLEAN DEFAULT NULL,
     nombre_invitado VARCHAR(100),
     apellido_invitado VARCHAR(100),
     correo_invitado VARCHAR(150),
