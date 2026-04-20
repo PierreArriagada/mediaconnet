@@ -1,0 +1,192 @@
+<ion-content [scrollEvents]="true">
+
+  <!-- Pull-to-refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="cargarHistorial($any($event))">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Header reutilizable -->
+  <app-paciente-header
+    [userName]="userName"
+    [noLeidas]="noLeidas"
+  ></app-paciente-header>
+
+  <main class="hs-main">
+
+    <!-- ── Encabezado editorial ─────────────────────── -->
+    <section class="hs-hero">
+      <h1 class="hs-hero__title">
+        Mis <span class="hs-hero__title--accent">solicitudes</span>
+      </h1>
+      <p class="hs-hero__subtitle">
+        Gestiona tus citas médicas y el historial de atención con facilidad.
+      </p>
+    </section>
+
+    <!-- ── Tabs de navegación ─────────────────────────── -->
+    <nav class="hs-tabs" role="tablist" aria-label="Filtro de citas">
+      <button
+        class="hs-tabs__btn"
+        [class.hs-tabs__btn--active]="tabActivo() === 'pendientes'"
+        role="tab"
+        [attr.aria-selected]="tabActivo() === 'pendientes'"
+        (click)="cambiarTab('pendientes')"
+      >Pendientes</button>
+      <button
+        class="hs-tabs__btn"
+        [class.hs-tabs__btn--active]="tabActivo() === 'confirmadas'"
+        role="tab"
+        [attr.aria-selected]="tabActivo() === 'confirmadas'"
+        (click)="cambiarTab('confirmadas')"
+      >Confirmadas</button>
+      <button
+        class="hs-tabs__btn"
+        [class.hs-tabs__btn--active]="tabActivo() === 'pasadas'"
+        role="tab"
+        [attr.aria-selected]="tabActivo() === 'pasadas'"
+        (click)="cambiarTab('pasadas')"
+      >Pasadas</button>
+    </nav>
+
+    <!-- ── Skeleton de carga ──────────────────────────── -->
+    @if (isLoading) {
+      <div class="hs-skeleton-wrap">
+        <div class="hs-grid">
+          <div class="hs-skeleton"></div>
+          <div class="hs-skeleton"></div>
+          <div class="hs-skeleton hs-skeleton--cta"></div>
+        </div>
+      </div>
+    }
+
+    <!-- ── Grid de tarjetas ───────────────────────────── -->
+    @if (!isLoading) {
+      <div class="hs-grid" role="list">
+
+        <!-- Tarjeta por cada cita -->
+        @for (cita of citas(); track cita.id_cita) {
+          <article class="hs-card" role="listitem">
+
+            <!-- Badge de estado + ID -->
+            <div class="hs-card__top">
+              <span class="hs-badge hs-badge--{{ badgeEstado(cita).modifier }}">
+                <span class="material-symbols-outlined hs-badge__icon">{{ badgeEstado(cita).icon }}</span>
+                {{ badgeEstado(cita).label }}
+              </span>
+              <span class="hs-card__id">ID: {{ cita.id_cita }}</span>
+            </div>
+
+            <!-- Médico y especialidad -->
+            <div class="hs-card__doctor">
+              <div class="hs-card__doctor-avatar" aria-hidden="true">
+                <span class="material-symbols-outlined">stethoscope</span>
+              </div>
+              <div class="hs-card__doctor-info">
+                <h3 class="hs-card__doctor-name">
+                  Dr. {{ cita.medico_nombre }} {{ cita.medico_apellido }}
+                </h3>
+                <p class="hs-card__doctor-esp">{{ cita.nombre_especialidad }}</p>
+              </div>
+            </div>
+
+            <!-- Fecha y hora -->
+            <div class="hs-card__meta">
+              <div class="hs-card__meta-item">
+                <span class="material-symbols-outlined hs-card__meta-icon">calendar_today</span>
+                <span class="hs-card__meta-value">{{ formatFecha(cita.fecha_cita) }}</span>
+              </div>
+              <div class="hs-card__meta-item">
+                <span class="material-symbols-outlined hs-card__meta-icon">alarm</span>
+                <span class="hs-card__meta-value">{{ formatHora(cita.hora_cita) }}</span>
+              </div>
+              <div class="hs-card__meta-item">
+                <span class="material-symbols-outlined hs-card__meta-icon">{{ cita.modalidad === 'telemedicina' ? 'video_call' : 'local_hospital' }}</span>
+                <span class="hs-card__meta-value">{{ cita.modalidad | titlecase }}</span>
+              </div>
+            </div>
+
+            <!-- Diagnóstico (solo citas completadas) -->
+            @if (cita.estado_cita === 'completada' && cita.diagnostico) {
+              <div class="hs-card__diagnostico">
+                <span class="material-symbols-outlined hs-card__diagnostico-icon">diagnosis</span>
+                <div>
+                  <p class="hs-card__diagnostico-label">Diagnóstico</p>
+                  <p class="hs-card__diagnostico-text">{{ cita.diagnostico }}</p>
+                </div>
+              </div>
+            }
+
+            <!-- Acciones -->
+            <div class="hs-card__actions">
+              <button
+                class="hs-btn-primary"
+                type="button"
+                (click)="verDetalle(cita.id_cita)"
+              >Ver detalle</button>
+
+              @if (estaEnTabActivo) {
+                <div class="hs-card__actions-row">
+                  <button
+                    class="hs-btn-ghost"
+                    type="button"
+                    (click)="verDetalle(cita.id_cita)"
+                  >Reagendar</button>
+                  <button
+                    class="hs-btn-danger"
+                    type="button"
+                    (click)="verDetalle(cita.id_cita)"
+                  >Cancelar</button>
+                </div>
+              }
+            </div>
+
+          </article>
+        }
+
+        <!-- Estado vacío -->
+        @if (citas().length === 0) {
+          <div class="hs-empty">
+            <div class="hs-empty__icon-wrap" aria-hidden="true">
+              <span class="material-symbols-outlined hs-empty__icon">calendar_month</span>
+            </div>
+            <p class="hs-empty__title">Sin citas en esta sección</p>
+            <p class="hs-empty__body">
+              @if (tabActivo() === 'pendientes') {
+                No tienes solicitudes pendientes en este momento.
+              }
+              @if (tabActivo() === 'confirmadas') {
+                No tienes citas confirmadas próximas.
+              }
+              @if (tabActivo() === 'pasadas') {
+                No tienes atenciones pasadas registradas.
+              }
+            </p>
+          </div>
+        }
+
+        <!-- Tarjeta CTA nueva cita -->
+        <article class="hs-card-cta" role="listitem" aria-label="Solicitar nueva cita">
+          <div class="hs-card-cta__glow" aria-hidden="true"></div>
+          <div class="hs-card-cta__icon-wrap" aria-hidden="true">
+            <span class="material-symbols-outlined hs-card-cta__icon">add_circle</span>
+          </div>
+          <h3 class="hs-card-cta__title">¿Necesitas otra cita?</h3>
+          <p class="hs-card-cta__body">
+            Agenda una nueva consulta con nuestros especialistas de forma rápida.
+          </p>
+          <button
+            class="hs-card-cta__btn"
+            type="button"
+            (click)="nuevaReserva()"
+          >Nueva Solicitud</button>
+        </article>
+
+      </div>
+    }
+
+  </main>
+
+  <!-- Bottom Nav -->
+  <app-paciente-bottom-nav activeTab="historial"></app-paciente-bottom-nav>
+
+</ion-content>

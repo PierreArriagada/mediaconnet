@@ -1,0 +1,475 @@
+// Iconos Material Symbols
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: 1.5rem;
+  line-height: 1;
+  display: inline-block;
+  user-select: none;
+}
+
+ion-content {
+  --background: var(--mc-surface);
+  --padding-bottom: 0;
+  --padding-top: 0;
+}
+
+// ── Contenedor principal ──────────────────────────────
+.hs-main {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 9rem; // espacio inferior para bottom nav
+}
+
+// ── Encabezado editorial ──────────────────────────────
+.hs-hero {
+  margin-bottom: 2.5rem;
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: var(--mc-type-display-lg);
+    font-weight: 800;
+    color: var(--mc-on-surface);
+    line-height: 1.1;
+    letter-spacing: var(--mc-tracking-headline);
+    margin: 0 0 0.75rem;
+
+    &--accent { color: var(--mc-primary); }
+  }
+
+  &__subtitle {
+    font-family: var(--mc-font-utility);
+    font-size: 1.125rem;
+    color: var(--mc-secondary);
+    line-height: var(--mc-leading-body);
+    max-width: 36rem;
+    margin: 0;
+  }
+}
+
+// ── Tabs de navegación ────────────────────────────────
+.hs-tabs {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  // Ocultar scrollbar en todos los navegadores
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+
+  &__btn {
+    flex-shrink: 0;
+    padding: 0.75rem 2rem;
+    border-radius: var(--mc-radius-xl);
+    border: none;
+    background: var(--mc-surface-container-low);
+    color: var(--mc-secondary);
+    font-family: var(--mc-font-utility);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+
+    &:hover:not(&--active) {
+      background: var(--mc-surface-container-high);
+    }
+
+    &:active { transform: scale(0.95); }
+
+    &--active {
+      background: var(--mc-primary);
+      color: var(--mc-on-primary);
+    }
+  }
+}
+
+// ── Grid bento ────────────────────────────────────────
+.hs-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+
+  @media (min-width: 768px)  { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
+}
+
+// ── Tarjeta de cita ───────────────────────────────────
+.hs-card {
+  background: var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  border: 1px solid var(--mc-border-ghost);
+  box-shadow: var(--mc-shadow-fab);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+
+  &:hover {
+    box-shadow: 0 8px 32px rgba(0, 94, 164, 0.08);
+    transform: translateY(-2px);
+  }
+
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  &__id {
+    font-family: var(--mc-font-utility);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mc-outline);
+  }
+
+  &__doctor {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__doctor-avatar {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: var(--mc-radius-md);
+    background: var(--mc-primary-fixed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--mc-primary);
+
+    .material-symbols-outlined {
+      font-size: 1.75rem;
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+  }
+
+  &__doctor-name {
+    font-family: var(--mc-font-authority);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--mc-on-surface);
+    margin: 0 0 0.25rem;
+  }
+
+  &__doctor-esp {
+    font-family: var(--mc-font-utility);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--mc-secondary);
+    margin: 0;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    background: var(--mc-surface-container-low);
+    border-radius: var(--mc-radius-md);
+    padding: 1rem 1.25rem;
+  }
+
+  &__meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__meta-icon {
+    color: var(--mc-primary);
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  &__meta-value {
+    font-family: var(--mc-font-utility);
+    font-weight: 600;
+    color: var(--mc-on-surface);
+    font-size: 0.9375rem;
+  }
+
+  &__diagnostico {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: var(--mc-primary-fixed);
+    border-radius: var(--mc-radius-md);
+    padding: 1rem 1.25rem;
+  }
+
+  &__diagnostico-icon {
+    color: var(--mc-primary);
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  &__diagnostico-label {
+    font-family: var(--mc-font-utility);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--mc-on-primary-fixed-variant);
+    margin: 0 0 0.25rem;
+  }
+
+  &__diagnostico-text {
+    font-family: var(--mc-font-utility);
+    font-size: 0.875rem;
+    color: var(--mc-on-primary-fixed);
+    line-height: var(--mc-leading-body);
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: auto;
+  }
+
+  &__actions-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+}
+
+// ── Badges de estado ──────────────────────────────────
+.hs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: var(--mc-radius-xl);
+  font-family: var(--mc-font-utility);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &__icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  // Lógica de colores: cada estado tiene su propia combinación de tokens
+  &--revision    { background: var(--mc-primary-fixed);       color: var(--mc-on-primary-fixed-variant); }
+  &--pendiente   { background: var(--mc-tertiary-fixed);      color: var(--mc-on-tertiary-fixed-variant); }
+  &--confirmada  { background: var(--mc-primary-fixed);       color: var(--mc-primary);                  }
+  &--reprogramada { background: var(--mc-secondary-fixed);    color: var(--mc-on-secondary-fixed-variant); }
+  &--completada  { background: var(--mc-primary-fixed);       color: var(--mc-on-primary-fixed);          }
+  &--cancelada   { background: var(--mc-error-container);     color: var(--mc-on-error-container);        }
+}
+
+// ── Botones de acción ──────────────────────────────────
+.hs-btn-primary {
+  width: 100%;
+  padding: 1rem;
+  background: var(--mc-gradient-primary);
+  color: var(--mc-on-primary);
+  font-family: var(--mc-font-authority);
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--mc-radius-md);
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 94, 164, 0.12);
+  transition: filter 0.15s ease, transform 0.1s ease;
+
+  &:hover   { filter: brightness(1.08); }
+  &:active  { transform: scale(0.97); }
+}
+
+.hs-btn-ghost {
+  padding: 0.75rem 1rem;
+  background: transparent;
+  color: var(--mc-secondary);
+  font-family: var(--mc-font-utility);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid var(--mc-outline-variant);
+  border-radius: var(--mc-radius-md);
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover  { background: var(--mc-surface-container-low); }
+  &:active { transform: scale(0.96); }
+}
+
+.hs-btn-danger {
+  padding: 0.75rem 1rem;
+  background: transparent;
+  color: var(--mc-error);
+  font-family: var(--mc-font-utility);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid var(--mc-outline-variant);
+  border-radius: var(--mc-radius-md);
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover  { background: var(--mc-error-container); }
+  &:active { transform: scale(0.96); }
+}
+
+// ── Estado vacío ───────────────────────────────────────
+.hs-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 3rem 2rem;
+  background: var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  border: 1px solid var(--mc-border-ghost);
+
+  &__icon-wrap {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 9999px;
+    background: var(--mc-surface-container-low);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__icon {
+    font-size: 2.25rem;
+    color: var(--mc-outline);
+  }
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--mc-on-surface);
+    margin: 0;
+  }
+
+  &__body {
+    font-family: var(--mc-font-utility);
+    font-size: 0.9375rem;
+    color: var(--mc-on-surface-variant);
+    line-height: var(--mc-leading-body);
+    max-width: 22rem;
+    margin: 0;
+  }
+}
+
+// ── Tarjeta CTA ────────────────────────────────────────
+.hs-card-cta {
+  position: relative;
+  background: var(--mc-gradient-primary);
+  border-radius: var(--mc-radius-lg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1rem;
+  overflow: hidden;
+  min-height: 16rem;
+  cursor: default;
+
+  // Brillo decorativo de fondo
+  &__glow {
+    position: absolute;
+    top: -4rem;
+    right: -4rem;
+    width: 14rem;
+    height: 14rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    filter: blur(2.5rem);
+    pointer-events: none;
+    transition: transform 0.6s ease;
+  }
+
+  &:hover &__glow { transform: scale(1.4); }
+
+  &__icon-wrap {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__icon {
+    font-size: 2.25rem;
+    color: var(--mc-on-primary);
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+  }
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--mc-on-primary);
+    margin: 0;
+  }
+
+  &__body {
+    font-family: var(--mc-font-utility);
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: var(--mc-leading-body);
+    max-width: 20rem;
+    margin: 0;
+  }
+
+  &__btn {
+    margin-top: 0.5rem;
+    padding: 0.875rem 2.5rem;
+    background: var(--mc-surface-container-lowest);
+    color: var(--mc-primary);
+    font-family: var(--mc-font-authority);
+    font-size: 1rem;
+    font-weight: 800;
+    border: none;
+    border-radius: var(--mc-radius-xl);
+    cursor: pointer;
+    transition: transform 0.15s ease, filter 0.15s ease;
+
+    &:hover  { transform: scale(1.04); filter: brightness(0.97); }
+    &:active { transform: scale(0.97); }
+  }
+}
+
+// ── Skeleton shimmer ───────────────────────────────────
+.hs-skeleton-wrap {
+  margin-top: 0;
+}
+
+.hs-skeleton {
+  height: 22rem;
+  background: linear-gradient(
+    90deg,
+    var(--mc-surface-container)      25%,
+    var(--mc-surface-container-high) 50%,
+    var(--mc-surface-container)      75%
+  );
+  background-size: 200% 100%;
+  animation: hs-shimmer 1.4s infinite;
+  border-radius: var(--mc-radius-lg);
+
+  &--cta { height: 16rem; }
+}
+
+@keyframes hs-shimmer {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
