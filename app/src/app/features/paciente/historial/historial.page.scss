@@ -258,6 +258,8 @@ ion-content {
   &--reprogramada { background: var(--mc-secondary-fixed);    color: var(--mc-on-secondary-fixed-variant); }
   &--completada  { background: var(--mc-primary-fixed);       color: var(--mc-on-primary-fixed);          }
   &--cancelada   { background: var(--mc-error-container);     color: var(--mc-on-error-container);        }
+  &--asistio     { background: rgba(0, 128, 0, 0.08);        color: #1b7a1b;                            }
+  &--no-asistio  { background: var(--mc-error-container);     color: var(--mc-on-error-container);        }
 }
 
 // ── Botones de acción ──────────────────────────────────

@@ -91,6 +91,14 @@ export class HistorialPage implements OnInit {
    * "En revisión" es un concepto de admin, el paciente siempre ve el estado_cita real.
    */
   badgeEstado(cita: CitaHistorial): BadgeInfo {
+    // Para citas completadas, mostrar el resultado de asistencia si existe
+    if (cita.estado_cita === 'completada' && cita.asistio_cita === true) {
+      return { label: 'Asistió', modifier: 'asistio', icon: 'how_to_reg' };
+    }
+    if (cita.estado_cita === 'completada' && cita.asistio_cita === false) {
+      return { label: 'No asistió', modifier: 'no-asistio', icon: 'person_off' };
+    }
+
     const mapa: Record<string, BadgeInfo> = {
       pendiente:    { label: 'Pendiente',    modifier: 'pendiente',    icon: 'schedule' },
       confirmada:   { label: 'Confirmada',   modifier: 'confirmada',   icon: 'check_circle' },
