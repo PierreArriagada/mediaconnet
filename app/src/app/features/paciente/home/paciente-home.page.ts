@@ -12,6 +12,7 @@ import {
   DashboardData,
   CitaPendienteConfirmacion,
 } from '../../../core/services/paciente.service';
+import { NotificacionesNativasService } from '../../../core/services/notificaciones-nativas.service';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 
@@ -32,6 +33,7 @@ export class PacienteHomePage implements OnInit {
   private readonly auth   = inject(AuthService);
   private readonly svc    = inject(PacienteService);
   private readonly router = inject(Router);
+  private readonly notificacionesNativas = inject(NotificacionesNativasService);
 
   user      = this.auth.getCurrentUser();
   data: DashboardData | null = null;
@@ -63,6 +65,7 @@ export class PacienteHomePage implements OnInit {
         if (d.citaPendienteConfirmacion) {
           this.citaConfirmar   = d.citaPendienteConfirmacion;
           this.showConfirmModal = true;
+          void this.notificacionesNativas.notificarConfirmacionPendiente(d.citaPendienteConfirmacion);
         }
       },
       error: (err) => {
@@ -116,9 +119,13 @@ export class PacienteHomePage implements OnInit {
   /** El paciente confirma que asistirá a la cita */
   onConfirmarAsistencia(): void {
     if (!this.citaConfirmar || this.confirmLoading) return;
+
+    const citaActual = this.citaConfirmar;
+
     this.confirmLoading = true;
-    this.svc.confirmarAsistencia(this.citaConfirmar.id_cita).subscribe({
+    this.svc.confirmarAsistencia(citaActual.id_cita).subscribe({
       next: () => {
+        void this.notificacionesNativas.limpiarRecordatorioConfirmacion(citaActual);
         this.confirmLoading  = false;
         this.showConfirmModal = false;
         this.citaConfirmar   = null;
@@ -135,9 +142,13 @@ export class PacienteHomePage implements OnInit {
   /** El paciente cancela la cita desde el modal de confirmación */
   onCancelarDesdeModal(): void {
     if (!this.citaConfirmar || this.confirmLoading) return;
+
+    const citaActual = this.citaConfirmar;
+
     this.confirmLoading = true;
-    this.svc.cancelarCita(this.citaConfirmar.id_cita).subscribe({
+    this.svc.cancelarCita(citaActual.id_cita).subscribe({
       next: () => {
+        void this.notificacionesNativas.limpiarRecordatorioConfirmacion(citaActual);
         this.confirmLoading  = false;
         this.showConfirmModal = false;
         this.citaConfirmar   = null;

@@ -110,7 +110,7 @@ Estado validado en abril de 2026 dentro del entorno Docker del proyecto:
 |---|---|---|
 | Angular | 21.2.x | frontend standalone |
 | Ionic Angular | 8.8.x | integrado con standalone |
-| Capacitor | 8.3.x | CLI y core alineados |
+| Capacitor | 8.3.x | CLI, core y Android alineados |
 | TypeScript | 5.9.3 | toolchain frontend |
 | Node.js | 24 LTS | frontend y backend |
 | Express | 4.21.x | API REST actual |
