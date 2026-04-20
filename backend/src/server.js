@@ -5,6 +5,7 @@ const rateLimit        = require('express-rate-limit');
 const authRoutes       = require('./routes/auth.routes');
 const pacienteRoutes   = require('./routes/paciente.routes');
 const citasRoutes      = require('./routes/citas.routes');
+const medicoRoutes     = require('./routes/medico.routes');
 const errorHandler     = require('./middleware/error.middleware');
 
 const app  = express();
@@ -34,6 +35,7 @@ app.use(rateLimit({
 app.use('/api/auth',     authRoutes);
 app.use('/api/paciente', pacienteRoutes);
 app.use('/api/citas',    citasRoutes);
+app.use('/api/medico',   medicoRoutes);
 
 // Rutas no encontradas
 app.use((_req, res) => {
