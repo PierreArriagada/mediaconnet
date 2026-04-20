@@ -151,6 +151,28 @@ export interface MensajeResponse {
   message: string;
 }
 
+export interface CitaHistorial {
+  id_cita:              number;
+  fecha_cita:           string;
+  hora_cita:            string;
+  estado_cita:          string;
+  motivo_consulta:      string;
+  modalidad:            string;
+  observaciones:        string | null;
+  es_invitado:          boolean;
+  id_disponibilidad:    number | null;
+  medico_nombre:        string;
+  medico_apellido:      string;
+  nombre_especialidad:  string;
+  diagnostico:          string | null;
+  tratamiento:          string | null;
+}
+
+export interface HistorialData {
+  citas:    CitaHistorial[];
+  noLeidas: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PacienteService {
   private readonly http = inject(HttpClient);
@@ -190,5 +212,10 @@ export class PacienteService {
 
   reagendarCita(idCita: number, idDisponibilidad: number): Observable<MensajeResponse> {
     return this.http.patch<MensajeResponse>(`${this.API}/cita/${idCita}/reagendar`, { id_disponibilidad: idDisponibilidad });
+  }
+
+  getHistorial(tab: string): Observable<HistorialData> {
+    const params = tab ? `?tab=${encodeURIComponent(tab)}` : '';
+    return this.http.get<HistorialData>(`${this.API}/historial${params}`);
   }
 }
