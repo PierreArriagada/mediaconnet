@@ -12,6 +12,7 @@ const {
   reagendarCita,
   getHistorialCitas,
   confirmarAsistencia,
+  getPerfil,
 } = require('../controllers/paciente.controller');
 
 const router = Router();
@@ -31,5 +32,6 @@ router.patch('/cita/:idCita/cancelar', cancelarCita);
 router.patch('/cita/:idCita/reagendar', reagendarCita);
 router.get('/historial', getHistorialCitas);
 router.patch('/cita/:idCita/confirmar-asistencia', confirmarAsistencia);
+router.get('/perfil', getPerfil);
 
 module.exports = router;
