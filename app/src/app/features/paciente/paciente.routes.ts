@@ -51,4 +51,9 @@ export const PACIENTE_ROUTES: Routes = [
     loadComponent: () =>
       import('./perfil/perfil.page').then((m) => m.PerfilPage),
   },
+  {
+    path: 'notificaciones',
+    loadComponent: () =>
+      import('./notificaciones/notificaciones.page').then((m) => m.NotificacionesPage),
+  },
 ];

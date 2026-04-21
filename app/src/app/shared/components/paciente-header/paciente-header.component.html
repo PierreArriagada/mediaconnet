@@ -12,9 +12,9 @@
       aria-label="Ver notificaciones"
     >
       <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
-      @if (noLeidas > 0) {
-        <span class="mc-badge" [attr.aria-label]="noLeidas + ' no leídas'">
-          {{ noLeidas }}
+      @if (totalNoLeidas > 0) {
+        <span class="mc-badge" [attr.aria-label]="totalNoLeidas + ' no leídas'">
+          {{ totalNoLeidas }}
         </span>
       }
     </button>

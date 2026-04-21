@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { NotificacionesPacienteStateService } from './notificaciones-paciente-state.service';
 
 export interface LoginPayload {
   email: string;
@@ -35,6 +36,7 @@ export interface AuthResponse {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly API = `${environment.apiUrl}/auth`;
+  private readonly notificacionesState = inject(NotificacionesPacienteStateService);
   private _isAuthenticated = new BehaviorSubject<boolean>(this.hasToken());
 
   isAuthenticated$ = this._isAuthenticated.asObservable();
@@ -44,6 +46,7 @@ export class AuthService {
       tap((res: AuthResponse) => {
         localStorage.setItem('token', res.token);
         localStorage.setItem('user', JSON.stringify(res.user));
+        this.notificacionesState.reiniciar();
         this._isAuthenticated.next(true);
       })
     );
@@ -57,6 +60,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    this.notificacionesState.reiniciar();
     this._isAuthenticated.next(false);
   }
 

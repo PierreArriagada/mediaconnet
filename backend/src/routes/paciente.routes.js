@@ -13,6 +13,9 @@ const {
   getHistorialCitas,
   confirmarAsistencia,
   getPerfil,
+  getNotificacionesPaciente,
+  marcarNotificacionesLeidas,
+  limpiarNotificacionesPaciente,
 } = require('../controllers/paciente.controller');
 
 const router = Router();
@@ -33,5 +36,8 @@ router.patch('/cita/:idCita/reagendar', reagendarCita);
 router.get('/historial', getHistorialCitas);
 router.patch('/cita/:idCita/confirmar-asistencia', confirmarAsistencia);
 router.get('/perfil', getPerfil);
+router.get('/notificaciones', getNotificacionesPaciente);
+router.patch('/notificaciones/marcar-leidas', marcarNotificacionesLeidas);
+router.delete('/notificaciones', limpiarNotificacionesPaciente);
 
 module.exports = router;

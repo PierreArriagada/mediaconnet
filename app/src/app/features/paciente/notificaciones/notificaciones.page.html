@@ -1,0 +1,112 @@
+<ion-content [scrollEvents]="true">
+
+  <ion-refresher slot="fixed" (ionRefresh)="cargarNotificaciones($any($event))">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <app-paciente-header
+    [userName]="user?.name ?? ''"
+    [noLeidas]="noLeidas"
+  ></app-paciente-header>
+
+  <main class="nf-main">
+
+    <section class="nf-hero">
+      <div class="nf-hero__content">
+        <p class="nf-eyebrow">Centro de avisos</p>
+        <h1 class="nf-title">
+          Tus <span class="nf-title__accent">notificaciones</span>
+        </h1>
+        <p class="nf-subtitle">
+          Revisa cambios de citas, recordatorios y mensajes relevantes de tu cuenta.
+        </p>
+      </div>
+
+      <div class="nf-status-card" aria-label="Resumen de estado de notificaciones">
+        <div class="nf-status-card__icon" aria-hidden="true">
+          <span class="material-symbols-outlined">notifications_active</span>
+        </div>
+        <div class="nf-status-card__body">
+          <span class="nf-status-card__label">Estado actual</span>
+          <strong class="nf-status-card__value">{{ resumenLeidas }}</strong>
+        </div>
+      </div>
+    </section>
+
+    @if (isLoading) {
+      <section class="nf-skeleton-list" aria-hidden="true">
+        <div class="nf-skeleton nf-skeleton--toolbar"></div>
+        <div class="nf-skeleton nf-skeleton--item"></div>
+        <div class="nf-skeleton nf-skeleton--item"></div>
+        <div class="nf-skeleton nf-skeleton--item"></div>
+      </section>
+    }
+
+    @if (!isLoading) {
+      <section class="nf-panel">
+        <div class="nf-toolbar">
+          <div>
+            <h2 class="nf-toolbar__title">Historial reciente</h2>
+            <p class="nf-toolbar__meta">
+              {{ notificaciones.length }} {{ notificaciones.length === 1 ? 'aviso disponible' : 'avisos disponibles' }}
+            </p>
+          </div>
+
+          <button
+            class="nf-clear-btn"
+            type="button"
+            (click)="confirmarLimpieza()"
+            [disabled]="!notificaciones.length || limpiando"
+            [attr.aria-busy]="limpiando"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true">delete_sweep</span>
+            <span>{{ limpiando ? 'Limpiando...' : 'Limpiar todo' }}</span>
+          </button>
+        </div>
+
+        @if (!notificaciones.length) {
+          <div class="nf-empty">
+            <div class="nf-empty__icon" aria-hidden="true">
+              <span class="material-symbols-outlined">notifications_off</span>
+            </div>
+            <h3 class="nf-empty__title">No tienes notificaciones activas</h3>
+            <p class="nf-empty__text">
+              Cuando exista un cambio en tus citas o un aviso relevante, aparecerá aquí.
+            </p>
+          </div>
+        }
+
+        @if (notificaciones.length) {
+          <div class="nf-list" role="list" aria-label="Listado de notificaciones del paciente">
+            @for (n of notificaciones; track n.id_notificacion) {
+              <article class="nf-item" [class.nf-item--unread]="!n.leida" role="listitem">
+                <div class="nf-item__icon" aria-hidden="true">
+                  <span class="material-symbols-outlined">{{ iconoNotificacion(n.tipo) }}</span>
+                </div>
+
+                <div class="nf-item__body">
+                  <div class="nf-item__top">
+                    <p class="nf-item__title">{{ n.titulo }}</p>
+                    <span class="nf-item__time">{{ tiempoRelativo(n.fecha_envio) }}</span>
+                  </div>
+
+                  <p class="nf-item__message">{{ n.mensaje }}</p>
+
+                  <div class="nf-item__bottom">
+                    <span class="nf-item__chip" [class.nf-item__chip--read]="n.leida">
+                      {{ n.leida ? 'Vista' : 'Nueva' }}
+                    </span>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    }
+
+  </main>
+
+  <app-paciente-bottom-nav [activeTab]="null"></app-paciente-bottom-nav>
+
+</ion-content>

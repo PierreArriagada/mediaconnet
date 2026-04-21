@@ -11,8 +11,10 @@ import {
   PacienteService,
   DashboardData,
   CitaPendienteConfirmacion,
+  Notificacion,
 } from '../../../core/services/paciente.service';
 import { NotificacionesNativasService } from '../../../core/services/notificaciones-nativas.service';
+import { NotificacionesPacienteStateService } from '../../../core/services/notificaciones-paciente-state.service';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 
@@ -34,6 +36,7 @@ export class PacienteHomePage implements OnInit {
   private readonly svc    = inject(PacienteService);
   private readonly router = inject(Router);
   private readonly notificacionesNativas = inject(NotificacionesNativasService);
+  private readonly notificacionesState = inject(NotificacionesPacienteStateService);
 
   user      = this.auth.getCurrentUser();
   data: DashboardData | null = null;
@@ -74,6 +77,19 @@ export class PacienteHomePage implements OnInit {
     return this.user?.name?.split(' ')[0] ?? '';
   }
 
+  get notificacionesRecientes(): Notificacion[] {
+    if (this.notificacionesState.fueronLimpiadas()) {
+      return [];
+    }
+
+    const notificaciones = this.data?.notificaciones ?? [];
+    if ((this.notificacionesState.noLeidas() ?? this.data?.noLeidas ?? 0) > 0) {
+      return notificaciones;
+    }
+
+    return notificaciones.map((n) => ({ ...n, leida: true }));
+  }
+
   ngOnInit(): void {
     this.loadDashboard();
   }
@@ -82,6 +98,7 @@ export class PacienteHomePage implements OnInit {
     this.svc.getDashboard().subscribe({
       next: (d) => {
         this.data      = d;
+        this.notificacionesState.setNoLeidas(d.noLeidas);
         this.isLoading = false;
         event?.target?.complete();
         // Si hay cita dentro de 24h sin confirmar → mostrar modal

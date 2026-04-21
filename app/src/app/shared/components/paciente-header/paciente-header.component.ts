@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
+import { NotificacionesPacienteStateService } from '../../../core/services/notificaciones-paciente-state.service';
 
 @Component({
   selector: 'app-paciente-header',
@@ -17,7 +18,10 @@ export class PacienteHeaderComponent {
   /** Emite cuando el usuario pulsa el botón de notificaciones */
   @Output() notificacionesClick = new EventEmitter<void>();
 
-  constructor(private readonly router: Router) {}
+  constructor(
+    private readonly router: Router,
+    private readonly notificacionesState: NotificacionesPacienteStateService,
+  ) {}
 
   /** Dos primeras iniciales del nombre completo en mayúsculas */
   get initials(): string {
@@ -27,6 +31,10 @@ export class PacienteHeaderComponent {
       .slice(0, 2)
       .join('')
       .toUpperCase();
+  }
+
+  get totalNoLeidas(): number {
+    return this.notificacionesState.noLeidas() ?? this.noLeidas;
   }
 
   onNotificaciones(): void {

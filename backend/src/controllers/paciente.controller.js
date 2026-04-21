@@ -948,4 +948,115 @@ async function getPerfil(req, res) {
   }
 }
 
-module.exports = { getDashboard, getEspecialidadesConBadge, getProfesionalesPorEspecialidad, getDetalleMedico, getDisponibilidadMedico, crearCitaPaciente, getDetalleCita, cancelarCita, reagendarCita, confirmarAsistencia, getHistorialCitas, getPerfil };
+/**
+ * GET /api/paciente/notificaciones
+ * Retorna todas las notificaciones del paciente autenticado ordenadas por fecha.
+ * El conteo no leido se usa para sincronizar el badge del header.
+ */
+async function getNotificacionesPaciente(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    const [notificacionesResult, unreadResult] = await Promise.all([
+      pool.query(
+        `SELECT
+           id_notificacion,
+           titulo,
+           mensaje,
+           tipo,
+           leida,
+           fecha_envio
+         FROM   notificaciones
+         WHERE  id_usuario = $1
+         ORDER  BY fecha_envio DESC`,
+        [idUsuario]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS total
+         FROM   notificaciones
+         WHERE  id_usuario = $1
+           AND  leida = FALSE`,
+        [idUsuario]
+      ),
+    ]);
+
+    return res.json({
+      notificaciones: notificacionesResult.rows,
+      noLeidas: parseInt(unreadResult.rows[0].total, 10),
+    });
+  } catch (err) {
+    console.error('Error en getNotificacionesPaciente:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * PATCH /api/paciente/notificaciones/marcar-leidas
+ * Marca como leidas todas las notificaciones pendientes del paciente autenticado.
+ */
+async function marcarNotificacionesLeidas(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    await pool.query(
+      `UPDATE notificaciones
+       SET    leida = TRUE
+       WHERE  id_usuario = $1
+         AND  leida = FALSE`,
+      [idUsuario]
+    );
+
+    return res.json({ message: 'Notificaciones marcadas como leídas.' });
+  } catch (err) {
+    console.error('Error en marcarNotificacionesLeidas:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * DELETE /api/paciente/notificaciones
+ * Elimina las notificaciones del paciente autenticado.
+ */
+async function limpiarNotificacionesPaciente(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    await pool.query(
+      `DELETE FROM notificaciones
+       WHERE  id_usuario = $1`,
+      [idUsuario]
+    );
+
+    return res.json({ message: 'Notificaciones eliminadas correctamente.' });
+  } catch (err) {
+    console.error('Error en limpiarNotificacionesPaciente:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+module.exports = {
+  getDashboard,
+  getEspecialidadesConBadge,
+  getProfesionalesPorEspecialidad,
+  getDetalleMedico,
+  getDisponibilidadMedico,
+  crearCitaPaciente,
+  getDetalleCita,
+  cancelarCita,
+  reagendarCita,
+  confirmarAsistencia,
+  getHistorialCitas,
+  getPerfil,
+  getNotificacionesPaciente,
+  marcarNotificacionesLeidas,
+  limpiarNotificacionesPaciente,
+};
