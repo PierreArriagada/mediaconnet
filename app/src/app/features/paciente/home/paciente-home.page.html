@@ -149,12 +149,12 @@
             </button>
           </div>
 
-          @if (!data?.notificaciones?.length) {
+          @if (!notificacionesRecientes.length) {
             <p class="mc-empty-text">No tienes notificaciones recientes.</p>
           }
 
           <div class="mc-notif-list">
-            @for (n of data?.notificaciones; track n.id_notificacion) {
+            @for (n of notificacionesRecientes; track n.id_notificacion) {
               <div
                 class="mc-notif-item"
                 [class.mc-notif-item--unread]="!n.leida"

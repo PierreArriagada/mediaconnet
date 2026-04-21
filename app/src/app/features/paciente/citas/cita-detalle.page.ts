@@ -7,6 +7,7 @@ import {
   DetalleCitaData,
   DetalleCita,
 } from '../../../core/services/paciente.service';
+import { NotificacionesPacienteStateService } from '../../../core/services/notificaciones-paciente-state.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
@@ -33,6 +34,7 @@ export default class CitaDetallePage implements OnInit {
   private readonly svc        = inject(PacienteService);
   private readonly authSvc    = inject(AuthService);
   private readonly modalCtrl  = inject(ModalController);
+  private readonly notificacionesState = inject(NotificacionesPacienteStateService);
 
   userName  = '';
   noLeidas  = 0;
@@ -63,6 +65,7 @@ export default class CitaDetallePage implements OnInit {
       next: (data: DetalleCitaData) => {
         this.cita      = data.cita;
         this.noLeidas  = data.noLeidas;
+        this.notificacionesState.setNoLeidas(data.noLeidas);
         this.isLoading = false;
       },
       error: (err) => {

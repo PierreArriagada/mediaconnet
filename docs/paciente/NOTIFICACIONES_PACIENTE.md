@@ -1,0 +1,6 @@
+* **Qué se realizó:** Creación de la vista de notificaciones del paciente en la ruta /paciente/notificaciones para concentrar avisos de citas, recordatorios y mensajes del sistema dentro del módulo autenticado.
+* **Qué se modificó:** El botón de notificaciones del encabezado del paciente ahora abre la vista de notificaciones y deja de ser un elemento solo visual.
+* **Qué se modificó:** Al ingresar a la vista se muestran las notificaciones reales del usuario autenticado y las pendientes se marcan como vistas para limpiar el contador del encabezado.
+* **Qué se modificó:** La pantalla incorpora una acción de limpiar todo para eliminar las notificaciones visibles de la cuenta mediante confirmación previa y sin alterar el diseño general de la aplicación.
+* **Qué se modificó:** El conteo de no leídas quedó sincronizado entre header, dashboard, historial, perfil, reservar, profesionales, detalle profesional y elegir horario para evitar badges desactualizados en pantallas cacheadas.
+* **Qué se modificó:** El flujo depende de nuevas operaciones seguras del backend del paciente para listar notificaciones, marcarlas como leídas y eliminarlas usando siempre el id del usuario autenticado extraído del JWT.

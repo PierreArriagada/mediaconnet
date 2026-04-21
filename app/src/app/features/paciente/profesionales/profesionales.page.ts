@@ -9,6 +9,7 @@ import {
   MedicoProfesional,
   ProfesionalesData,
 } from '../../../core/services/paciente.service';
+import { NotificacionesPacienteStateService } from '../../../core/services/notificaciones-paciente-state.service';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 
@@ -32,6 +33,7 @@ export class ProfesionalesPage implements OnInit {
   private readonly router   = inject(Router);
   private readonly route    = inject(ActivatedRoute);
   private readonly location = inject(Location);
+  private readonly notificacionesState = inject(NotificacionesPacienteStateService);
 
   user      = this.auth.getCurrentUser();
   data: ProfesionalesData | null = null;
@@ -78,6 +80,7 @@ export class ProfesionalesPage implements OnInit {
     this.svc.getProfesionales(idEspecialidad).subscribe({
       next: (d) => {
         this.data      = d;
+        this.notificacionesState.setNoLeidas(d.noLeidas);
         this.isLoading = false;
       },
       error: (err) => {

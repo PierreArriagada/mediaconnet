@@ -5,6 +5,7 @@ import { IonContent, IonRefresher, IonRefresherContent, ToastController } from '
 
 import { AuthService } from '../../../core/services/auth.service';
 import { PacienteService, PerfilData } from '../../../core/services/paciente.service';
+import { NotificacionesPacienteStateService } from '../../../core/services/notificaciones-paciente-state.service';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 
@@ -25,6 +26,7 @@ export class PerfilPage implements OnInit {
   private readonly svc       = inject(PacienteService);
   private readonly router    = inject(Router);
   private readonly toastCtrl = inject(ToastController);
+  private readonly notificacionesState = inject(NotificacionesPacienteStateService);
 
   perfil: PerfilData | null = null;
   isLoading = true;
@@ -41,7 +43,7 @@ export class PerfilPage implements OnInit {
   }
 
   get noLeidas(): number {
-    return this.perfil?.alertas ?? 0;
+    return this.notificacionesState.noLeidas() ?? this.perfil?.alertas ?? 0;
   }
 
   ngOnInit(): void {
@@ -53,6 +55,7 @@ export class PerfilPage implements OnInit {
     this.svc.getPerfil().subscribe({
       next: (data) => {
         this.perfil    = data;
+        this.notificacionesState.setNoLeidas(data.alertas);
         this.isLoading = false;
         event?.target?.complete();
       },

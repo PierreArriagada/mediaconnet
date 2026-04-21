@@ -11,7 +11,7 @@ export type PacienteNavTab = 'home' | 'reservar' | 'historial' | 'perfil';
 })
 export class PacienteBottomNavComponent {
   /** Pestaña activa actualmente — se pasa desde la página contenedora */
-  @Input() activeTab: PacienteNavTab = 'home';
+  @Input() activeTab: PacienteNavTab | null = 'home';
 
   constructor(private readonly router: Router) {}
 

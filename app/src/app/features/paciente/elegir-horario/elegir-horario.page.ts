@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent, IonToast } from '@ionic/angular/standalone';
 import { PacienteService, DisponibilidadMedicoData, DisponibilidadSlot } from '../../../core/services/paciente.service';
+import { NotificacionesPacienteStateService } from '../../../core/services/notificaciones-paciente-state.service';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { AuthService } from '../../../core/services/auth.service';
@@ -27,6 +28,7 @@ export default class ElegirHorarioPage implements OnInit {
   private readonly router  = inject(Router);
   private readonly svc     = inject(PacienteService);
   private readonly authSvc = inject(AuthService);
+  private readonly notificacionesState = inject(NotificacionesPacienteStateService);
 
   data: DisponibilidadMedicoData | null = null;
   isLoading = true;
@@ -63,6 +65,7 @@ export default class ElegirHorarioPage implements OnInit {
       next: (res) => {
         this.data     = res;
         this.noLeidas = res.noLeidas;
+        this.notificacionesState.setNoLeidas(res.noLeidas);
         this.indexarDisponibilidad(res.disponibilidad);
         this.generarCalendario();
         this.isLoading = false;

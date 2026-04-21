@@ -8,6 +8,7 @@ import {
   PacienteService,
   Especialidad,
 } from '../../../core/services/paciente.service';
+import { NotificacionesPacienteStateService } from '../../../core/services/notificaciones-paciente-state.service';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 
@@ -36,6 +37,7 @@ export class ReservarPage implements OnInit {
   private readonly auth   = inject(AuthService);
   private readonly svc    = inject(PacienteService);
   private readonly router = inject(Router);
+  private readonly notificacionesState = inject(NotificacionesPacienteStateService);
 
   user          = this.auth.getCurrentUser();
   especialidades: Especialidad[] = [];
@@ -70,6 +72,7 @@ export class ReservarPage implements OnInit {
       next: ({ especialidades, noLeidas }) => {
         this.especialidades = especialidades;
         this.noLeidas       = noLeidas;
+        this.notificacionesState.setNoLeidas(noLeidas);
         this.isLoading      = false;
       },
       error: (err) => {

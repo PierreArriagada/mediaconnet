@@ -13,6 +13,7 @@ import {
   CitaHistorial,
   HistorialData,
 } from '../../../core/services/paciente.service';
+import { NotificacionesPacienteStateService } from '../../../core/services/notificaciones-paciente-state.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
@@ -42,6 +43,7 @@ export class HistorialPage implements OnInit {
   private readonly authSvc   = inject(AuthService);
   private readonly router    = inject(Router);
   private readonly toastCtrl = inject(ToastController);
+  private readonly notificacionesState = inject(NotificacionesPacienteStateService);
 
   userName  = '';
   noLeidas  = 0;
@@ -62,6 +64,7 @@ export class HistorialPage implements OnInit {
       next: (data: HistorialData) => {
         this.citas.set(data.citas);
         this.noLeidas  = data.noLeidas;
+        this.notificacionesState.setNoLeidas(data.noLeidas);
         this.isLoading = false;
         event?.target?.complete();
       },

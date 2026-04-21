@@ -209,6 +209,11 @@ export interface PerfilData {
   alertas:              number;
 }
 
+export interface NotificacionesPacienteData {
+  notificaciones: Notificacion[];
+  noLeidas:       number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PacienteService {
   private readonly http = inject(HttpClient);
@@ -261,5 +266,17 @@ export class PacienteService {
 
   getPerfil(): Observable<PerfilData> {
     return this.http.get<PerfilData>(`${this.API}/perfil`);
+  }
+
+  getNotificaciones(): Observable<NotificacionesPacienteData> {
+    return this.http.get<NotificacionesPacienteData>(`${this.API}/notificaciones`);
+  }
+
+  marcarNotificacionesLeidas(): Observable<MensajeResponse> {
+    return this.http.patch<MensajeResponse>(`${this.API}/notificaciones/marcar-leidas`, {});
+  }
+
+  limpiarNotificaciones(): Observable<MensajeResponse> {
+    return this.http.delete<MensajeResponse>(`${this.API}/notificaciones`);
   }
 }
