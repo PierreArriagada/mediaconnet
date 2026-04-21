@@ -227,7 +227,7 @@ ion-content {
 .pf-menu-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 1rem;
   padding: 1.25rem;
   background: var(--mc-surface-container-low);
@@ -242,6 +242,11 @@ ion-content {
   &:hover { background: var(--mc-surface-container-highest); }
   &:active { transform: scale(0.98); }
 
+  &:focus-visible {
+    outline: 2px solid var(--mc-primary);
+    outline-offset: 3px;
+  }
+
   // Variante peligrosa (cerrar sesión)
   &--danger {
     background: rgba(186, 26, 26, 0.06);
@@ -249,25 +254,26 @@ ion-content {
 
     &:hover { background: rgba(186, 26, 26, 0.12); }
   }
-
-  // Lado izquierdo del ítem (ícono + textos)
-  > div:first-child {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex: 1;
-  }
 }
 
 // ── Contenedor del ícono ──────────────────────────────────
 .pf-menu-item__icon-wrap {
-  width: 3rem;
+  width: 4.25rem;
   height: 3rem;
-  border-radius: var(--mc-radius-md);
+  border-radius: 9999px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  flex: 0 0 4.25rem;
+
+  .material-symbols-outlined {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   &--primary   { background: var(--mc-primary-fixed);    color: var(--mc-primary); }
   &--secondary { background: var(--mc-secondary-container); color: var(--mc-secondary); }
@@ -280,6 +286,8 @@ ion-content {
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .pf-menu-item__title {
@@ -303,6 +311,7 @@ ion-content {
 
 // ── Flecha derecha (chevron) ──────────────────────────────
 .pf-menu-item__arrow {
+  margin-left: auto;
   color: var(--mc-outline);
   font-size: 1.5rem;
   flex-shrink: 0;
