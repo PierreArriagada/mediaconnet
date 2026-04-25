@@ -43,11 +43,20 @@ export class LoginPage {
     this.authService.login({ email, password }).subscribe({
       next: (res) => {
         this.isLoading = false;
-        // Redirigir al módulo correspondiente según el rol del usuario
-        if (res.user.role === 'Paciente') {
-          this.router.navigate(['/paciente/home']);
-        } else {
-          this.router.navigate(['/dashboard']);
+        // Redirigir al módulo correcto según rol canónico de base de datos
+        switch (res.user.role) {
+          case 'Paciente':
+            this.router.navigate(['/paciente/home'], { replaceUrl: true });
+            break;
+          case 'Medico':
+            this.router.navigate(['/medico/home'], { replaceUrl: true });
+            break;
+          case 'Administrador':
+            this.router.navigate(['/admin/home'], { replaceUrl: true });
+            break;
+          default:
+            this.router.navigate(['/auth/login'], { replaceUrl: true });
+            break;
         }
       },
       error: async (err) => {

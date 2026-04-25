@@ -1,0 +1,47 @@
+<header class="adm-hdr">
+  <div class="adm-hdr__inner">
+
+    <!-- Identidad del administrador -->
+    <div class="adm-hdr__brand">
+      <div class="adm-hdr__avatar" [attr.aria-label]="userName">
+        @if (initials) {
+          {{ initials }}
+        } @else {
+          <span class="material-symbols-outlined" aria-hidden="true">admin_panel_settings</span>
+        }
+      </div>
+      <div class="adm-hdr__info">
+        <span class="adm-hdr__role">Administrador</span>
+        <span class="adm-hdr__name">{{ userName }}</span>
+      </div>
+    </div>
+
+    <!-- Acciones del header: notificaciones + ajustes -->
+    <div class="adm-hdr__actions">
+
+      <!-- Notificaciones -->
+      <button
+        class="adm-hdr__icon-btn"
+        (click)="onNotificaciones()"
+        aria-label="Ver notificaciones del administrador"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+        @if (totalNoLeidas > 0) {
+          <span class="adm-hdr__badge" [attr.aria-label]="totalNoLeidas + ' no leídas'">
+            {{ totalNoLeidas > 99 ? '99+' : totalNoLeidas }}
+          </span>
+        }
+      </button>
+
+      <!-- Ajustes -->
+      <button
+        class="adm-hdr__icon-btn"
+        (click)="onAjustes()"
+        aria-label="Ajustes y perfil del administrador"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">settings</span>
+      </button>
+
+    </div>
+  </div>
+</header>

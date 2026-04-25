@@ -14,78 +14,11 @@ ion-content {
   --padding-top: 0;
 }
 
-// ── Header del médico ─────────────────────────────────
-.md-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--mc-glass-bg);
-  backdrop-filter: blur(var(--mc-glass-blur));
-  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
-  border-bottom: 1px solid var(--mc-border-ghost);
-
-  &__inner {
-    max-width: 80rem;
-    margin: 0 auto;
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  &__left {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  &__avatar {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 50%;
-    background: var(--mc-gradient-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--mc-on-primary);
-    .material-symbols-outlined { font-size: 1.25rem; }
-  }
-
-  &__label {
-    font-family: var(--mc-font-utility);
-    font-size: 0.75rem;
-    color: var(--mc-secondary);
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 600;
-  }
-
-  &__name {
-    font-family: var(--mc-font-authority);
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--mc-on-surface);
-    margin: 0;
-  }
-
-  &__logout {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--mc-secondary);
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: background 0.15s ease;
-    &:hover { background: var(--mc-surface-container-high); }
-  }
-}
-
 // ── Contenedor principal ──────────────────────────────
 .md-main {
   max-width: 80rem;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: 2rem 1.5rem 7rem; // 7rem para que el navbar fijo no tape el último elemento
 }
 
 // ── Saludo ────────────────────────────────────────────

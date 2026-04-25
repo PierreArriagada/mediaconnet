@@ -1,0 +1,124 @@
+// Header superior del módulo Administrador.
+// Tokens de theme/variables.scss (prefijo --mc-*).
+// El header incluye: avatar con iniciales, rol, nombre, botón de notificaciones y ajustes.
+
+:host {
+  display: block;
+}
+
+.adm-hdr {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--mc-glass-bg);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  border-bottom: 1px solid var(--mc-border-ghost);
+
+  &__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.875rem 1.5rem;
+    max-width: 72rem; // más ancho que paciente/medico, apropiado para backoffice
+    margin: 0 auto;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  // Avatar con acento terciario (distingue visualmente del módulo médico)
+  &__avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--mc-secondary) 0%, var(--mc-primary) 100%);
+    color: var(--mc-on-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mc-font-authority);
+    font-weight: 700;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+
+    .material-symbols-outlined { font-size: 1.25rem; }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  &__role {
+    font-family: var(--mc-font-utility);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--mc-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__name {
+    font-family: var(--mc-font-authority);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--mc-on-surface);
+    letter-spacing: var(--mc-tracking-headline);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 14rem;
+  }
+
+  // Grupo de botones de acción
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  // Botón circular reutilizable para notificaciones y ajustes
+  &__icon-btn {
+    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mc-on-surface-variant);
+    transition: background 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+
+    &:hover  { background: var(--mc-surface-container-high); }
+    &:active { transform: scale(0.9); }
+
+    .material-symbols-outlined { font-size: 1.5rem; }
+  }
+
+  // Badge de notificaciones no leídas
+  &__badge {
+    position: absolute;
+    top: 0.1rem;
+    right: 0.1rem;
+    min-width: 1.125rem;
+    height: 1.125rem;
+    border-radius: var(--mc-radius-xl);
+    background: var(--mc-error);
+    color: var(--mc-on-error);
+    font-size: 0.6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.2rem;
+  }
+}

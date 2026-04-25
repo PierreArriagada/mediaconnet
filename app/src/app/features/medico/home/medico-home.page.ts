@@ -14,6 +14,8 @@ import {
   CitaMedico,
 } from '../../../core/services/medico.service';
 import { McAlertComponent } from '../../../shared/components/alertas-sistema/mc-alert/mc-alert.component';
+import { MedicoHeaderComponent } from '../../../shared/components/medico-header/medico-header.component';
+import { MedicoBottomNavComponent } from '../../../shared/components/medico-bottom-nav/medico-bottom-nav.component';
 
 type TabMedico = 'hoy' | 'proximas';
 
@@ -26,6 +28,8 @@ type TabMedico = 'hoy' | 'proximas';
     TitleCasePipe,
     IonContent, IonToast,
     IonRefresher, IonRefresherContent,
+    MedicoHeaderComponent,
+    MedicoBottomNavComponent,
   ],
 })
 export class MedicoHomePage implements OnInit {

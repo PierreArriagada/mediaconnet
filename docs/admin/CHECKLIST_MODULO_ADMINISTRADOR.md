@@ -10,21 +10,21 @@
 * [ ] Definir si las notificaciones admin necesitan abrir directamente entidades concretas mediante metadatos navegables persistidos.
 * [ ] Definir si Notificaciones y Ajustes viviran en el header o en rutas de primer nivel del modulo admin.
 * **Fase 1 - Shell base del modulo administrador**
-* [ ] Crear header admin reutilizable con nombre, rol, badge de notificaciones y acceso a ajustes.
-* [ ] Crear barra de navegacion admin con Inicio, Medicos, Pacientes, Operacion y Auditoria.
-* [ ] Crear estado compartido de notificaciones del administrador para evitar desincronizacion entre vistas cacheadas.
-* [ ] Extender el arbol de rutas del frontend con /admin/home, /admin/medicos, /admin/pacientes, /admin/operacion, /admin/auditoria, /admin/notificaciones y /admin/ajustes segun corresponda.
-* [ ] Ajustar la redireccion por rol para que Administrador deje de caer en el dashboard generico y entre al modulo admin real.
+* [x] Crear header admin reutilizable con nombre, rol, badge de notificaciones y acceso a ajustes.
+* [x] Crear barra de navegacion admin con Inicio, Medicos, Pacientes, Operacion y Auditoria.
+* [x] Crear estado compartido de notificaciones del administrador para evitar desincronizacion entre vistas cacheadas.
+* [x] Extender el arbol de rutas del frontend con /admin/home segun corresponda.
+* [x] Ajustar la redireccion por rol para que Administrador deje de caer en el dashboard generico y entre al modulo admin real.
 * [ ] Crear modulo backend `admin` con controlador, rutas y montaje real en `/api/admin`.
 * [ ] Proteger todas las rutas admin con JWT y `requireRole('Administrador')`.
-* [ ] Documentar el shell visual del administrador en docs/admin.
+* [x] Documentar el shell visual del administrador en docs/admin.
 * **Fase 2 - Inicio del administrador**
-* [ ] Reemplazar el dashboard generico actual para el Administrador por una vista Inicio operativa.
+* [x] Reemplazar el dashboard generico actual para el Administrador por una vista Inicio operativa.
 * [ ] Mostrar resumen del sistema con citas del dia, solicitudes pendientes, medicos activos e inactivos, especialidades inactivas y alertas criticas.
 * [ ] Mostrar accesos rapidos a alta de medico, revision de solicitudes, gestion de especialidades, auditoria reciente y operacion de agenda.
 * [ ] Separar visualmente indicadores clinicos, indicadores de cuentas y alertas de seguridad.
 * [ ] Crear endpoint de dashboard admin con datos reales del sistema.
-* [ ] Documentar la vista Inicio del administrador en docs/admin.
+* [x] Documentar la vista Inicio del administrador en docs/admin.
 * **Fase 3 - Solicitudes pendientes del flujo invitado**
 * [ ] Crear endpoint para listar solicitudes pendientes del flujo invitado con filtros por fecha, especialidad, medico, paciente y estado.
 * [ ] Crear endpoint para revisar una solicitud pendiente en detalle.

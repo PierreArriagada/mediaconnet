@@ -1,0 +1,53 @@
+<nav class="adm-nav" role="navigation" aria-label="Navegación del administrador">
+
+  <a class="adm-nav__item"
+     [class.adm-nav__item--active]="activeTab === 'home'"
+     (click)="ir('home')"
+     role="button"
+     tabindex="0"
+     aria-label="Inicio del backoffice">
+    <span class="material-symbols-outlined adm-nav__icon" aria-hidden="true">dashboard</span>
+    <span class="adm-nav__label">Inicio</span>
+  </a>
+
+  <a class="adm-nav__item"
+     [class.adm-nav__item--active]="activeTab === 'medicos'"
+     (click)="ir('medicos')"
+     role="button"
+     tabindex="0"
+     aria-label="Gestión de médicos">
+    <span class="material-symbols-outlined adm-nav__icon" aria-hidden="true">stethoscope</span>
+    <span class="adm-nav__label">Médicos</span>
+  </a>
+
+  <a class="adm-nav__item"
+     [class.adm-nav__item--active]="activeTab === 'pacientes'"
+     (click)="ir('pacientes')"
+     role="button"
+     tabindex="0"
+     aria-label="Gestión de pacientes">
+    <span class="material-symbols-outlined adm-nav__icon" aria-hidden="true">groups</span>
+    <span class="adm-nav__label">Pacientes</span>
+  </a>
+
+  <a class="adm-nav__item"
+     [class.adm-nav__item--active]="activeTab === 'operacion'"
+     (click)="ir('operacion')"
+     role="button"
+     tabindex="0"
+     aria-label="Centro de operaciones">
+    <span class="material-symbols-outlined adm-nav__icon" aria-hidden="true">build_circle</span>
+    <span class="adm-nav__label">Operación</span>
+  </a>
+
+  <a class="adm-nav__item"
+     [class.adm-nav__item--active]="activeTab === 'auditoria'"
+     (click)="ir('auditoria')"
+     role="button"
+     tabindex="0"
+     aria-label="Auditoría y trazabilidad">
+    <span class="material-symbols-outlined adm-nav__icon" aria-hidden="true">policy</span>
+    <span class="adm-nav__label">Auditoría</span>
+  </a>
+
+</nav>

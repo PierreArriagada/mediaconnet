@@ -1,0 +1,34 @@
+<header class="md-hdr">
+  <div class="md-hdr__inner">
+
+    <!-- Identidad del médico -->
+    <div class="md-hdr__brand">
+      <div class="md-hdr__avatar" [attr.aria-label]="userName">
+        @if (initials) {
+          {{ initials }}
+        } @else {
+          <span class="material-symbols-outlined" aria-hidden="true">stethoscope</span>
+        }
+      </div>
+      <div class="md-hdr__info">
+        <span class="md-hdr__role">Panel Médico</span>
+        <span class="md-hdr__name">{{ userName }}</span>
+      </div>
+    </div>
+
+    <!-- Botón de notificaciones -->
+    <button
+      class="md-hdr__icon-btn"
+      (click)="onNotificaciones()"
+      aria-label="Ver notificaciones del médico"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+      @if (totalNoLeidas > 0) {
+        <span class="md-hdr__badge" [attr.aria-label]="totalNoLeidas + ' no leídas'">
+          {{ totalNoLeidas > 99 ? '99+' : totalNoLeidas }}
+        </span>
+      }
+    </button>
+
+  </div>
+</header>

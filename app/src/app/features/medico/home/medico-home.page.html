@@ -6,22 +6,7 @@
   </ion-refresher>
 
   <!-- ===== HEADER DEL MÉDICO ===== -->
-  <header class="md-header">
-    <div class="md-header__inner">
-      <div class="md-header__left">
-        <div class="md-header__avatar">
-          <span class="material-symbols-outlined">stethoscope</span>
-        </div>
-        <div>
-          <p class="md-header__label">Panel médico</p>
-          <p class="md-header__name">{{ user?.name ?? '' }}</p>
-        </div>
-      </div>
-      <button class="md-header__logout" (click)="cerrarSesion()" title="Cerrar sesión">
-        <span class="material-symbols-outlined">logout</span>
-      </button>
-    </div>
-  </header>
+  <app-medico-header [userName]="user?.name ?? ''"></app-medico-header>
 
   <!-- ===== CONTENIDO PRINCIPAL ===== -->
   <main class="md-main">
@@ -236,5 +221,8 @@
     position="bottom"
     (didDismiss)="showSuccess = false"
   ></ion-toast>
+
+  <!-- ===== NAVBAR INFERIOR DEL MÉDICO ===== -->
+  <app-medico-bottom-nav activeTab="home"></app-medico-bottom-nav>
 
 </ion-content>
