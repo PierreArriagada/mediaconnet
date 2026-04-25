@@ -1,0 +1,43 @@
+<nav class="md-nav" role="navigation" aria-label="Navegación del médico">
+
+  <a class="md-nav__item"
+     [class.md-nav__item--active]="activeTab === 'home'"
+     (click)="ir('home')"
+     role="button"
+     tabindex="0"
+     aria-label="Inicio">
+    <span class="material-symbols-outlined md-nav__icon" aria-hidden="true">home_health</span>
+    <span class="md-nav__label">Inicio</span>
+  </a>
+
+  <a class="md-nav__item"
+     [class.md-nav__item--active]="activeTab === 'agenda'"
+     (click)="ir('agenda')"
+     role="button"
+     tabindex="0"
+     aria-label="Agenda de citas">
+    <span class="material-symbols-outlined md-nav__icon" aria-hidden="true">calendar_month</span>
+    <span class="md-nav__label">Agenda</span>
+  </a>
+
+  <a class="md-nav__item"
+     [class.md-nav__item--active]="activeTab === 'pacientes'"
+     (click)="ir('pacientes')"
+     role="button"
+     tabindex="0"
+     aria-label="Mis pacientes">
+    <span class="material-symbols-outlined md-nav__icon" aria-hidden="true">groups</span>
+    <span class="md-nav__label">Pacientes</span>
+  </a>
+
+  <a class="md-nav__item"
+     [class.md-nav__item--active]="activeTab === 'perfil'"
+     (click)="ir('perfil')"
+     role="button"
+     tabindex="0"
+     aria-label="Perfil profesional">
+    <span class="material-symbols-outlined md-nav__icon" aria-hidden="true">badge</span>
+    <span class="md-nav__label">Perfil</span>
+  </a>
+
+</nav>

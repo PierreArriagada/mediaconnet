@@ -1,0 +1,61 @@
+// Barra de navegación inferior del módulo Administrador.
+// 5 ítems: Inicio, Médicos, Pacientes, Operación, Auditoría.
+// Tokens de theme/variables.scss (prefijo --mc-*).
+
+:host {
+  display: block;
+}
+
+.adm-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  background: var(--mc-glass-bg);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  border-top: 1px solid var(--mc-border-ghost);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.04);
+  border-radius: var(--mc-radius-xl) var(--mc-radius-xl) 0 0;
+  padding: 0.75rem 1rem env(safe-area-inset-bottom, 1rem);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    // padding adaptado para 5 ítems pero con los mismos estilos
+    padding: 0.5rem 0.6rem;
+    border-radius: var(--mc-radius-xl);
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--mc-outline);
+    transition: color 0.15s, background 0.15s, transform 0.1s;
+    gap: 0.25rem;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    min-width: 3.5rem;
+
+    // Pestaña activa: fondo azul pálido + texto oscuro (igual a paciente/médico)
+    &--active {
+      background: var(--mc-primary-fixed);
+      color: var(--mc-on-primary-fixed);
+    }
+
+    &:not(&--active):hover { color: var(--mc-primary); }
+    &:active { transform: scale(0.9); }
+  }
+
+  &__icon { font-size: 1.5rem; }
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: var(--mc-font-utility);
+    white-space: nowrap;
+  }
+}

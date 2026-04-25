@@ -8,12 +8,12 @@
 * [ ] Definir si las notificaciones del profesional necesitan abrir una cita o una ficha de paciente mediante referencias navegables persistidas en base de datos.
 * [ ] Definir si el perfil profesional tendra avatar o foto persistente.
 * **Fase 1 - Shell base del modulo profesional**
-* [ ] Crear header profesional reutilizable con nombre, identidad visual clinica, badge de notificaciones y acceso a la bandeja.
-* [ ] Crear barra de navegacion profesional con Inicio, Agenda, Pacientes y Perfil.
-* [ ] Crear estado compartido de notificaciones del profesional para evitar desincronizacion entre vistas cacheadas.
+* [x] Crear header profesional reutilizable con nombre, identidad visual clinica, badge de notificaciones y acceso a la bandeja.
+* [x] Crear barra de navegacion profesional con Inicio, Agenda, Pacientes y Perfil.
+* [x] Crear estado compartido de notificaciones del profesional para evitar desincronizacion entre vistas cacheadas.
 * [ ] Extender el arbol de rutas del modulo medico con home, agenda, citas, pacientes, ficha de paciente, perfil y notificaciones.
 * [ ] Ajustar la redireccion por rol para conservar /medico/home como punto de entrada del profesional.
-* [ ] Documentar el shell visual del modulo profesional en docs/medico.
+* [x] Documentar el shell visual del modulo profesional en docs/medico.
 * **Fase 2 - Vista Inicio del profesional**
 * [ ] Reemplazar la pantalla de pruebas actual por un Inicio operativo del profesional.
 * [ ] Mostrar atenciones del dia con datos reales.

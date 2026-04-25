@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   // Ruta por defecto → redirige al login
@@ -14,13 +15,6 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
-  // Módulo principal de la app (protegido por authGuard)
-  {
-    path: 'dashboard',
-    loadChildren: () =>
-      import('./features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
-    canActivate: [authGuard],
-  },
   // Módulo del paciente (protegido por authGuard)
   {
     path: 'paciente',
@@ -34,5 +28,12 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/medico/medico.routes').then((m) => m.MEDICO_ROUTES),
     canActivate: [authGuard],
+  },
+  // Módulo del administrador (protegido por authGuard + roleGuard)
+  {
+    path: 'admin',
+    loadChildren: () =>
+      import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+    canActivate: [authGuard, roleGuard('Administrador')],
   },
 ];

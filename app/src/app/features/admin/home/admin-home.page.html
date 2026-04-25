@@ -1,0 +1,117 @@
+<ion-content>
+
+  <!-- Header del administrador -->
+  <app-admin-header
+    [userName]="user?.name ?? ''"
+    [noLeidas]="0"
+  ></app-admin-header>
+
+  <main class="adm-main">
+
+    <!-- Hero operativo -->
+    <section class="adm-hero">
+      <div class="adm-hero__badge">
+        <span class="material-symbols-outlined" aria-hidden="true">admin_panel_settings</span>
+        Centro de Control
+      </div>
+
+      <h1 class="adm-heading-display">
+        Hola, {{ firstName }}
+      </h1>
+
+      <p class="adm-subtitle">
+        Supervisa operación clínica, cuentas y trazabilidad desde un único panel.
+      </p>
+
+      <div class="adm-hero__chips" role="list" aria-label="Resumen rápido">
+        <span class="adm-chip" role="listitem">
+          <span class="material-symbols-outlined" aria-hidden="true">today</span>
+          Citas del día
+        </span>
+        <span class="adm-chip" role="listitem">
+          <span class="material-symbols-outlined" aria-hidden="true">pending_actions</span>
+          Solicitudes pendientes
+        </span>
+        <span class="adm-chip" role="listitem">
+          <span class="material-symbols-outlined" aria-hidden="true">policy</span>
+          Auditoría activa
+        </span>
+      </div>
+    </section>
+
+    <!-- Métricas visuales iniciales -->
+    <section class="adm-metrics" aria-label="Indicadores iniciales del módulo">
+      <article class="adm-metric adm-metric--primary">
+        <span class="material-symbols-outlined adm-metric__icon" aria-hidden="true">event</span>
+        <p class="adm-metric__value">Hoy</p>
+        <p class="adm-metric__label">Vista de operación clínica diaria</p>
+      </article>
+
+      <article class="adm-metric adm-metric--secondary">
+        <span class="material-symbols-outlined adm-metric__icon" aria-hidden="true">group</span>
+        <p class="adm-metric__value">Roles</p>
+        <p class="adm-metric__label">Gestión centralizada de médicos y pacientes</p>
+      </article>
+
+      <article class="adm-metric adm-metric--tertiary">
+        <span class="material-symbols-outlined adm-metric__icon" aria-hidden="true">shield</span>
+        <p class="adm-metric__value">Seguro</p>
+        <p class="adm-metric__label">Rutas protegidas por sesión y rol</p>
+      </article>
+    </section>
+
+    <!-- Accesos rápidos -->
+    <section class="adm-section">
+      <h2 class="adm-section__title">Accesos rápidos</h2>
+
+      <div class="adm-quick-grid">
+        <button class="adm-quick-card" type="button" aria-label="Ir a gestión de médicos">
+          <span class="material-symbols-outlined adm-quick-card__icon" aria-hidden="true">stethoscope</span>
+          <p class="adm-quick-card__label">Médicos</p>
+          <p class="adm-quick-card__sub">Alta, estado y perfil profesional</p>
+        </button>
+
+        <button class="adm-quick-card" type="button" aria-label="Ir a gestión de pacientes">
+          <span class="material-symbols-outlined adm-quick-card__icon" aria-hidden="true">groups</span>
+          <p class="adm-quick-card__label">Pacientes</p>
+          <p class="adm-quick-card__sub">Ficha administrativa y soporte</p>
+        </button>
+
+        <button class="adm-quick-card" type="button" aria-label="Ir a cola de solicitudes">
+          <span class="material-symbols-outlined adm-quick-card__icon" aria-hidden="true">pending_actions</span>
+          <p class="adm-quick-card__label">Solicitudes</p>
+          <p class="adm-quick-card__sub">Cola operativa de revisión</p>
+        </button>
+
+        <button class="adm-quick-card" type="button" aria-label="Ir a operación global">
+          <span class="material-symbols-outlined adm-quick-card__icon" aria-hidden="true">build_circle</span>
+          <p class="adm-quick-card__label">Operación</p>
+          <p class="adm-quick-card__sub">Citas, horarios y catálogo clínico</p>
+        </button>
+      </div>
+    </section>
+
+    <!-- Aviso de avance -->
+    <section class="adm-state-notice" aria-label="Estado del desarrollo del módulo">
+      <span class="material-symbols-outlined" aria-hidden="true">construction</span>
+      <div>
+        <p class="adm-state-notice__title">Implementación por fases</p>
+        <p class="adm-state-notice__body">
+          Esta pantalla ya reemplaza el dashboard genérico para Administrador.
+          Las métricas con datos reales se conectarán en la siguiente fase del roadmap.
+        </p>
+      </div>
+    </section>
+
+    <!-- Botón cerrar sesión -->
+    <button class="adm-logout-btn" (click)="cerrarSesion()">
+      <span class="material-symbols-outlined">logout</span>
+      Cerrar sesión
+    </button>
+
+  </main>
+
+  <!-- Navbar inferior del administrador -->
+  <app-admin-bottom-nav activeTab="home"></app-admin-bottom-nav>
+
+</ion-content>
