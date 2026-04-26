@@ -174,7 +174,7 @@ INSERT INTO citas_medicas (
   modalidad, fecha_cita, hora_cita, estado_cita, motivo_consulta, es_invitado
 )
 SELECT 1, 1, 1, s.id_disponibilidad, 'presencial', s.fecha, s.hora_inicio, 'confirmada', 'Control de presión arterial', FALSE
-FROM slot;
+FROM slot s;
 
 -- Cita pendiente: Miércoles 22-Abr con Dra. Perez (14:00)
 WITH slot AS (
@@ -188,7 +188,7 @@ INSERT INTO citas_medicas (
   modalidad, fecha_cita, hora_cita, estado_cita, motivo_consulta, es_invitado
 )
 SELECT 1, 2, 3, s.id_disponibilidad, 'presencial', s.fecha, s.hora_inicio, 'pendiente', 'Revisión de manchas en la piel', FALSE
-FROM slot;
+FROM slot s;
 
 -- Cita pendiente: Jueves 24-Abr con Dr. Morales Pediatría (10:00)
 WITH slot AS (
@@ -203,7 +203,7 @@ INSERT INTO citas_medicas (
   modalidad, fecha_cita, hora_cita, estado_cita, motivo_consulta, es_invitado
 )
 SELECT 1, s.id_medico, 2, s.id_disponibilidad, 'telemedicina', s.fecha, s.hora_inicio, 'pendiente', 'Consulta por tos persistente en menor', FALSE
-FROM slot;
+FROM slot s;
 
 -- ── 9. Notificaciones actualizadas para Laura ─────────────
 INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
