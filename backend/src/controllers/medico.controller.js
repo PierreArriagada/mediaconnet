@@ -45,6 +45,8 @@ async function getCitasParaMarcar(req, res) {
        WHERE  c.id_medico   = $1
          AND  c.estado_cita IN ('confirmada', 'completada')
          AND  c.fecha_cita  <= CURRENT_DATE
+         -- Evita mostrar citas que ya fueron marcadas como asistidas o inasistidas
+         AND  c.asistio_cita IS NULL
        ORDER  BY c.fecha_cita DESC, c.hora_cita DESC`,
       [idMedico]
     );
