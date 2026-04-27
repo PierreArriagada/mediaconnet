@@ -11,7 +11,7 @@
 * [x] Crear header profesional reutilizable con nombre, identidad visual clinica, badge de notificaciones y acceso a la bandeja.
 * [x] Crear barra de navegacion profesional con Inicio, Agenda, Pacientes y Perfil.
 * [x] Crear estado compartido de notificaciones del profesional para evitar desincronizacion entre vistas cacheadas.
-* [ ] Extender el arbol de rutas del modulo medico con home, agenda, citas, pacientes, ficha de paciente, perfil y notificaciones.
+* [x] Extender el arbol de rutas del modulo medico con home, agenda, citas, pacientes, ficha de paciente, perfil y notificaciones.
 * [ ] Ajustar la redireccion por rol para conservar /medico/home como punto de entrada del profesional.
 * [x] Documentar el shell visual del modulo profesional en docs/medico.
 * **Fase 2 - Vista Inicio del profesional**
