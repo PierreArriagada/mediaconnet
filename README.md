@@ -29,6 +29,14 @@ Monorepo full-stack para gestión médica con frontend Ionic/Angular, backend Ex
 - PostgreSQL 18 inicializado desde [database](database).
 - Roles canónicos del sistema: Administrador, Paciente y Medico.
 
+## Cambios recientes validados
+
+- Se agregaron páginas iniciales para el módulo Medico: agenda, citas, ficha de pacientes, notificaciones, pacientes y perfil.
+- Se actualizaron las rutas del módulo Medico para preparar una navegación más completa del profesional de salud.
+- Se corrigió la consulta de citas pendientes de asistencia en el backend Medico para evitar mostrar citas que ya fueron marcadas como asistidas o inasistidas.
+- El entorno Docker fue validado nuevamente con PostgreSQL, API Express y frontend Ionic funcionando correctamente.
+- Después de traer cambios desde GitHub, se recomienda ejecutar `git pull`, levantar Docker y revisar que la aplicación compile en `http://localhost:8100`.
+
 ## Arranque rápido con Docker
 
 > Compatible con Windows, macOS y Linux.
