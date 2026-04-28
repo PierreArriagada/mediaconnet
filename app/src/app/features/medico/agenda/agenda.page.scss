@@ -1,0 +1,112 @@
+
+
+/* Edu: estilos base para agenda médica del módulo profesional. */
+:host {
+  display: block;
+}
+
+ion-content {
+  --background: var(--mc-surface);
+  font-family: var(--mc-font-utility);
+}
+
+ion-toolbar {
+  --background: var(--mc-surface-container-lowest);
+  --color: var(--mc-text-primary);
+  border-bottom: 1px solid var(--mc-outline-variant);
+}
+
+ion-title {
+  font-family: var(--mc-font-authority);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Edu: contenedor principal coherente con vistas médicas. */
+ion-content > div {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+ion-content h1,
+ion-content h2,
+ion-content h3 {
+  font-family: var(--mc-font-authority);
+  color: var(--mc-text-primary);
+  letter-spacing: -0.03em;
+}
+
+ion-content h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.65rem, 5vw, 2.15rem);
+  font-weight: 900;
+}
+
+ion-content h2 {
+  margin: 1.4rem 0 0.85rem;
+  font-size: 1.15rem;
+  font-weight: 850;
+}
+
+ion-content h3 {
+  margin: 0 0 0.55rem;
+  font-size: 1.05rem;
+  font-weight: 850;
+}
+
+ion-content p {
+  margin: 0.32rem 0;
+  color: var(--mc-text-secondary);
+  line-height: 1.45;
+}
+
+ion-content strong {
+  color: var(--mc-text-primary);
+  font-weight: 800;
+}
+
+/* Edu: secciones de agenda para citas pendientes y próximas citas. */
+section {
+  margin-top: 1rem;
+}
+
+section > div {
+  background: var(--mc-surface-container-lowest);
+  border: 1px solid var(--mc-outline-variant);
+  border-radius: var(--mc-radius-xl);
+  box-shadow: var(--mc-shadow-ambient);
+  padding: 1rem;
+  margin: 0.85rem 0;
+}
+
+/* Edu: botones principales de agenda médica. */
+button {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 0.9rem;
+  border: 0;
+  border-radius: var(--mc-radius-lg);
+  background: var(--mc-primary);
+  color: var(--mc-on-primary);
+  font-family: var(--mc-font-utility);
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: var(--mc-shadow-soft);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+/* Edu: mejora lectura en dispositivos Android/iOS pequeños. */
+@media (max-width: 480px) {
+  ion-content {
+    --padding-start: 1rem;
+    --padding-end: 1rem;
+  }
+
+  section > div {
+    padding: 0.9rem;
+    border-radius: var(--mc-radius-lg);
+  }
+}

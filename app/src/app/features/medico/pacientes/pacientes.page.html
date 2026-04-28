@@ -1,13 +1,47 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>pacientes</ion-title>
+    <ion-title>Mis Pacientes</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">pacientes</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Edu: estado inicial de carga -->
+  <div *ngIf="isLoading">
+    <h2>Cargando pacientes...</h2>
+    <p>Espere un momento.</p>
+  </div>
+
+  <!-- Edu: error al consultar backend -->
+  <div *ngIf="!isLoading && errorMessage">
+    <h2>No disponible</h2>
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <!-- Edu: listado principal de pacientes -->
+  <div *ngIf="!isLoading && !errorMessage">
+    <h1>Pacientes Asociados</h1>
+    <p>Seleccione un paciente para revisar su ficha clínica.</p>
+
+    <div *ngIf="pacientes.length === 0">
+      <p>No existen pacientes asociados actualmente.</p>
+    </div>
+
+    <div *ngFor="let paciente of pacientes">
+      <h2>{{ paciente.nombre }} {{ paciente.apellido }}</h2>
+      <p><strong>RUT:</strong> {{ paciente.rut }}</p>
+      <p><strong>Correo:</strong> {{ paciente.correo }}</p>
+      <p><strong>Teléfono:</strong> {{ paciente.telefono }}</p>
+      <p><strong>Estado:</strong> {{ paciente.estado }}</p>
+      <p><strong>Última cita:</strong> {{ paciente.ultima_cita ? (paciente.ultima_cita | date:'dd/MM/yyyy') : 'Sin registro' }}</p>
+
+      <button type="button" (click)="verFicha(paciente.id_paciente)">
+        Ver ficha clínica
+      </button>
+
+      <hr>
+    </div>
+  </div>
 </ion-content>
+
+<!-- Edu: menú inferior del módulo médico -->
+<app-medico-bottom-nav activeTab="pacientes"></app-medico-bottom-nav>

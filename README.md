@@ -31,11 +31,130 @@ Monorepo full-stack para gestión médica con frontend Ionic/Angular, backend Ex
 
 ## Cambios recientes validados
 
-- Se agregaron páginas iniciales para el módulo Medico: agenda, citas, ficha de pacientes, notificaciones, pacientes y perfil.
-- Se actualizaron las rutas del módulo Medico para preparar una navegación más completa del profesional de salud.
-- Se corrigió la consulta de citas pendientes de asistencia en el backend Medico para evitar mostrar citas que ya fueron marcadas como asistidas o inasistidas.
-- El entorno Docker fue validado nuevamente con PostgreSQL, API Express y frontend Ionic funcionando correctamente.
-- Después de traer cambios desde GitHub, se recomienda ejecutar `git pull`, levantar Docker y revisar que la aplicación compile en `http://localhost:8100`.
+> Última actualización funcional enfocada en el **Módulo Médico**, estabilidad del entorno local y mejora de navegación móvil.
+
+### Resumen ejecutivo
+
+- Se consolidó una navegación médica consistente entre vistas clave del profesional de salud.
+- Se habilitaron pantallas operativas para gestión diaria del médico.
+- Se validó integración real entre frontend Ionic, API Express y PostgreSQL en entorno Docker.
+- Se dejaron definidas próximas líneas de trabajo para cerrar el módulo médico productivamente.
+
+### Módulo Médico (Frontend)
+
+#### Navegación unificada
+
+Se incorporó menú inferior compartido en las siguientes vistas:
+
+- **Home**
+- **Agenda**
+- **Pacientes**
+- **Perfil**
+
+Beneficios directos:
+
+- mejor experiencia móvil Android / iOS,
+- navegación continua entre pantallas,
+- menor fricción de uso clínico,
+- estructura escalable para futuras vistas.
+
+#### Agenda Médica
+
+Vista operativa con soporte para:
+
+- citas pendientes de asistencia,
+- próximas citas programadas,
+- recarga manual de datos,
+- navegación coherente con el resto del módulo,
+- base lista para registrar asistencia futura.
+
+#### Mis Pacientes
+
+Vista operativa con soporte para:
+
+- listado de pacientes asociados al profesional autenticado,
+- acceso a ficha clínica individual,
+- estructura preparada para historial médico,
+- futura extensión a recetas, observaciones y seguimiento.
+
+#### Perfil Profesional
+
+Se habilitó una primera versión funcional de interfaz para:
+
+- datos del médico autenticado,
+- especialidad,
+- configuración personal,
+- futuras opciones de edición de perfil.
+
+### Backend / API Médica
+
+- Se ajustó la consulta de citas pendientes para excluir registros ya marcados como **asistió** o **no asistió**.
+- Se validó consumo de endpoints desde nuevas vistas médicas.
+- Se mantuvo compatibilidad con autenticación existente por JWT.
+- Se confirmó operación estable contra PostgreSQL local.
+
+### QA / Validaciones realizadas
+
+#### Acceso y seguridad
+
+- Login médico validado correctamente.
+- Redirección a vistas protegidas funcionando.
+- Sesión activa operativa en pruebas locales.
+
+#### Frontend
+
+- Compilación Angular/Ionic satisfactoria.
+- Navegación entre vistas médicas validada.
+- Renderizado responsive correcto en entorno navegador móvil.
+
+#### Infraestructura local
+
+- Docker Compose operativo.
+- Contenedor PostgreSQL saludable.
+- API Express disponible.
+- Frontend disponible en `http://localhost:8100`.
+
+### Credenciales de prueba validadas
+
+| Tipo | Usuario | Contraseña |
+|---|---|---|
+| Médico | `medico1@mediconnect.cl` | `mediconnect2026` |
+
+### Próximos pendientes priorizados
+
+#### Prioridad Alta
+
+- Conectar **Perfil** con datos reales del backend.
+- Permitir marcar asistencia desde **Agenda**.
+- Registrar observaciones clínicas básicas.
+
+#### Prioridad Media
+
+- Edición de perfil profesional.
+- Mejoras visuales finales del módulo médico.
+- Estados vacíos y mensajes UX más claros.
+
+#### Prioridad Técnica
+
+- Revisión de guards por rol.
+- Validaciones de errores API.
+- Limpieza de componentes temporales.
+
+### Recomendación operativa para el equipo
+
+Después de actualizar desde GitHub:
+
+```bash
+git pull
+docker compose up -d
+```
+
+Luego validar:
+
+- Frontend: `http://localhost:8100`
+- Backend: `http://localhost:3000`
+- Login médico funcional
+- Navegación Home / Agenda / Pacientes / Perfil
 
 ## Arranque rápido con Docker
 

@@ -1,13 +1,60 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>fichapacientes</ion-title>
+    <ion-title>Ficha Paciente</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">fichapacientes</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Edu: estado de carga inicial -->
+  <div *ngIf="isLoading">
+    <h2>Cargando ficha clínica...</h2>
+    <p>Espere un momento.</p>
+  </div>
+
+  <!-- Edu: error de carga -->
+  <div *ngIf="!isLoading && errorMessage">
+    <h2>No disponible</h2>
+    <p>{{ errorMessage }}</p>
+    <button type="button" (click)="volverPacientes()">Volver</button>
+  </div>
+
+  <!-- Edu: ficha cargada correctamente -->
+  <div *ngIf="!isLoading && ficha">
+    <h1>{{ ficha.paciente.nombre }} {{ ficha.paciente.apellido }}</h1>
+    <p><strong>RUT:</strong> {{ ficha.paciente.rut }}</p>
+    <p><strong>Correo:</strong> {{ ficha.paciente.correo }}</p>
+    <p><strong>Teléfono:</strong> {{ ficha.paciente.telefono }}</p>
+    <p><strong>Estado:</strong> {{ ficha.paciente.estado }}</p>
+
+    <hr>
+
+    <h2>Historial Clínico</h2>
+    <div *ngIf="ficha.historial.length === 0">
+      <p>Sin registros clínicos previos.</p>
+    </div>
+
+    <div *ngFor="let item of ficha.historial">
+      <p><strong>Fecha:</strong> {{ item.fecha_registro | date:'dd/MM/yyyy' }}</p>
+      <p><strong>Diagnóstico:</strong> {{ item.diagnostico || 'Sin registro' }}</p>
+      <p><strong>Tratamiento:</strong> {{ item.tratamiento || 'Sin registro' }}</p>
+      <p><strong>Observaciones:</strong> {{ item.observaciones || 'Sin observaciones' }}</p>
+      <hr>
+    </div>
+
+    <h2>Citas Asociadas</h2>
+    <div *ngIf="ficha.citas.length === 0">
+      <p>No existen citas registradas.</p>
+    </div>
+
+    <div *ngFor="let cita of ficha.citas">
+      <p><strong>Fecha:</strong> {{ cita.fecha_cita | date:'dd/MM/yyyy' }}</p>
+      <p><strong>Hora:</strong> {{ cita.hora_cita }}</p>
+      <p><strong>Estado:</strong> {{ cita.estado_cita }}</p>
+      <p><strong>Modalidad:</strong> {{ cita.modalidad }}</p>
+      <p><strong>Motivo:</strong> {{ cita.motivo_consulta }}</p>
+      <hr>
+    </div>
+
+    <button type="button" (click)="volverPacientes()">Volver a pacientes</button>
+  </div>
 </ion-content>

@@ -11,3 +11,23 @@
     </ion-toolbar>
   </ion-header>
 </ion-content>
+
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Mi Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Edu: vista temporal de perfil médico -->
+  <h1>Perfil Profesional</h1>
+  <p>Próximamente aquí se visualizarán los datos del médico autenticado.</p>
+
+  <div>
+    <p><strong>Estado:</strong> Módulo en construcción</p>
+    <p><strong>Objetivo:</strong> Mostrar información personal, especialidad y configuración.</p>
+  </div>
+</ion-content>
+
+<!-- Edu: menú inferior del módulo médico -->
+<app-medico-bottom-nav activeTab="perfil"></app-medico-bottom-nav>
