@@ -1,0 +1,115 @@
+
+
+/* Edu: estilos base para ficha clínica del paciente en el módulo médico. */
+:host {
+  display: block;
+}
+
+ion-content {
+  --background: var(--mc-surface);
+  font-family: var(--mc-font-utility);
+}
+
+ion-toolbar {
+  --background: var(--mc-surface-container-lowest);
+  --color: var(--mc-text-primary);
+  border-bottom: 1px solid var(--mc-outline-variant);
+}
+
+ion-title {
+  font-family: var(--mc-font-authority);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Edu: contenedor general alineado al estilo visual de medico-home. */
+.ficha-wrapper,
+ion-content > div {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Edu: tarjetas reutilizables para datos del paciente, historial y citas. */
+ion-content h1,
+ion-content h2 {
+  font-family: var(--mc-font-authority);
+  color: var(--mc-text-primary);
+  letter-spacing: -0.03em;
+}
+
+ion-content h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.7rem, 5vw, 2.25rem);
+  font-weight: 900;
+}
+
+ion-content h2 {
+  margin: 1.75rem 0 0.85rem;
+  font-size: 1.15rem;
+  font-weight: 850;
+}
+
+ion-content p {
+  margin: 0.35rem 0;
+  color: var(--mc-text-secondary);
+  line-height: 1.45;
+}
+
+ion-content strong {
+  color: var(--mc-text-primary);
+  font-weight: 800;
+}
+
+/* Edu: separadores suaves para no romper la estética mobile. */
+hr {
+  border: 0;
+  border-top: 1px solid var(--mc-outline-variant);
+  margin: 1rem 0;
+}
+
+/* Edu: bloques visuales para cada registro generado por ngFor. */
+div[ng-reflect-ng-for-of],
+ion-content div div {
+  border-radius: var(--mc-radius-lg);
+}
+
+ion-content > div:not(:first-child) {
+  background: var(--mc-surface-container-lowest);
+  border: 1px solid var(--mc-outline-variant);
+  border-radius: var(--mc-radius-xl);
+  box-shadow: var(--mc-shadow-ambient);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Edu: botones simples con identidad MediConnect. */
+button {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 1rem;
+  border: 0;
+  border-radius: var(--mc-radius-lg);
+  background: var(--mc-primary);
+  color: var(--mc-on-primary);
+  font-family: var(--mc-font-utility);
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: var(--mc-shadow-soft);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+/* Edu: ajuste responsive para pantallas pequeñas Android/iOS. */
+@media (max-width: 480px) {
+  ion-content {
+    --padding-start: 1rem;
+    --padding-end: 1rem;
+  }
+
+  ion-content > div:not(:first-child) {
+    padding: 0.9rem;
+    border-radius: var(--mc-radius-lg);
+  }
+}

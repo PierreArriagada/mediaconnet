@@ -319,9 +319,181 @@ async function getDashboardMedico(req, res) {
   }
 }
 
+
+/**
+ * Edu: endpoint inicial de ficha clínica básica para el módulo médico.
+ * GET /api/medico/paciente/:idPaciente/ficha
+ * Devuelve datos personales, historial de atenciones y citas vinculadas con el profesional.
+ * Seguridad anti-IDOR: solo permite consultar pacientes asociados al médico autenticado.
+ */
+async function getFichaPaciente(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idPaciente = parseInt(req.params.idPaciente, 10);
+
+  if (isNaN(idUsuario) || isNaN(idPaciente) || idPaciente < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  try {
+    const medicoResult = await pool.query(
+      'SELECT id_medico FROM medicos WHERE id_usuario = $1 AND estado = $2',
+      [idUsuario, 'activo']
+    );
+
+    if (medicoResult.rowCount === 0) {
+      return res.status(403).json({ message: 'No se encontró perfil de médico activo.' });
+    }
+
+    const idMedico = medicoResult.rows[0].id_medico;
+
+    // Edu: validación anti-IDOR; el médico solo puede ver pacientes relacionados con sus citas.
+    const relacionResult = await pool.query(
+      `SELECT 1
+       FROM   citas_medicas
+       WHERE  id_medico = $1
+         AND  id_paciente = $2
+       LIMIT  1`,
+      [idMedico, idPaciente]
+    );
+
+    if (relacionResult.rowCount === 0) {
+      return res.status(404).json({ message: 'Paciente no encontrado o no asociado a este médico.' });
+    }
+
+    const pacienteResult = await pool.query(
+      `SELECT
+         p.id_paciente,
+         p.rut,
+         u.nombre,
+         u.apellido,
+         u.correo,
+         u.telefono,
+         u.estado
+       FROM   pacientes p
+       JOIN   usuarios  u ON p.id_usuario = u.id_usuario
+       WHERE  p.id_paciente = $1`,
+      [idPaciente]
+    );
+
+    if (pacienteResult.rowCount === 0) {
+      return res.status(404).json({ message: 'Paciente no encontrado.' });
+    }
+
+    // Edu: historial clínico previamente registrado para este paciente con este médico.
+    const historialResult = await pool.query(
+      `SELECT
+         h.id_historial,
+         h.id_cita,
+         h.diagnostico,
+         h.tratamiento,
+         h.observaciones,
+         h.fecha_registro,
+         c.fecha_cita,
+         c.hora_cita,
+         c.modalidad,
+         c.motivo_consulta,
+         c.estado_cita,
+         c.asistio_cita,
+         e.nombre_especialidad
+       FROM   historial_atenciones h
+       JOIN   citas_medicas        c ON h.id_cita = c.id_cita
+       JOIN   especialidades       e ON c.id_especialidad = e.id_especialidad
+       WHERE  c.id_medico = $1
+         AND  c.id_paciente = $2
+       ORDER  BY h.fecha_registro DESC`,
+      [idMedico, idPaciente]
+    );
+
+    // Edu: citas asociadas al paciente dentro de la atención del médico autenticado.
+    const citasResult = await pool.query(
+      `SELECT
+         c.id_cita,
+         c.fecha_cita,
+         c.hora_cita,
+         c.estado_cita,
+         c.modalidad,
+         c.motivo_consulta,
+         c.confirmada_asistencia,
+         c.asistio_cita,
+         e.nombre_especialidad
+       FROM   citas_medicas  c
+       JOIN   especialidades e ON c.id_especialidad = e.id_especialidad
+       WHERE  c.id_medico = $1
+         AND  c.id_paciente = $2
+       ORDER  BY c.fecha_cita DESC, c.hora_cita DESC`,
+      [idMedico, idPaciente]
+    );
+
+    return res.json({
+      paciente: pacienteResult.rows[0],
+      historial: historialResult.rows,
+      citas: citasResult.rows,
+    });
+  } catch (err) {
+    console.error('Error en getFichaPaciente:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+
+/**
+ * Edu: listado inicial de pacientes vinculados al médico autenticado.
+ * GET /api/medico/pacientes
+ * Retorna pacientes únicos que tengan al menos una cita con el profesional.
+ */
+async function getPacientesMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    const medicoResult = await pool.query(
+      'SELECT id_medico FROM medicos WHERE id_usuario = $1 AND estado = $2',
+      [idUsuario, 'activo']
+    );
+
+    if (medicoResult.rowCount === 0) {
+      return res.status(403).json({ message: 'No se encontró perfil de médico activo.' });
+    }
+
+    const idMedico = medicoResult.rows[0].id_medico;
+
+    // Edu: pacientes únicos asociados por citas médicas registradas.
+    const pacientesResult = await pool.query(
+      `SELECT DISTINCT
+         p.id_paciente,
+         p.rut,
+         u.nombre,
+         u.apellido,
+         u.correo,
+         u.telefono,
+         u.estado,
+         MAX(c.fecha_cita) AS ultima_cita
+       FROM   citas_medicas c
+       JOIN   pacientes     p ON c.id_paciente = p.id_paciente
+       JOIN   usuarios      u ON p.id_usuario = u.id_usuario
+       WHERE  c.id_medico = $1
+       GROUP  BY p.id_paciente, p.rut, u.nombre, u.apellido, u.correo, u.telefono, u.estado
+       ORDER  BY u.apellido ASC, u.nombre ASC`,
+      [idMedico]
+    );
+
+    return res.json({
+      pacientes: pacientesResult.rows,
+    });
+  } catch (err) {
+    console.error('Error en getPacientesMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
 module.exports = {
   getDashboardMedico,
   getCitasParaMarcar,
   getCitasProximas,
   marcarAsistencia,
+  getFichaPaciente,
+  getPacientesMedico,
 };

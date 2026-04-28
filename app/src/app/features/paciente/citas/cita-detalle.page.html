@@ -51,7 +51,7 @@
           @if (!esCitaDirecta) {
 
             <!-- Banner informativo cuando está pendiente de revisión -->
-            @if (cita?.estado_cita === 'pendiente') {
+            @if (cita.estado_cita === 'pendiente') {
               <div class="mc-pending-banner">
                 <span class="material-symbols-outlined mc-pending-banner__icono">info</span>
                 <p class="mc-pending-banner__texto">

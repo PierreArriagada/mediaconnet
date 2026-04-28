@@ -1,13 +1,72 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>agenda</ion-title>
+    <ion-title>Agenda Médica</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">agenda</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Edu: estado inicial de carga de agenda médica -->
+  <div *ngIf="isLoading">
+    <h2>Cargando agenda...</h2>
+    <p>Espere un momento mientras se consultan las citas del profesional.</p>
+  </div>
+
+  <!-- Edu: mensaje de error cuando falla la consulta al backend -->
+  <div *ngIf="!isLoading && errorMessage">
+    <h2>No disponible</h2>
+    <p>{{ errorMessage }}</p>
+    <button type="button" (click)="refrescarAgenda()">Reintentar</button>
+  </div>
+
+  <!-- Edu: contenido principal de agenda médica -->
+  <div *ngIf="!isLoading && !errorMessage">
+    <h1>Agenda del Profesional</h1>
+    <p>Revise las citas pendientes de asistencia y las próximas atenciones programadas.</p>
+
+    <section>
+      <h2>Citas pendientes de asistencia</h2>
+
+      <div *ngIf="citasHoy.length === 0">
+        <p>No existen citas pendientes de marcar asistencia.</p>
+      </div>
+
+      <div *ngFor="let cita of citasHoy">
+        <h3>{{ cita.paciente_nombre }} {{ cita.paciente_apellido }}</h3>
+        <p><strong>Especialidad:</strong> {{ cita.nombre_especialidad }}</p>
+        <p><strong>Fecha:</strong> {{ cita.fecha_cita | date:'dd/MM/yyyy' }}</p>
+        <p><strong>Hora:</strong> {{ cita.hora_cita }}</p>
+        <p><strong>Modalidad:</strong> {{ cita.modalidad }}</p>
+        <p><strong>Motivo:</strong> {{ cita.motivo_consulta }}</p>
+        <p><strong>Estado:</strong> {{ cita.estado_cita }}</p>
+
+        <!-- Edu: acceso futuro a ficha clínica si el backend entrega id_paciente en la cita -->
+        <button type="button" (click)="verFichaPaciente($any(cita).id_paciente)">
+          Ver ficha paciente
+        </button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Próximas citas</h2>
+
+      <div *ngIf="citasProximas.length === 0">
+        <p>No existen próximas citas registradas.</p>
+      </div>
+
+      <div *ngFor="let cita of citasProximas">
+        <h3>{{ cita.paciente_nombre }} {{ cita.paciente_apellido }}</h3>
+        <p><strong>Especialidad:</strong> {{ cita.nombre_especialidad }}</p>
+        <p><strong>Fecha:</strong> {{ cita.fecha_cita | date:'dd/MM/yyyy' }}</p>
+        <p><strong>Hora:</strong> {{ cita.hora_cita }}</p>
+        <p><strong>Modalidad:</strong> {{ cita.modalidad }}</p>
+        <p><strong>Motivo:</strong> {{ cita.motivo_consulta }}</p>
+        <p><strong>Estado:</strong> {{ cita.estado_cita }}</p>
+      </div>
+    </section>
+
+    <button type="button" (click)="refrescarAgenda()">Actualizar agenda</button>
+  </div>
 </ion-content>
+
+<!-- Edu: menú inferior del módulo médico -->
+<app-medico-bottom-nav activeTab="agenda"></app-medico-bottom-nav>
