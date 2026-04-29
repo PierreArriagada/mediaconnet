@@ -17,6 +17,13 @@ import { NotificacionesNativasService } from '../../../core/services/notificacio
 import { NotificacionesPacienteStateService } from '../../../core/services/notificaciones-paciente-state.service';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
+import {
+  formatFechaCompleta,
+  formatHoraCorta,
+  tiempoRelativoCorto,
+} from '../../../shared/utils/fecha.utils';
+
+type HistorialTab = 'pendientes' | 'confirmadas' | 'pasadas';
 
 @Component({
   selector: 'app-paciente-home',
@@ -121,29 +128,17 @@ export class PacienteHomePage implements OnInit {
 
   /** Formatea fecha ISO a "12 abr. 2026" sin desfase de zona horaria */
   formatFecha(fecha: string | null | undefined): string {
-    if (!fecha) return '—';
-    const [y, m, d] = (fecha as string).split('T')[0].split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString('es-CL', {
-      day: 'numeric', month: 'short', year: 'numeric',
-    });
+    return formatFechaCompleta(fecha);
   }
 
   /** Recorta la hora a "HH:mm" */
   formatHora(hora: string | null | undefined): string {
-    if (!hora) return '—';
-    return (hora as string).slice(0, 5);
+    return formatHoraCorta(hora);
   }
 
   /** Tiempo relativo legible para notificaciones */
   tiempoRelativo(fechaISO: string): string {
-    const diffMs  = Date.now() - new Date(fechaISO).getTime();
-    const diffMin = Math.floor(diffMs / 60_000);
-    if (diffMin < 60)  return `Hace ${diffMin}m`;
-    const diffH = Math.floor(diffMin / 60);
-    if (diffH  < 24)   return `Hace ${diffH}h`;
-    const diffD = Math.floor(diffH / 24);
-    if (diffD  === 1)  return 'Ayer';
-    return `Hace ${diffD}d`;
+    return tiempoRelativoCorto(fechaISO);
   }
 
   /** Icono Material Symbol según el tipo de notificación */
@@ -224,6 +219,10 @@ export class PacienteHomePage implements OnInit {
   /** Navega a rutas simples dentro del módulo /paciente/ */
   ir(path: string): void {
     this.router.navigate(['/paciente', path]);
+  }
+
+  irHistorial(tab: HistorialTab): void {
+    this.router.navigate(['/paciente', 'historial'], { queryParams: { tab } });
   }
 
   /** Navega al detalle de una cita específica */
