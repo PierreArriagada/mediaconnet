@@ -2,8 +2,10 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
 import { MedicoBottomNavComponent } from '../../../shared/components/medico-bottom-nav/medico-bottom-nav.component';
+import { MedicoHeaderComponent } from '../../../shared/components/medico-header/medico-header.component';
+import { AuthService } from '../../../core/services/auth.service';
 import {
   CitaMedico,
   CitasMedicoData,
@@ -15,12 +17,20 @@ import {
   templateUrl: './agenda.page.html',
   styleUrls: ['./agenda.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, MedicoBottomNavComponent]
+  imports: [
+    IonContent,
+    CommonModule,
+    FormsModule,
+    MedicoBottomNavComponent,
+    MedicoHeaderComponent
+  ]
 })
 export class AgendaPage implements OnInit {
   private readonly router = inject(Router);
   private readonly medicoService = inject(MedicoService);
+  private readonly authService = inject(AuthService);
 
+  user = this.authService.getCurrentUser();
   citasHoy: CitaMedico[] = [];
   citasProximas: CitaMedico[] = [];
   isLoading = true;
