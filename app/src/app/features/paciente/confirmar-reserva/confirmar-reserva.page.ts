@@ -7,6 +7,7 @@ import { PacienteService, CrearCitaPayload } from '../../../core/services/pacien
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { AuthService } from '../../../core/services/auth.service';
+import { formatFechaLargaConDia, formatHoraCorta } from '../../../shared/utils/fecha.utils';
 
 @Component({
   standalone: true,
@@ -122,17 +123,11 @@ export default class ConfirmarReservaPage implements OnInit {
   }
 
   formatFecha(): string {
-    if (!this.fecha) return '';
-    const [y, m, d] = this.fecha.split('-').map(Number);
-    const fechaObj = new Date(y, m - 1, d);
-    const dias  = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    return `${dias[fechaObj.getDay()]} ${d} de ${meses[m - 1]} ${y}`;
+    return this.fecha ? formatFechaLargaConDia(this.fecha) : '';
   }
 
   formatHora(hora: string): string {
-    return hora?.slice(0, 5) ?? '';
+    return hora ? formatHoraCorta(hora) : '';
   }
 
   get motivoValido(): boolean {
