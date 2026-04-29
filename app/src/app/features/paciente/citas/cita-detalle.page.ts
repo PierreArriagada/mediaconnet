@@ -13,6 +13,11 @@ import { PacienteHeaderComponent } from '../../../shared/components/paciente-hea
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { CentroContactoComponent } from '../../../shared/components/centro-contacto/centro-contacto.component';
 import { McAlertComponent } from '../../../shared/components/alertas-sistema/mc-alert/mc-alert.component';
+import {
+  formatFechaConHora,
+  formatFechaLargaConDia,
+  formatHoraCorta,
+} from '../../../shared/utils/fecha.utils';
 
 /** Pasos del timeline según el estado de la cita (solo invitados/solicitudes) */
 interface PasoTimeline {
@@ -236,32 +241,19 @@ export default class CitaDetallePage implements OnInit {
   }
 
   formatFecha(fecha: string | null): string {
-    if (!fecha) return '—';
-    const [y, m, d] = fecha.split('T')[0].split('-').map(Number);
-    const fechaObj = new Date(y, m - 1, d);
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    return `${d} de ${meses[m - 1]}, ${y}`;
+    return formatFechaLargaConDia(fecha);
   }
 
   formatFechaCorta(fecha: string | null): string {
-    if (!fecha) return '—';
-    const d = new Date(fecha);
-    return d.toLocaleDateString('es-CL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return formatFechaConHora(fecha);
   }
 
   formatHora(hora: string | null): string {
-    return hora?.slice(0, 5) ?? '—';
+    return formatHoraCorta(hora);
   }
 
   formatFechaLarga(fecha: string | null): string {
-    if (!fecha) return '—';
-    const [y, m, d] = fecha.split('T')[0].split('-').map(Number);
-    const dias  = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    const fechaObj = new Date(y, m - 1, d);
-    return `${dias[fechaObj.getDay()]} ${d} de ${meses[m - 1]}, ${y}`;
+    return formatFechaLargaConDia(fecha);
   }
 
   ir(path: string): void {
