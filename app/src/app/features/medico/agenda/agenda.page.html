@@ -1,7 +1,7 @@
 <!-- aqui usaremos el componente de header de medico que etsa en shared/components/medico-header
 con ese componente debemos usar en todas las demas vistas, asi simplificamos trabajo, el header tiene notificaiones
 y trae el nombre del medico a la vista principal con un diseño mejor by pierre-->
-<app-medico-header [userName]="user? .name ?? ' ' "></app-medico-header>
+<app-medico-header [userName]="user?.name ?? ''"></app-medico-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
   <!-- Edu: estado inicial de carga de agenda médica -->
