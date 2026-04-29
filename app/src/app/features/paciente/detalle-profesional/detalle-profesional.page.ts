@@ -7,6 +7,7 @@ import { NotificacionesPacienteStateService } from '../../../core/services/notif
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { AuthService } from '../../../core/services/auth.service';
+import { formatFechaCercana, formatHoraCorta } from '../../../shared/utils/fecha.utils';
 
 @Component({
   standalone: true,
@@ -48,7 +49,7 @@ export default class DetalleProfesionalPage implements OnInit {
         this.isLoading = false;
       },
       error: () => {
-        this.errorMsg  = 'No se pudo cargar la informacion del profesional.';
+        this.errorMsg  = 'No se pudo cargar la información del profesional.';
         this.showError = true;
         this.isLoading = false;
       },
@@ -92,28 +93,17 @@ export default class DetalleProfesionalPage implements OnInit {
 
   nombreDia(isodow: number): string {
     const dias: Record<number, string> = {
-      1: 'Lunes', 2: 'Martes', 3: 'Miercoles',
-      4: 'Jueves', 5: 'Viernes', 6: 'Sabado', 7: 'Domingo',
+      1: 'Lunes', 2: 'Martes', 3: 'Miércoles',
+      4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo',
     };
     return dias[isodow] ?? '';
   }
 
   formatHora(hora: string): string {
-    return hora.slice(0, 5);
+    return formatHoraCorta(hora);
   }
 
   formatFecha(fechaStr: string): string {
-    const [y, m, d] = fechaStr.split('-').map(Number);
-    const fecha = new Date(y, m - 1, d);
-    const hoy   = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const diff  = Math.round((fecha.getTime() - hoy.getTime()) / 86400000);
-
-    if (diff === 0) return 'Hoy';
-    if (diff === 1) return 'Manana';
-
-    const dias  = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
-    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    return `${dias[fecha.getDay()]} ${d} ${meses[m - 1]}`;
+    return formatFechaCercana(fechaStr);
   }
 }
