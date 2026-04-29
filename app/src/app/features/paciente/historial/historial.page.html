@@ -16,10 +16,10 @@
     <!-- ── Encabezado editorial ─────────────────────── -->
     <section class="hs-hero">
       <h1 class="hs-hero__title">
-        Mis <span class="hs-hero__title--accent">solicitudes</span>
+        Mis <span class="hs-hero__title--accent">citas</span>
       </h1>
       <p class="hs-hero__subtitle">
-        Gestiona tus citas médicas y el historial de atención con facilidad.
+        Revisa tus horas pendientes, confirmadas y atenciones anteriores.
       </p>
     </section>
 
@@ -151,7 +151,7 @@
             <p class="hs-empty__title">Sin citas en esta sección</p>
             <p class="hs-empty__body">
               @if (tabActivo() === 'pendientes') {
-                No tienes solicitudes pendientes en este momento.
+                No tienes citas pendientes en este momento.
               }
               @if (tabActivo() === 'confirmadas') {
                 No tienes citas confirmadas próximas.
@@ -164,7 +164,7 @@
         }
 
         <!-- Tarjeta CTA nueva cita -->
-        <article class="hs-card-cta" role="listitem" aria-label="Solicitar nueva cita">
+        <article class="hs-card-cta" role="listitem" aria-label="Reservar nueva cita">
           <div class="hs-card-cta__glow" aria-hidden="true"></div>
           <div class="hs-card-cta__icon-wrap" aria-hidden="true">
             <span class="material-symbols-outlined hs-card-cta__icon">add_circle</span>
@@ -177,7 +177,7 @@
             class="hs-card-cta__btn"
             type="button"
             (click)="nuevaReserva()"
-          >Nueva Solicitud</button>
+          >Reservar hora</button>
         </article>
 
       </div>
