@@ -12,6 +12,7 @@ import {
 import { NotificacionesPacienteStateService } from '../../../core/services/notificaciones-paciente-state.service';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
+import { esHoy as esFechaHoy, formatFechaDiaMes, formatHoraCorta } from '../../../shared/utils/fecha.utils';
 
 // Filtros por disponibilidad — sin filtros externos para no hacer peticiones extra
 type FiltroDisp = 'todos' | 'hoy' | 'semana';
@@ -111,21 +112,14 @@ export class ProfesionalesPage implements OnInit {
   }
 
   esHoy(fecha: string): boolean {
-    const [y, m, d] = fecha.split('-').map(Number);
-    const hoy = new Date();
-    return new Date(y, m - 1, d).toDateString() === hoy.toDateString();
+    return esFechaHoy(fecha);
   }
 
   /** Etiqueta del slot: "Hoy 09:00" o "mar. 15 abr. 09:00" */
   etiquetaSlot(fecha: string, horaInicio: string): string {
-    const hora = horaInicio.slice(0, 5);
+    const hora = formatHoraCorta(horaInicio);
     if (this.esHoy(fecha)) return `Hoy ${hora}`;
-    const [y, m, d] = fecha.split('-').map(Number);
-    const f = new Date(y, m - 1, d);
-    return (
-      f.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' }) +
-      ' ' + hora
-    );
+    return `${formatFechaDiaMes(fecha)} ${hora}`;
   }
 
   // Navegar al detalle del profesional con su disponibilidad completa
