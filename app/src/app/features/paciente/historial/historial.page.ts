@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
 import {
   IonContent,
@@ -17,6 +17,7 @@ import { NotificacionesPacienteStateService } from '../../../core/services/notif
 import { AuthService } from '../../../core/services/auth.service';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
+import { formatFechaLarga, formatHoraCorta } from '../../../shared/utils/fecha.utils';
 
 export type HistorialTab = 'pendientes' | 'confirmadas' | 'pasadas';
 
@@ -42,6 +43,7 @@ export class HistorialPage implements OnInit {
   private readonly svc       = inject(PacienteService);
   private readonly authSvc   = inject(AuthService);
   private readonly router    = inject(Router);
+  private readonly route     = inject(ActivatedRoute);
   private readonly toastCtrl = inject(ToastController);
   private readonly notificacionesState = inject(NotificacionesPacienteStateService);
 
@@ -55,6 +57,7 @@ export class HistorialPage implements OnInit {
 
   ngOnInit(): void {
     this.userName = this.authSvc.getCurrentUser()?.name ?? '';
+    this.tabActivo.set(this.tabDesdeUrl());
     this.cargarHistorial();
   }
 
@@ -85,6 +88,12 @@ export class HistorialPage implements OnInit {
   cambiarTab(tab: HistorialTab): void {
     if (this.tabActivo() === tab) return;
     this.tabActivo.set(tab);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
     this.cargarHistorial();
   }
 
@@ -114,14 +123,11 @@ export class HistorialPage implements OnInit {
 
   /** Formatea fecha ISO sin desfase de zona horaria */
   formatFecha(fecha: string): string {
-    const [y, m, d] = fecha.split('T')[0].split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString('es-CL', {
-      day: 'numeric', month: 'long', year: 'numeric',
-    });
+    return formatFechaLarga(fecha);
   }
 
   formatHora(hora: string): string {
-    return hora.slice(0, 5);
+    return formatHoraCorta(hora);
   }
 
   verDetalle(idCita: number): void {
@@ -135,5 +141,14 @@ export class HistorialPage implements OnInit {
   /** Solo las citas en tabs activos (pendientes/confirmadas) permiten acciones */
   get estaEnTabActivo(): boolean {
     return this.tabActivo() === 'pendientes' || this.tabActivo() === 'confirmadas';
+  }
+
+  private tabDesdeUrl(): HistorialTab {
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+    return this.esHistorialTab(tab) ? tab : 'pendientes';
+  }
+
+  private esHistorialTab(tab: string | null): tab is HistorialTab {
+    return tab === 'pendientes' || tab === 'confirmadas' || tab === 'pasadas';
   }
 }
