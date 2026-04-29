@@ -11,6 +11,7 @@ import { NotificacionesPacienteStateService } from '../../../core/services/notif
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { McAlertComponent } from '../../../shared/components/alertas-sistema/mc-alert/mc-alert.component';
+import { tiempoRelativoCorto } from '../../../shared/utils/fecha.utils';
 
 @Component({
   selector: 'app-notificaciones',
@@ -64,14 +65,7 @@ export class NotificacionesPage implements OnInit {
   }
 
   tiempoRelativo(fechaISO: string): string {
-    const diffMs = Date.now() - new Date(fechaISO).getTime();
-    const diffMin = Math.floor(diffMs / 60_000);
-    if (diffMin < 60) return `Hace ${Math.max(diffMin, 1)}m`;
-    const diffH = Math.floor(diffMin / 60);
-    if (diffH < 24) return `Hace ${diffH}h`;
-    const diffD = Math.floor(diffH / 24);
-    if (diffD === 1) return 'Ayer';
-    return `Hace ${diffD}d`;
+    return tiempoRelativoCorto(fechaISO);
   }
 
   iconoNotificacion(tipo: string): string {
