@@ -167,7 +167,7 @@ ion-content {
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 8px 32px rgba(0, 94, 164, 0.15);
+  box-shadow: var(--mc-shadow-fab);
   transition: filter 0.15s, transform 0.1s;
 
   &:hover  { filter: brightness(1.1); }
@@ -199,6 +199,7 @@ ion-content {
   transition: background 0.15s, transform 0.1s;
   text-align: left;
   width: 100%;
+  min-height: 8.75rem;
 
   &:hover  { background: var(--mc-surface-container-highest); }
   &:active { transform: scale(0.95); }
@@ -374,7 +375,7 @@ ion-content {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(26, 28, 28, 0.56);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -389,7 +390,7 @@ ion-content {
   max-width: 28rem;
   width: 100%;
   text-align: center;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--mc-shadow-fab);
   animation: mc-slide-up 0.25s ease;
 
   &__icon-wrap {
@@ -501,7 +502,7 @@ ion-content {
     &--cancel {
       background: transparent;
       color: var(--mc-error);
-      border: 1px solid var(--mc-outline-variant);
+      border: 1px solid var(--mc-border-ghost);
 
       &:hover:not(:disabled) {
         background: var(--mc-error-container);
