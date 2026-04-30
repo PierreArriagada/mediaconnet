@@ -2,21 +2,25 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
+import { AuthService } from '../../../core/services/auth.service';
 import { FichaPacienteData, MedicoService } from '../../../core/services/medico.service';
+import { MedicoHeaderComponent } from '../../../shared/components/medico-header/medico-header.component';
 
 @Component({
   selector: 'app-fichapacientes',
   templateUrl: './fichapacientes.page.html',
   styleUrls: ['./fichapacientes.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [IonContent, CommonModule, FormsModule, MedicoHeaderComponent]
 })
 export class FichapacientesPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
   private readonly medicoService = inject(MedicoService);
 
+  user = this.authService.getCurrentUser();
   ficha: FichaPacienteData | null = null;
   isLoading = true;
   errorMessage = '';
