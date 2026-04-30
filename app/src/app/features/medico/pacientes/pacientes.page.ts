@@ -2,8 +2,10 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
+import { AuthService } from '../../../core/services/auth.service';
 import { MedicoBottomNavComponent } from '../../../shared/components/medico-bottom-nav/medico-bottom-nav.component';
+import { MedicoHeaderComponent } from '../../../shared/components/medico-header/medico-header.component';
 import {
   MedicoService,
   PacienteMedico,
@@ -15,12 +17,14 @@ import {
   templateUrl: './pacientes.page.html',
   styleUrls: ['./pacientes.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, MedicoBottomNavComponent]
+  imports: [IonContent, CommonModule, FormsModule, MedicoHeaderComponent, MedicoBottomNavComponent]
 })
 export class PacientesPage implements OnInit {
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
   private readonly medicoService = inject(MedicoService);
 
+  user = this.authService.getCurrentUser();
   pacientes: PacienteMedico[] = [];
   isLoading = true;
   errorMessage = '';
