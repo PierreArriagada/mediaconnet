@@ -19,7 +19,7 @@
       <h1 class="mc-heading-display">
         Hola, <span class="mc-heading-accent">{{ firstName }}</span>
       </h1>
-      <p class="mc-subtitle">Gestiona tu salud con precisión y empatía.</p>
+      <p class="mc-subtitle">Revisa tus citas, avisos y atenciones en un solo lugar.</p>
     </section>
 
     <!-- Skeleton de carga -->
@@ -49,6 +49,8 @@
             role="button"
             tabindex="0"
             aria-label="Ver detalles de la cita"
+            (keydown.enter)="verCita(data!.proximaCita!.id_cita)"
+            (keydown.space)="$event.preventDefault(); verCita(data!.proximaCita!.id_cita)"
           >
             <div class="mc-featured-card__glow" aria-hidden="true"></div>
             <div>
@@ -84,6 +86,7 @@
               </div>
               <button
                 class="mc-btn-primary"
+                type="button"
                 (click)="$event.stopPropagation(); verCita(data!.proximaCita!.id_cita)"
               >
                 Ver detalles
@@ -102,7 +105,7 @@
               <p class="mc-featured-card__sub">Reserva una hora con tu médico.</p>
             </div>
             <div class="mc-featured-card__footer">
-              <button class="mc-btn-primary" (click)="ir('reservar')">
+              <button class="mc-btn-primary" type="button" (click)="ir('reservar')">
                 Reservar hora
               </button>
             </div>
@@ -111,32 +114,32 @@
 
         <!-- ── Grid de acceso rápido ── -->
         <div class="mc-quick-grid" role="list">
-          <button class="mc-quick-btn" (click)="ir('reservar')" role="listitem">
+          <button class="mc-quick-btn" type="button" (click)="ir('reservar')" role="listitem">
             <div class="mc-quick-btn__icon" aria-hidden="true">
               <span class="material-symbols-outlined">calendar_add_on</span>
             </div>
             <span class="mc-quick-btn__label">Reservar hora</span>
           </button>
 
-          <button class="mc-quick-btn" (click)="ir('solicitudes')" role="listitem">
+          <button class="mc-quick-btn" type="button" (click)="irHistorial('pendientes')" role="listitem">
             <div class="mc-quick-btn__icon" aria-hidden="true">
               <span class="material-symbols-outlined">pending_actions</span>
             </div>
-            <span class="mc-quick-btn__label">Mis solicitudes</span>
+            <span class="mc-quick-btn__label">Citas pendientes</span>
           </button>
 
-          <button class="mc-quick-btn" (click)="ir('historial')" role="listitem">
+          <button class="mc-quick-btn" type="button" (click)="irHistorial('pasadas')" role="listitem">
             <div class="mc-quick-btn__icon" aria-hidden="true">
               <span class="material-symbols-outlined">history</span>
             </div>
-            <span class="mc-quick-btn__label">Historial</span>
+            <span class="mc-quick-btn__label">Atenciones pasadas</span>
           </button>
 
-          <button class="mc-quick-btn" (click)="ir('profesionales')" role="listitem">
+          <button class="mc-quick-btn" type="button" (click)="ir('notificaciones')" role="listitem">
             <div class="mc-quick-btn__icon" aria-hidden="true">
-              <span class="material-symbols-outlined">medical_services</span>
+              <span class="material-symbols-outlined">notifications</span>
             </div>
-            <span class="mc-quick-btn__label">Profesionales</span>
+            <span class="mc-quick-btn__label">Notificaciones</span>
           </button>
         </div>
 
@@ -144,7 +147,7 @@
         <section class="mc-notif-section" aria-label="Notificaciones recientes">
           <div class="mc-notif-section__header">
             <h2 class="mc-section-title">Notificaciones recientes</h2>
-            <button class="mc-link-btn" (click)="ir('notificaciones')">
+            <button class="mc-link-btn" type="button" (click)="ir('notificaciones')">
               Ver todo
             </button>
           </div>
@@ -244,6 +247,7 @@
         <div class="mc-confirm-modal__actions">
           <button
             class="mc-confirm-modal__btn mc-confirm-modal__btn--confirm"
+            type="button"
             [disabled]="confirmLoading"
             (click)="onConfirmarAsistencia()"
           >
@@ -256,6 +260,7 @@
           </button>
           <button
             class="mc-confirm-modal__btn mc-confirm-modal__btn--cancel"
+            type="button"
             [disabled]="confirmLoading"
             (click)="onCancelarDesdeModal()"
           >
@@ -264,6 +269,7 @@
           </button>
           <button
             class="mc-confirm-modal__btn mc-confirm-modal__btn--dismiss"
+            type="button"
             [disabled]="confirmLoading"
             (click)="onCerrarModal()"
           >
