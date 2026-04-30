@@ -75,10 +75,10 @@
             Horarios del {{ formatFechaCorta(fechaSeleccionada()) }}
           </h2>
 
-          @if (slotsManana().length) {
+          @if (slotsMatutinos().length) {
             <p class="mc-slots-group-label">Mañana</p>
             <div class="mc-slots-row">
-              @for (slot of slotsManana(); track slot.id_disponibilidad) {
+              @for (slot of slotsMatutinos(); track slot.id_disponibilidad) {
                 <button
                   class="mc-time-chip"
                   [class.mc-time-chip--selected]="slotSeleccionado()?.id_disponibilidad === slot.id_disponibilidad"
