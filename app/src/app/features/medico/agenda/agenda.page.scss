@@ -4,6 +4,18 @@
 :host {
   display: block;
 }
+/* aqui comienza el diseño del blqoue agenda, la parte superior agenda*/
+ .ag-main{
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 7rem;
+ }
+
+ .ag-hero h1{
+  margin: 0;
+  color: var(--mc-on-surface);
+  font-family: var(--mc-font-authority);
+ }
 
 ion-content {
   --background: var(--mc-surface);

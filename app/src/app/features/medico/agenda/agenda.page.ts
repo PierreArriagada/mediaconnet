@@ -11,6 +11,21 @@ import {
   CitasMedicoData,
   MedicoService,
 } from '../../../core/services/medico.service';
+import { formatFechaCorta, formatFechaDiaMesAnio, formatFechaLargaConDia, formatMesAnio } from '../../../shared/utils/fecha.utils';
+
+type VistaAgenda= 'dia' | 'semana'| 'mes';
+
+interface DiaAgenda{
+  fecha: string;
+  etiquetaDia: string;
+  numeroDia: string;
+  esHoy: boolean;
+  esSeleccionado:boolean;
+  cantidadCitas: number;
+  cantidadSlots: number; 
+
+
+}
 
 @Component({
   selector: 'app-agenda',
@@ -35,10 +50,28 @@ export class AgendaPage implements OnInit {
   citasProximas: CitaMedico[] = [];
   isLoading = true;
   errorMessage = '';
+  vistaActiva: VistaAgenda = 'semana';
+  fechaSeleccionada = this.toISODate(new Date());
 
   ngOnInit() {
     this.cargarAgenda();
   }
+
+get periodoTitulo(): string {
+  const fecha = this.parseISODate(this.fechaSeleccionada);
+
+  if (this.vistaActiva === 'dia') {
+    return formatFechaLargaConDia(this.fechaSeleccionada);
+  }
+
+  if (this.vistaActiva === 'mes') {
+    return formatMesAnio(fecha);
+  }
+
+  const inicio = this.inicioSemana(fecha);
+  const fin = this.sumarDias(inicio, 6);
+  return `${formatFechaCorta(this.toISODate(inicio))} - ${formatFechaDiaMesAnio(this.toISODate(fin))}`;
+}
 
   // Edu: carga agenda médica combinando citas pendientes de asistencia y próximas citas.
   cargarAgenda() {
@@ -86,4 +119,32 @@ export class AgendaPage implements OnInit {
 
     this.router.navigate(['/medico/pacientes', idPaciente, 'ficha']);
   }
+
+  private inicioSemana(fecha: Date): Date {
+    const copia = new Date(fecha);
+    const dia = copia.getDay();
+    const distanciaAlLunes = dia === 0 ? -6 : 1 - dia;
+    return this.sumarDias(copia, distanciaAlLunes);
+  }
+
+  private sumarDias(fecha: Date, dias: number): Date {
+    const copia = new Date(fecha);
+    copia.setDate(copia.getDate() + dias);
+    return copia;
+  }
+
+  private parseISODate(fechaISO: string): Date {
+    return new Date(`${fechaISO.split('T')[0]}T00:00:00`);
+  }
+
+  private toISODate(fecha: Date): string {
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 }
+
+
+
+
