@@ -73,6 +73,43 @@ get periodoTitulo(): string {
   return `${formatFechaCorta(this.toISODate(inicio))} - ${formatFechaDiaMesAnio(this.toISODate(fin))}`;
 }
 
+get diasDelPeriodo(): DiaAgenda[] {
+  const inicio = this.inicioSemana(this.parseISODate(this.fechaSeleccionada));
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const fecha = this.sumarDias(inicio, index);
+    const fechaISO = this.toISODate(fecha);
+
+    return {
+      fecha: fechaISO,
+      etiquetaDia: fecha.toLocaleDateString('es-CL', { weekday: 'short' }).replace('.', ''),
+      numeroDia: fecha.toLocaleDateString('es-CL', { day: '2-digit' }),
+      esHoy: fechaISO === this.toISODate(new Date()),
+      esSeleccionado: fechaISO === this.fechaSeleccionada,
+      cantidadCitas: 0,
+      cantidadSlots: 0,
+    };
+  });
+}
+
+  cambiarVista(vista: VistaAgenda): void {
+    this.vistaActiva = vista;
+  }
+
+  moverPeriodo(direccion: -1 | 1): void {
+    const fecha = this.parseISODate(this.fechaSeleccionada);
+    const salto = this.vistaActiva === 'mes' ? 30 : this.vistaActiva === 'semana' ? 7 : 1;
+    this.fechaSeleccionada = this.toISODate(this.sumarDias(fecha, salto * direccion));
+  }
+
+  irAHoy(): void {
+    this.fechaSeleccionada = this.toISODate(new Date());
+  }
+
+  seleccionarDia(fecha: string): void {
+    this.fechaSeleccionada = fecha;
+  }
+
   // Edu: carga agenda médica combinando citas pendientes de asistencia y próximas citas.
   cargarAgenda() {
     this.isLoading = true;

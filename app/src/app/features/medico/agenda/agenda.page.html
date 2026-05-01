@@ -3,8 +3,41 @@ con ese componente debemos usar en todas las demas vistas, asi simplificamos tra
 y trae el nombre del medico a la vista principal con un diseño mejor by pierre-->
 <app-medico-header [userName]="user?.name ?? ''"></app-medico-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <!-- Edu: estado inicial de carga de agenda médica -->
+<ion-content [fullscreen]="true" class="ag-content">
+  <main class="ag-main">
+
+    <!-- Navegación de periodo -->
+    <div class="ag-period">
+      <button class="ag-icon-btn" type="button" (click)="moverPeriodo(-1)">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+
+      <p>{{ periodoTitulo }}</p>
+
+      <button class="ag-icon-btn" type="button" (click)="moverPeriodo(1)">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+
+      <button class="ag-icon-btn" type="button" (click)="irAHoy()">Hoy</button>
+    </div>
+
+    <!-- Tira semanal -->
+    <section class="ag-week-strip" aria-label="Semana visible">
+      <button
+        *ngFor="let dia of diasDelPeriodo"
+        type="button"
+        class="ag-day"
+        [class.ag-day--today]="dia.esHoy"
+        [class.ag-day--active]="dia.esSeleccionado"
+        (click)="seleccionarDia(dia.fecha)"
+      >
+        <span class="ag-day__label">{{ dia.etiquetaDia }}</span>
+        <span class="ag-day__number">{{ dia.numeroDia }}</span>
+        <span class="ag-day__meta">{{ dia.cantidadCitas }} citas · {{ dia.cantidadSlots }} slots</span>
+      </button>
+    </section>
+
+    <!-- Edu: estado inicial de carga de agenda médica -->
   <div *ngIf="isLoading">
     <h2>Cargando agenda...</h2>
     <p>Espere un momento mientras se consultan las citas del profesional.</p>
@@ -66,6 +99,8 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
 
     <button type="button" (click)="refrescarAgenda()">Actualizar agenda</button>
   </div>
+
+  </main>
 </ion-content>
 
 <!-- Edu: menú inferior del módulo médico -->
