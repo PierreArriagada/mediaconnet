@@ -102,29 +102,61 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
     <!-- Edu: contenido principal de agenda médica -->
     <div *ngIf="!isLoading && !errorMessage">
 
-    <section>
-      <h2>Citas</h2>
+    <section class="ag-appointments">
+      <h2 class="ag-appointments__title">Próximas Citas</h2>
 
-      <div *ngIf="citasFiltradas.length === 0">
-        <p>No hay citas que coincidan con los filtros seleccionados.</p>
+      <div *ngIf="citasFiltradas.length === 0" class="ag-empty-state">
+        <span class="material-symbols-outlined">event_busy</span>
+        <h3>Sin citas agendadas</h3>
+        <p>No hay citas que coincidan con los filtros seleccionados para este día.</p>
       </div>
 
-      <div *ngFor="let cita of citasFiltradas">
-        <h3>{{ cita.paciente_nombre }} {{ cita.paciente_apellido }}</h3>
-        <p><strong>Especialidad:</strong> {{ cita.nombre_especialidad }}</p>
-        <p><strong>Fecha:</strong> {{ fechaCita(cita) }}</p>
-        <p><strong>Hora:</strong> {{ cita.hora_cita }}</p>
-        <p><strong>Modalidad:</strong> {{ cita.modalidad }}</p>
-        <p><strong>Motivo:</strong> {{ cita.motivo_consulta }}</p>
-        <p><strong>Estado:</strong> {{ cita.estado_cita }}</p>
-
-        <button type="button" (click)="verFichaPaciente($any(cita).id_paciente)">
-          Ver ficha paciente
-        </button>
+      <div class="ag-cards-grid" *ngIf="citasFiltradas.length > 0">
+        <div class="ag-card" *ngFor="let cita of citasFiltradas">
+          <div class="ag-card__header">
+            <div class="ag-card__time">
+              <span class="material-symbols-outlined">schedule</span>
+              {{ cita.hora_cita.substring(0, 5) }} <!-- format as HH:MM -->
+            </div>
+            <!-- Usamos un badge para el estado -->
+            <span class="ag-badge" [ngClass]="'ag-badge--' + normalizarEstado(cita.estado_cita)">
+              {{ normalizarEstado(cita.estado_cita) | titlecase }}
+            </span>
+          </div>
+          
+          <div class="ag-card__body">
+            <h3 class="ag-card__patient">{{ cita.paciente_nombre }} {{ cita.paciente_apellido }}</h3>
+            <span class="ag-card__specialty">{{ cita.nombre_especialidad }}</span>
+            <div class="ag-card__details">
+              <p>
+                <span class="material-symbols-outlined">monitor_heart</span>
+                <strong>Modalidad:</strong> {{ cita.modalidad | titlecase }}
+              </p>
+              <p>
+                <span class="material-symbols-outlined">medical_information</span>
+                <strong>Motivo:</strong> {{ cita.motivo_consulta }}
+              </p>
+            </div>
+          </div>
+          
+          <div class="ag-card__footer">
+            <button class="ag-btn-secondary" type="button" (click)="verFichaPaciente($any(cita).id_paciente)">
+              <span class="material-symbols-outlined">person</span>
+              Ver ficha paciente
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
-    <button type="button" (click)="refrescarAgenda()">Actualizar agenda</button>
+    <!-- Eliminado el botón suelto de refrescar a favor de algo más limpio o quitarlo; 
+         la recarga actual pasa en auto. Lo dejaremos por si acaso pero con estilo acorde. -->
+    <div class="ag-actions-bottom" *ngIf="citasFiltradas.length > 0 || terminoBusqueda !== ''">
+      <button class="ag-btn-outline" type="button" (click)="refrescarAgenda()">
+        <span class="material-symbols-outlined">sync</span>
+        Actualizar agenda
+      </button>
+    </div>
   </div>
 
   </main>

@@ -315,6 +315,246 @@
   }
 }
 
+/* Tarjetas de citas layout */
+.ag-appointments {
+  margin-top: 2rem;
+
+  .ag-appointments__title {
+    font-family: var(--mc-font-authority);
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--mc-on-surface);
+    margin-bottom: 1.5rem;
+  }
+}
+
+.ag-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: var(--mc-surface-container-lowest);
+  border: 1px dashed var(--mc-outline-variant);
+  border-radius: var(--mc-radius-lg);
+  text-align: center;
+  color: var(--mc-text-secondary);
+
+  .material-symbols-outlined {
+    font-size: 3rem;
+    color: var(--mc-outline);
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    margin: 0 0 0.5rem;
+    font-family: var(--mc-font-authority);
+    font-size: 1.25rem;
+    color: var(--mc-on-surface);
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+    max-width: 320px;
+  }
+}
+
+.ag-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Tarjeta individual de cita */
+.ag-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--mc-surface-container-lowest);
+  border: 1px solid var(--mc-outline-variant);
+  border-radius: var(--mc-radius-xl);
+  padding: 1.25rem;
+  box-shadow: var(--mc-shadow-ambient);
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--mc-shadow-fab);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed var(--mc-outline-variant);
+    margin-bottom: 1rem;
+  }
+
+  &__time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mc-font-utility);
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--mc-primary);
+
+    .material-symbols-outlined {
+      font-size: 1.25rem;
+    }
+  }
+
+  &__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__patient {
+    margin: 0;
+    font-family: var(--mc-font-authority);
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--mc-on-surface);
+    line-height: 1.2;
+  }
+
+  &__specialty {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--mc-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+
+  &__details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: var(--mc-surface-container-low);
+    padding: 0.75rem;
+    border-radius: var(--mc-radius-md);
+
+    p {
+      margin: 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--mc-on-surface-variant);
+      line-height: 1.4;
+
+      .material-symbols-outlined {
+        font-size: 1.05rem;
+        color: var(--mc-outline);
+        margin-top: 0.1rem;
+      }
+
+      strong {
+        color: var(--mc-on-surface);
+        font-weight: 600;
+      }
+    }
+  }
+
+  &__footer {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--mc-surface-container);
+  }
+}
+
+/* Badges de estado */
+.ag-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &--pendiente {
+    background: var(--mc-tertiary-fixed);
+    color: var(--mc-on-tertiary-fixed);
+  }
+  &--confirmada {
+    background: var(--mc-primary-fixed);
+    color: var(--mc-on-primary-fixed);
+  }
+  &--completada {
+    background: var(--mc-secondary-fixed);
+    color: var(--mc-on-secondary-fixed);
+  }
+  &--cancelada, &--anulada {
+    background: var(--mc-error-container);
+    color: var(--mc-on-error-container);
+  }
+  &--reprogramada {
+    background: var(--mc-surface-container-highest);
+    color: var(--mc-on-surface);
+  }
+}
+
+/* Botones secundarios (dentro de las cards y acciones fondo) */
+.ag-btn-secondary {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: var(--mc-radius-lg);
+  background: var(--mc-surface-container-high);
+  color: var(--mc-on-surface);
+  font-family: var(--mc-font-utility);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+
+  &:hover {
+    background: var(--mc-surface-container-highest);
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.ag-actions-bottom {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.ag-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--mc-outline-variant);
+  border-radius: var(--mc-radius-xl);
+  color: var(--mc-text-secondary);
+  font-family: var(--mc-font-utility);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background: var(--mc-surface-container-lowest);
+    color: var(--mc-on-surface);
+    border-color: var(--mc-outline);
+  }
+}
+
 ion-content {
   --background: var(--mc-surface);
   font-family: var(--mc-font-utility);
@@ -338,85 +578,10 @@ ion-content > div {
   margin: 0 auto;
 }
 
-ion-content h1,
-ion-content h2,
-ion-content h3 {
-  font-family: var(--mc-font-authority);
-  color: var(--mc-text-primary);
-  letter-spacing: -0.03em;
-}
-
-ion-content h1 {
-  margin: 0 0 0.75rem;
-  font-size: clamp(1.65rem, 5vw, 2.15rem);
-  font-weight: 900;
-}
-
-ion-content h2 {
-  margin: 1.4rem 0 0.85rem;
-  font-size: 1.15rem;
-  font-weight: 850;
-}
-
-ion-content h3 {
-  margin: 0 0 0.55rem;
-  font-size: 1.05rem;
-  font-weight: 850;
-}
-
-ion-content p {
-  margin: 0.32rem 0;
-  color: var(--mc-text-secondary);
-  line-height: 1.45;
-}
-
-ion-content strong {
-  color: var(--mc-text-primary);
-  font-weight: 800;
-}
-
-/* Edu: secciones de agenda para citas pendientes y próximas citas. */
-section {
-  margin-top: 1rem;
-}
-
-section > div {
-  background: var(--mc-surface-container-lowest);
-  border: 1px solid var(--mc-outline-variant);
-  border-radius: var(--mc-radius-xl);
-  box-shadow: var(--mc-shadow-ambient);
-  padding: 1rem;
-  margin: 0.85rem 0;
-}
-
-/* Edu: botones principales de agenda médica. */
-button {
-  width: 100%;
-  min-height: 46px;
-  margin-top: 0.9rem;
-  border: 0;
-  border-radius: var(--mc-radius-lg);
-  background: var(--mc-primary);
-  color: var(--mc-on-primary);
-  font-family: var(--mc-font-utility);
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: var(--mc-shadow-soft);
-}
-
-button:active {
-  transform: translateY(1px);
-}
-
 /* Edu: mejora lectura en dispositivos Android/iOS pequeños. */
 @media (max-width: 480px) {
   ion-content {
     --padding-start: 1rem;
     --padding-end: 1rem;
-  }
-
-  section > div {
-    padding: 0.9rem;
-    border-radius: var(--mc-radius-lg);
   }
 }
