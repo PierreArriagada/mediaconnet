@@ -55,6 +55,35 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
       </div>
     </section>
 
+    <!-- Toolbar de filtros -->
+    <div class="ag-toolbar">
+      <label class="ag-search">
+        <span class="material-symbols-outlined">search</span>
+        <input
+          name="terminoBusqueda"
+          type="search"
+          placeholder="Buscar paciente, especialidad o motivo"
+          [(ngModel)]="terminoBusqueda"
+        />
+      </label>
+
+      <div class="ag-filters">
+        <label class="ag-filter-label">
+          <span>Estado</span>
+          <select name="filtroEstado" [(ngModel)]="filtroEstado">
+            <option *ngFor="let op of estadosCita" [ngValue]="op.value">{{ op.label }}</option>
+          </select>
+        </label>
+
+        <label class="ag-filter-label">
+          <span>Modalidad</span>
+          <select name="filtroModalidad" [(ngModel)]="filtroModalidad">
+            <option *ngFor="let op of modalidades" [ngValue]="op.value">{{ op.label }}</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
     <!-- Edu: estado inicial de carga de agenda médica -->
     <div *ngIf="isLoading">
       <h2>Cargando agenda...</h2>
@@ -72,43 +101,24 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
     <div *ngIf="!isLoading && !errorMessage">
 
     <section>
-      <h2>Citas pendientes de asistencia</h2>
+      <h2>Citas</h2>
 
-      <div *ngIf="citasHoy.length === 0">
-        <p>No existen citas pendientes de marcar asistencia.</p>
+      <div *ngIf="citasFiltradas.length === 0">
+        <p>No hay citas que coincidan con los filtros seleccionados.</p>
       </div>
 
-      <div *ngFor="let cita of citasHoy">
+      <div *ngFor="let cita of citasFiltradas">
         <h3>{{ cita.paciente_nombre }} {{ cita.paciente_apellido }}</h3>
         <p><strong>Especialidad:</strong> {{ cita.nombre_especialidad }}</p>
-        <p><strong>Fecha:</strong> {{ cita.fecha_cita | date:'dd/MM/yyyy' }}</p>
+        <p><strong>Fecha:</strong> {{ fechaCita(cita) }}</p>
         <p><strong>Hora:</strong> {{ cita.hora_cita }}</p>
         <p><strong>Modalidad:</strong> {{ cita.modalidad }}</p>
         <p><strong>Motivo:</strong> {{ cita.motivo_consulta }}</p>
         <p><strong>Estado:</strong> {{ cita.estado_cita }}</p>
 
-        <!-- Edu: acceso futuro a ficha clínica si el backend entrega id_paciente en la cita -->
         <button type="button" (click)="verFichaPaciente($any(cita).id_paciente)">
           Ver ficha paciente
         </button>
-      </div>
-    </section>
-
-    <section>
-      <h2>Próximas citas</h2>
-
-      <div *ngIf="citasProximas.length === 0">
-        <p>No existen próximas citas registradas.</p>
-      </div>
-
-      <div *ngFor="let cita of citasProximas">
-        <h3>{{ cita.paciente_nombre }} {{ cita.paciente_apellido }}</h3>
-        <p><strong>Especialidad:</strong> {{ cita.nombre_especialidad }}</p>
-        <p><strong>Fecha:</strong> {{ cita.fecha_cita | date:'dd/MM/yyyy' }}</p>
-        <p><strong>Hora:</strong> {{ cita.hora_cita }}</p>
-        <p><strong>Modalidad:</strong> {{ cita.modalidad }}</p>
-        <p><strong>Motivo:</strong> {{ cita.motivo_consulta }}</p>
-        <p><strong>Estado:</strong> {{ cita.estado_cita }}</p>
       </div>
     </section>
 
