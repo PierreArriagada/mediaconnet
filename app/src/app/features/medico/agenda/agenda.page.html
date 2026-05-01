@@ -70,7 +70,133 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
         </button>
       </div>
 
-      <p>Aquí aparecerán el formulario y los slots en el siguiente paso.</p>
+      <!-- Bento grid: columna izquierda (días + stats) | columna derecha (jornadas + bloques + acciones) -->
+      <div class="ag-panel-horario__grid">
+
+        <!-- ── Columna izquierda ─────────────────────────────────────────────── -->
+        <div class="ag-panel-horario__col-left">
+
+          <!-- Selector de días laborales: una fila con checkbox por día -->
+          <div class="ag-dias-card">
+            <h4 class="ag-dias-card__title">Días Laborales</h4>
+            <div class="ag-dias-card__list">
+              <label
+                *ngFor="let dia of diasConfigurables"
+                class="ag-dia-row"
+                [class.ag-dia-row--activo]="diaActivo(dia.value)"
+              >
+                <span>{{ dia.label }}</span>
+                <input
+                  type="checkbox"
+                  [checked]="diaActivo(dia.value)"
+                  (change)="toggleDia(dia.value)"
+                />
+              </label>
+            </div>
+          </div>
+
+          <!-- Tarjeta decorativa con contador de bloques guardados esta semana -->
+          <div class="ag-stats-card">
+            <span class="material-symbols-outlined">insights</span>
+            <p class="ag-stats-card__label">Bloques esta semana</p>
+            <p class="ag-stats-card__value">{{ disponibilidad.length }}</p>
+          </div>
+
+        </div>
+
+        <!-- ── Columna derecha ────────────────────────────────────────────────── -->
+        <div class="ag-panel-horario__col-right">
+
+          <!-- Toggles de jornada mañana / tarde -->
+          <div class="ag-turnos-card">
+            <div class="ag-turno">
+              <div class="ag-turno__info">
+                <span class="material-symbols-outlined">wb_sunny</span>
+                <div>
+                  <h4>Jornada Mañana</h4>
+                  <p>{{ jornadaManana ? 'Bloques activos 08:00 – 13:00' : 'Desactivada' }}</p>
+                </div>
+              </div>
+              <label class="ag-toggle">
+                <input type="checkbox" [(ngModel)]="jornadaManana" name="jornadaManana" />
+                <span class="ag-toggle__track"></span>
+              </label>
+            </div>
+            <div class="ag-turno ag-turno--separator">
+              <div class="ag-turno__info">
+                <span class="material-symbols-outlined">dark_mode</span>
+                <div>
+                  <h4>Jornada Tarde</h4>
+                  <p>{{ jornadaTarde ? 'Bloques activos 14:00 – 18:00' : 'Desactivada' }}</p>
+                </div>
+              </div>
+              <label class="ag-toggle">
+                <input type="checkbox" [(ngModel)]="jornadaTarde" name="jornadaTarde" />
+                <span class="ag-toggle__track"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Editor de bloques horarios: filas desde/hasta + botón agregar -->
+          <div class="ag-bloques-editor">
+            <h4 class="ag-bloques-editor__title">Editor de Bloques Horarios</h4>
+
+            <div class="ag-bloque-row" *ngFor="let bloque of bloquesForm; let i = index">
+              <div class="ag-bloque-row__field">
+                <label>Desde</label>
+                <input type="time" [(ngModel)]="bloque.horaInicio" [name]="'horaInicio_' + i" />
+              </div>
+              <span class="material-symbols-outlined ag-bloque-row__arrow">trending_flat</span>
+              <div class="ag-bloque-row__field">
+                <label>Hasta</label>
+                <input type="time" [(ngModel)]="bloque.horaFin" [name]="'horaFin_' + i" />
+              </div>
+              <button
+                type="button"
+                class="ag-icon-btn ag-icon-btn--danger"
+                (click)="eliminarBloqueForm(i)"
+                aria-label="Eliminar rango horario"
+              >
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+
+            <button type="button" class="ag-add-bloque" (click)="agregarBloqueForm()">
+              <span class="material-symbols-outlined">add_circle</span>
+              Agregar bloque horario
+            </button>
+          </div>
+
+          <!-- Repetir semanas -->
+          <div class="ag-repetir-row">
+            <label>
+              Repetir durante
+              <input
+                type="number"
+                [(ngModel)]="repetirSemanas"
+                name="repetirSemanas"
+                min="1"
+                max="12"
+              />
+              semana(s)
+            </label>
+          </div>
+
+          <!-- Acciones: Descartar | Guardar -->
+          <div class="ag-panel-acciones">
+            <button type="button" class="ag-btn-ghost" (click)="togglePanelHorario()">
+              Descartar cambios
+            </button>
+            <button type="button" class="ag-btn-primary" (click)="guardarDisponibilidad()">
+              Guardar configuración de agenda
+            </button>
+          </div>
+
+          <p *ngIf="feedbackMessage" class="ag-feedback">{{ feedbackMessage }}</p>
+
+        </div>
+
+      </div>
     </section>
 
     <!-- Toolbar de filtros: se oculta cuando el panel de horario está abierto -->
