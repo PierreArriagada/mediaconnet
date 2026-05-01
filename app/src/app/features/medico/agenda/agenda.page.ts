@@ -266,7 +266,114 @@ export class AgendaPage implements OnInit {
   // Abre y cierra el panel de gestión de horario con cada pulsación del botón "Gestionar mi horario".
   togglePanelHorario(): void {
     this.panelHorarioAbierto = !this.panelHorarioAbierto;
+    this.feedbackMessage = '';
   }
+
+  // ── B3: métodos del bento grid de horario ────────────────────────────────────
+
+  /** Activa o desactiva un día del selector de días laborales. */
+  toggleDia(dia: number): void {
+    this.diasActivos = this.diasActivos.includes(dia)
+      ? this.diasActivos.filter((d) => d !== dia)
+      : [...this.diasActivos, dia];
+  }
+
+  /** Indica si un día dado está en la lista de días activos. */
+  diaActivo(dia: number): boolean {
+    return this.diasActivos.includes(dia);
+  }
+
+  /** Agrega una nueva fila vacía al editor de bloques horarios. */
+  agregarBloqueForm(): void {
+    this.bloquesForm = [...this.bloquesForm, { horaInicio: '09:00', horaFin: '10:00' }];
+  }
+
+  /** Elimina la fila del editor de bloques (no elimina bloques ya guardados). */
+  eliminarBloqueForm(index: number): void {
+    this.bloquesForm = this.bloquesForm.filter((_, i) => i !== index);
+  }
+
+  /**
+   * Genera bloques de disponibilidad localmente a partir de las filas del editor,
+   * los días activos y la cantidad de semanas a repetir.
+   * No llama al backend todavía (pendiente subbloque E1).
+   */
+  guardarDisponibilidad(): void {
+    if (!this.bloquesFormValidos()) {
+      this.feedbackMessage = 'Revisa los rangos: la hora fin debe ser posterior a la hora inicio en cada bloque.';
+      return;
+    }
+
+    const fechas = this.fechasParaCrear();
+    const nuevosSlots: BloqueDisponibilidad[] = [];
+
+    fechas.forEach((fecha) => {
+      this.bloquesForm.forEach((bloque, index) => {
+        if (!this.existeBloque(fecha, bloque.horaInicio, bloque.horaFin)) {
+          nuevosSlots.push({
+            id_disponibilidad: Date.now() + index,
+            fecha,
+            hora_inicio: bloque.horaInicio,
+            hora_fin: bloque.horaFin,
+            estado: 'disponible',
+            modalidad: 'presencial',
+          });
+        }
+      });
+    });
+
+    this.disponibilidad = [...this.disponibilidad, ...nuevosSlots];
+    this.feedbackMessage = nuevosSlots.length > 0
+      ? `${nuevosSlots.length} bloque(s) creados. Falta conectarlos al endpoint POST.`
+      : 'No se crearon bloques: ya existían en esos rangos.';
+  }
+
+  // ── Helpers privados de disponibilidad ──────────────────────────────────────
+
+  /** Verifica que en cada fila la hora fin sea posterior a la hora inicio. */
+  private bloquesFormValidos(): boolean {
+    return this.bloquesForm.every(
+      (b) => this.minutos(b.horaFin) > this.minutos(b.horaInicio)
+    );
+  }
+
+  /** Convierte "HH:MM" a minutos totales para comparar rangos horarios. */
+  private minutos(hora: string): number {
+    const [h, m] = hora.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  /** Comprueba si ya existe un bloque con la misma fecha y rango horario. */
+  private existeBloque(fecha: string, horaInicio: string, horaFin: string): boolean {
+    return this.disponibilidad.some(
+      (slot) => slot.fecha === fecha && slot.hora_inicio === horaInicio && slot.hora_fin === horaFin
+    );
+  }
+
+  /**
+   * Genera el arreglo de fechas ISO en las que se crearán bloques,
+   * combinando los días activos con las semanas a repetir.
+   * Usa toISODate() y no toISOString() para evitar UTC shift (ver Subbloque D).
+   */
+  private fechasParaCrear(): string[] {
+    const inicio = this.inicioSemana(this.parseISODate(this.fechaSeleccionada));
+    const semanas = Math.max(1, Number(this.repetirSemanas) || 1);
+    const dias = this.diasActivos.length > 0
+      ? this.diasActivos
+      : [this.parseISODate(this.fechaSeleccionada).getDay()];
+    const fechas: string[] = [];
+
+    for (let semana = 0; semana < semanas; semana += 1) {
+      dias.forEach((dia) => {
+        const base = this.sumarDias(inicio, semana * 7);
+        fechas.push(this.toISODate(this.sumarDias(base, dia === 0 ? 6 : dia - 1)));
+      });
+    }
+
+    return [...new Set(fechas)].sort();
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
 
   // Adelanta o retrocede usando +1 y -1 de salto, dependiendo si veo semanas o meses.
   moverPeriodo(direccion: -1 | 1): void {
