@@ -6,55 +6,70 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
 <ion-content [fullscreen]="true" class="ag-content">
   <main class="ag-main">
 
-    <!-- Navegación de periodo -->
-    <div class="ag-period">
-      <button class="ag-icon-btn" type="button" (click)="moverPeriodo(-1)">
-        <span class="material-symbols-outlined">chevron_left</span>
+    <!-- Hero -->
+    <div class="ag-hero">
+      <div class="ag-hero__text">
+        <h2>Mi Agenda</h2>
+        <p>Revisa tus citas para hoy y gestiona tu disponibilidad clínica.</p>
+      </div>
+      <button class="ag-btn-block" type="button">
+        <span class="material-symbols-outlined">block</span>
+        Bloquear horario
       </button>
-
-      <p>{{ periodoTitulo }}</p>
-
-      <button class="ag-icon-btn" type="button" (click)="moverPeriodo(1)">
-        <span class="material-symbols-outlined">chevron_right</span>
-      </button>
-
-      <button class="ag-icon-btn" type="button" (click)="irAHoy()">Hoy</button>
     </div>
 
-    <!-- Tira semanal -->
-    <section class="ag-week-strip" aria-label="Semana visible">
-      <button
-        *ngFor="let dia of diasDelPeriodo"
-        type="button"
-        class="ag-day"
-        [class.ag-day--today]="dia.esHoy"
-        [class.ag-day--active]="dia.esSeleccionado"
-        (click)="seleccionarDia(dia.fecha)"
-      >
-        <span class="ag-day__label">{{ dia.etiquetaDia }}</span>
-        <span class="ag-day__number">{{ dia.numeroDia }}</span>
-        <span class="ag-day__meta">{{ dia.cantidadCitas }} citas · {{ dia.cantidadSlots }} slots</span>
-      </button>
+    <!-- Calendario -->
+    <section class="ag-cal" aria-label="Calendario semanal">
+      <div class="ag-cal__header">
+        <div class="ag-cal__nav">
+          <h3>{{ periodoTitulo }}</h3>
+          <button class="ag-cal__arrow" type="button" (click)="moverPeriodo(-1)" aria-label="Semana anterior">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <button class="ag-cal__arrow" type="button" (click)="moverPeriodo(1)" aria-label="Semana siguiente">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+        <div class="ag-cal__views">
+          <button type="button" class="ag-view-pill" [class.ag-view-pill--active]="vistaActiva === 'semana'" (click)="cambiarVista('semana')">Semana</button>
+          <button type="button" class="ag-view-pill" [class.ag-view-pill--active]="vistaActiva === 'mes'" (click)="cambiarVista('mes')">Mes</button>
+        </div>
+      </div>
+
+      <div class="ag-week-strip" aria-label="Semana visible">
+        <div
+          *ngFor="let dia of diasDelPeriodo"
+          class="ag-day"
+          [class.ag-day--today]="dia.esHoy"
+          [class.ag-day--active]="dia.esSeleccionado"
+        >
+          <span class="ag-day__label">{{ dia.etiquetaDia }}</span>
+          <button
+            type="button"
+            class="ag-day__btn"
+            (click)="seleccionarDia(dia.fecha)"
+            [attr.aria-pressed]="dia.esSeleccionado"
+            [attr.aria-label]="dia.etiquetaDia + ' ' + dia.numeroDia"
+          >{{ dia.numeroDia }}</button>
+        </div>
+      </div>
     </section>
 
     <!-- Edu: estado inicial de carga de agenda médica -->
-  <div *ngIf="isLoading">
-    <h2>Cargando agenda...</h2>
-    <p>Espere un momento mientras se consultan las citas del profesional.</p>
-  </div>
+    <div *ngIf="isLoading">
+      <h2>Cargando agenda...</h2>
+      <p>Espere un momento mientras se consultan las citas del profesional.</p>
+    </div>
 
-  <!-- Edu: mensaje de error cuando falla la consulta al backend -->
-  <div *ngIf="!isLoading && errorMessage">
-    <h2>No disponible</h2>
-    <p>{{ errorMessage }}</p>
-    <button type="button" (click)="refrescarAgenda()">Reintentar</button>
-  </div>
+    <!-- Edu: mensaje de error cuando falla la consulta al backend -->
+    <div *ngIf="!isLoading && errorMessage">
+      <h2>No disponible</h2>
+      <p>{{ errorMessage }}</p>
+      <button type="button" (click)="refrescarAgenda()">Reintentar</button>
+    </div>
 
-
-  <!-- Edu: contenido principal de agenda médica -->
-  <div *ngIf="!isLoading && !errorMessage">
-    <h1>Agenda del Profesional</h1>
-    <p>Revise las citas pendientes de asistencia y las próximas atenciones programadas.</p>
+    <!-- Edu: contenido principal de agenda médica -->
+    <div *ngIf="!isLoading && !errorMessage">
 
     <section>
       <h2>Citas pendientes de asistencia</h2>
