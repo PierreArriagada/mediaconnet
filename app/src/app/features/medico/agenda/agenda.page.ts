@@ -63,6 +63,10 @@ export class AgendaPage implements OnInit {
   vistaActiva: VistaAgenda = 'semana';
   fechaSeleccionada = this.toISODate(new Date()); // Se arranca marcando el día actual en YY-MM-DD
 
+  // Controla la visibilidad del panel de gestión de horario.
+  // false = cerrado (por defecto), true = visible en pantalla.
+  panelHorarioAbierto = false;
+
   // Estado de los filtros visuales manejados con ngModel
   filtroEstado: EstadoFiltro = 'todos';
   filtroModalidad: ModalidadFiltro = 'todas';
@@ -182,6 +186,11 @@ export class AgendaPage implements OnInit {
   // Permite permutar entre vistas desde tabs en la cabecera del calendario.
   cambiarVista(vista: VistaAgenda): void {
     this.vistaActiva = vista;
+  }
+
+  // Abre y cierra el panel de gestión de horario con cada pulsación del botón "Gestionar mi horario".
+  togglePanelHorario(): void {
+    this.panelHorarioAbierto = !this.panelHorarioAbierto;
   }
 
   // Adelanta o retrocede usando +1 y -1 de salto, dependiendo si veo semanas o meses.

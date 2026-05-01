@@ -12,9 +12,9 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
         <h2>Mi Agenda</h2>
         <p>Revisa tus citas para hoy y gestiona tu disponibilidad clínica.</p>
       </div>
-      <button class="ag-btn-block" type="button">
-        <span class="material-symbols-outlined">block</span>
-        Bloquear horario
+      <button class="ag-btn-block" type="button" (click)="togglePanelHorario()">
+        <span class="material-symbols-outlined">tune</span>
+        Gestionar mi horario
       </button>
     </div>
 
@@ -55,6 +55,22 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
         <span *ngIf="dia.cantidadCitas > 0" class="ag-day__dot">{{ dia.cantidadCitas }}</span>
         </div>
       </div>
+    </section>
+
+    <!-- Panel de gestión de horario. Se muestra/oculta con el botón del hero. -->
+    <section
+      *ngIf="panelHorarioAbierto"
+      class="ag-panel-horario"
+      aria-label="Panel de gestión de horario"
+    >
+      <div class="ag-panel-horario__header">
+        <h3>Gestionar mi horario</h3>
+        <button type="button" class="ag-icon-btn" (click)="togglePanelHorario()" aria-label="Cerrar panel">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <p>Aquí aparecerán el formulario y los slots en el siguiente paso.</p>
     </section>
 
     <!-- Toolbar de filtros -->
