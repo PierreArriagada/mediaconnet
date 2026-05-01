@@ -8,7 +8,8 @@
  .ag-main{
   max-width: 80rem;
   margin: 0 auto;
-  padding: 2rem 1.25rem 7rem;
+  /* Aumentar el padding-bottom para que nada quede oculto tras el nav inferior */
+  padding: 2rem 1.25rem 10rem;
  }
 
 /* Hero */
@@ -528,7 +529,8 @@
 }
 
 .ag-actions-bottom {
-  margin-top: 2rem;
+  margin-top: 2.5rem;
+  margin-bottom: 2rem;
   display: flex;
   justify-content: center;
 }
