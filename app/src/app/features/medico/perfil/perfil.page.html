@@ -5,14 +5,22 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-  <!-- Edu: vista temporal de perfil médico -->
+  <!-- Edu: perfil médico dinámico -->
   <h1>Perfil Profesional</h1>
-  <p>Próximamente aquí se visualizarán los datos del médico autenticado.</p>
 
-  <div>
-    <p><strong>Estado:</strong> Módulo en construcción</p>
-    <p><strong>Objetivo:</strong> Mostrar información personal, especialidad y configuración.</p>
+  <div *ngIf="perfil; else loading">
+    <p><strong>Nombre:</strong> {{ perfil.nombre }} {{ perfil.apellido }}</p>
+    <p><strong>Correo:</strong> {{ perfil.correo }}</p>
+    <p><strong>Teléfono:</strong> {{ perfil.telefono || 'No registrado' }}</p>
+    <p><strong>Especialidad:</strong> {{ perfil.nombre_especialidad }}</p>
+    <p><strong>Registro Médico:</strong> {{ perfil.numero_registro }}</p>
+    <p><strong>Años de experiencia:</strong> {{ perfil.anos_experiencia }} años</p>
+    <p><strong>Estado:</strong> {{ perfil.estado }}</p>
   </div>
+
+  <ng-template #loading>
+    <p>Cargando perfil del médico...</p>
+  </ng-template>
 
   <!-- Edu: contenedor de menú para igualar layout del perfil paciente -->
   <div class="pf-menu">

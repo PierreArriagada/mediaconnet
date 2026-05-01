@@ -1,3 +1,45 @@
+/**
+ * Edu: obtiene el perfil del médico autenticado
+ * GET /api/medico/perfil
+ * Devuelve datos básicos del médico según el usuario del token
+ */
+async function getPerfilMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT
+         m.id_medico,
+         u.nombre,
+         u.apellido,
+         u.correo,
+         u.telefono,
+         u.estado,
+         m.numero_registro,
+         m.anios_experiencia,
+         e.nombre_especialidad
+       FROM medicos m
+       JOIN usuarios u ON m.id_usuario = u.id_usuario
+       JOIN especialidades e ON m.id_especialidad = e.id_especialidad
+       WHERE m.id_usuario = $1
+         AND m.estado = 'activo'`,
+      [idUsuario]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Perfil médico no encontrado.' });
+    }
+
+    return res.json({ perfil: result.rows[0] });
+  } catch (err) {
+    console.error('Error en getPerfilMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
 const pool = require('../db/pool');
 
 /**
@@ -496,4 +538,5 @@ module.exports = {
   marcarAsistencia,
   getFichaPaciente,
   getPacientesMedico,
+  getPerfilMedico,
 };
