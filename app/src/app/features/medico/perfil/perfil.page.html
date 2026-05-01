@@ -1,19 +1,5 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>perfil</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">perfil</ion-title>
-    </ion-toolbar>
-  </ion-header>
-</ion-content>
-
-<ion-header [translucent]="true">
-  <ion-toolbar>
     <ion-title>Mi Perfil</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -26,6 +12,25 @@
   <div>
     <p><strong>Estado:</strong> Módulo en construcción</p>
     <p><strong>Objetivo:</strong> Mostrar información personal, especialidad y configuración.</p>
+  </div>
+
+  <!-- Edu: contenedor de menú para igualar layout del perfil paciente -->
+  <div class="pf-menu">
+    <!-- Edu: botón para cerrar sesión usando la misma estructura visual del perfil paciente -->
+    <button
+      class="pf-menu-item pf-menu-item--danger"
+      (click)="cerrarSesion()"
+      role="listitem"
+      aria-label="Cerrar sesión"
+    >
+      <div class="pf-menu-item__icon-wrap pf-menu-item__icon-wrap--error">
+        <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+      </div>
+      <div class="pf-menu-item__content">
+        <span class="pf-menu-item__title pf-menu-item__title--error">Cerrar sesión</span>
+        <span class="pf-menu-item__sub pf-menu-item__sub--error">Finalizar sesión actual</span>
+      </div>
+    </button>
   </div>
 </ion-content>
 

@@ -1,0 +1,94 @@
+// Edu: estilos replicados del perfil paciente para que el botón de cerrar sesión
+// del perfil médico sea visualmente idéntico
+
+.pf-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+// ── Ítem de menú ─────────────────────────────────────────
+.pf-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--mc-surface-container-low);
+  border-radius: var(--mc-radius-lg);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.15s ease, transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover { background: var(--mc-surface-container-highest); }
+  &:active { transform: scale(0.98); }
+
+  &:focus-visible {
+    outline: 2px solid var(--mc-primary);
+    outline-offset: 3px;
+  }
+
+  // Variante peligrosa (cerrar sesión)
+  &--danger {
+    background: rgba(186, 26, 26, 0.06);
+    margin-top: 0.5rem;
+
+    &:hover { background: rgba(186, 26, 26, 0.12); }
+  }
+}
+
+// ── Contenedor del ícono ──────────────────────────────────
+.pf-menu-item__icon-wrap {
+  width: 4.25rem;
+  height: 3rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 4.25rem;
+
+  .material-symbols-outlined {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &--error {
+    background: var(--mc-error-container);
+    color: var(--mc-error);
+  }
+}
+
+// ── Textos del ítem ───────────────────────────────────────
+.pf-menu-item__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.pf-menu-item__title {
+  font-family: var(--mc-font-authority);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--mc-on-surface);
+  display: block;
+
+  &--error { color: var(--mc-error); }
+}
+
+.pf-menu-item__sub {
+  font-family: var(--mc-font-utility);
+  font-size: 0.8125rem;
+  color: var(--mc-outline);
+  display: block;
+
+  &--error { color: rgba(186, 26, 26, 0.7); }
+}
