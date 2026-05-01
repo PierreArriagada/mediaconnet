@@ -51,6 +51,8 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
             [attr.aria-pressed]="dia.esSeleccionado"
             [attr.aria-label]="dia.etiquetaDia + ' ' + dia.numeroDia"
           >{{ dia.numeroDia }}</button>
+        <!-- Dot indicator: aparece si ese día tiene citas agendadas -->
+        <span *ngIf="dia.cantidadCitas > 0" class="ag-day__dot">{{ dia.cantidadCitas }}</span>
         </div>
       </div>
     </section>

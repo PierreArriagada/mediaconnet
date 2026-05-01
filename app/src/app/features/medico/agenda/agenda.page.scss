@@ -205,6 +205,27 @@
   outline-offset: 0;
 }
 
+/* Badge con la cantidad de citas del día. Aparece debajo del número. */
+.ag-day__dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--mc-primary);
+  color: var(--mc-on-primary);
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.ag-day--active .ag-day__dot {
+  background: var(--mc-on-primary);
+  color: var(--mc-primary);
+}
+
 /* Toolbar de filtros */
 .ag-toolbar {
   display: flex;

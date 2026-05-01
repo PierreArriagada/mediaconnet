@@ -128,7 +128,9 @@ export class AgendaPage implements OnInit {
         numeroDia: fecha.toLocaleDateString('es-CL', { day: '2-digit' }), // Devuelve 01, 15, 23
         esHoy: fechaISO === this.toISODate(new Date()), // Compara estrictamente con la fecha local de hoy
         esSeleccionado: fechaISO === this.fechaSeleccionada, // Pinta el día que está "tocado"
-        cantidadCitas: 0,
+        // Bug fix #2: Cuenta las citas reales de ese día para mostrar el dot/badge en el calendario.
+        // Antes siempre devolvía 0, por eso no aparecía nada arriba en el strip.
+        cantidadCitas: this.citasAgenda.filter(c => this.fechaCita(c) === fechaISO).length,
         cantidadSlots: 0,
       };
     });
@@ -149,12 +151,16 @@ export class AgendaPage implements OnInit {
   /**
    * Realiza el filtrado cliente side por cada pulsación de tecla o cada click a un <select>.
    * Es una getter porque la vista itera esto: '*ngFor="let cita of citasFiltradas"'.
-   * Se evalúan texto, estado, y modalidad. Si todos pasan, the cita is drawn.
+   * Se evalúan fecha seleccionada, texto, estado, y modalidad. Todos deben pasar para que la cita se pinte.
    */
   get citasFiltradas(): CitaMedico[] {
     const busqueda = this.terminoBusqueda.trim().toLowerCase();
 
     return this.citasAgenda.filter((cita) => {
+      // Bug fix #1: Solo muestra citas del día que está seleccionado en el calendario.
+      // Sin esto, la lista ignoraba completamente qué día estaba clicado.
+      const coincideFecha = this.fechaCita(cita) === this.fechaSeleccionada;
+
       // Formamos el string por si buscaron combinando nombre y apellido
       const nombrePaciente = `${cita.paciente_nombre} ${cita.paciente_apellido}`.toLowerCase();
 
@@ -169,7 +175,7 @@ export class AgendaPage implements OnInit {
       const coincideModalidad = this.filtroModalidad === 'todas'
         || cita.modalidad === this.filtroModalidad;
 
-      return coincideTexto && coincideEstado && coincideModalidad;
+      return coincideFecha && coincideTexto && coincideEstado && coincideModalidad;
     });
   }
 
