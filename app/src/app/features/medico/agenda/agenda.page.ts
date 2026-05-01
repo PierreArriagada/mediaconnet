@@ -60,6 +60,12 @@ interface FormDisponibilidad {
   nota: string;
 }
 
+// Rango horario editable en el bento grid. Sin fecha ni estado: eso lo maneja guardarDisponibilidad().
+interface BloqueForm {
+  horaInicio: string; // HH:MM
+  horaFin: string;    // HH:MM
+}
+
 @Component({
   selector: 'app-agenda',
   templateUrl: './agenda.page.html',
@@ -96,6 +102,45 @@ export class AgendaPage implements OnInit {
   // Controla la visibilidad del panel de gestión de horario.
   // false = cerrado (por defecto), true = visible en pantalla.
   panelHorarioAbierto = false;
+
+  // ── B2: estado del panel de gestión de horario ──────────────────────────────
+
+  // Bloques de disponibilidad guardados (local hasta que se conecte el backend en E1).
+  disponibilidad: BloqueDisponibilidad[] = [];
+
+  // Id del bloque que se está editando. null = ninguno (modo creación).
+  bloqueEditandoId: number | null = null;
+
+  // Mensaje de feedback que aparece debajo del botón Guardar.
+  feedbackMessage = '';
+
+  // Días de la semana que el médico puede configurar. Se usan como filas con checkbox.
+  readonly diasConfigurables = [
+    { value: 1, label: 'Lunes' },
+    { value: 2, label: 'Martes' },
+    { value: 3, label: 'Miércoles' },
+    { value: 4, label: 'Jueves' },
+    { value: 5, label: 'Viernes' },
+    { value: 6, label: 'Sábado' },
+    { value: 0, label: 'Domingo' },
+  ];
+
+  // Días activos por defecto: lunes a viernes (caso más común para un médico).
+  diasActivos = [1, 2, 3, 4, 5];
+
+  // Toggles de jornada. Mañana activa por defecto.
+  jornadaManana = true;
+  jornadaTarde = false;
+
+  // Filas editables del editor de bloques horarios. Empieza con una fila predefinida.
+  bloquesForm: BloqueForm[] = [
+    { horaInicio: '08:00', horaFin: '10:30' },
+  ];
+
+  // Cuántas semanas hacia adelante replicar los bloques al guardar.
+  repetirSemanas = 1;
+
+  // ────────────────────────────────────────────────────────────────────────────
 
   // Estado de los filtros visuales manejados con ngModel
   filtroEstado: EstadoFiltro = 'todos';
