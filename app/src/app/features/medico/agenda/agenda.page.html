@@ -73,8 +73,8 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
       <p>Aquí aparecerán el formulario y los slots en el siguiente paso.</p>
     </section>
 
-    <!-- Toolbar de filtros -->
-    <div class="ag-toolbar">
+    <!-- Toolbar de filtros: se oculta cuando el panel de horario está abierto -->
+    <div class="ag-toolbar" *ngIf="!panelHorarioAbierto">
       <label class="ag-search">
         <span class="material-symbols-outlined">search</span>
         <input
@@ -101,6 +101,9 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
         </label>
       </div>
     </div>
+
+    <!-- Lista de citas: se oculta cuando el panel de horario está abierto -->
+    <ng-container *ngIf="!panelHorarioAbierto">
 
     <!-- Edu: estado inicial de carga de agenda médica -->
     <div *ngIf="isLoading">
@@ -174,6 +177,8 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
       </button>
     </div>
   </div>
+
+  </ng-container> <!-- cierra *ngIf="!panelHorarioAbierto" -->
 
   </main>
 </ion-content>

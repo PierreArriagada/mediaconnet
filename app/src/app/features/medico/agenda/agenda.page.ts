@@ -30,6 +30,36 @@ interface DiaAgenda {
   cantidadSlots: number; // Placeholder para cuando hagamos match con disponibilidad
 }
 
+// Estados posibles de un bloque de disponibilidad médica.
+// 'disponible' = el médico puede recibir citas en ese horario.
+// 'reservada'  = ya hay una cita asignada (no se puede eliminar sin cancelar la cita antes).
+// 'bloqueada'  = el médico cerró ese espacio (reunión, almuerzo, etc.).
+type EstadoDisponibilidad = 'disponible' | 'reservada' | 'bloqueada';
+
+// Representa un bloque de disponibilidad tal como viene (o irá) al backend.
+// Imita la tabla `disponibilidad_medica` de la base de datos.
+interface BloqueDisponibilidad {
+  id_disponibilidad: number;
+  fecha: string;          // YYYY-MM-DD — siempre generado con toISODate() para evitar UTC shift
+  hora_inicio: string;    // HH:MM
+  hora_fin: string;       // HH:MM
+  estado: EstadoDisponibilidad;
+  modalidad: 'presencial' | 'telemedicina' | 'mixta';
+  nota?: string;          // opcional, uso interno del médico
+}
+
+// Representa los campos del formulario de creación de bloques tal como los ingresa el médico.
+// Es distinto a BloqueDisponibilidad porque incluye campos de UI (repetirSemanas, diasActivos).
+interface FormDisponibilidad {
+  fechaInicio: string;    // YYYY-MM-DD — fecha de la primera semana a generar
+  horaInicio: string;     // HH:MM
+  horaFin: string;        // HH:MM
+  repetirSemanas: number; // cuántas semanas hacia adelante replicar el bloque
+  estado: EstadoDisponibilidad;
+  modalidad: 'presencial' | 'telemedicina' | 'mixta';
+  nota: string;
+}
+
 @Component({
   selector: 'app-agenda',
   templateUrl: './agenda.page.html',
