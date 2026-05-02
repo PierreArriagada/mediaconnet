@@ -1,12 +1,5 @@
-<<<<<<< HEAD
-<app-medico-header [userName]="user?.name ?? ''"></app-medico-header>
-=======
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>Mi Perfil</ion-title>
-  </ion-toolbar>
-</ion-header>
->>>>>>> 0752fbfe2d0c974887924f9bbfc2a8184ddc0cca
+<!-- Edu: header médico usando el nombre del perfil cargado dinámicamente -->
+<app-medico-header [userName]="perfil ? (perfil.nombre + ' ' + perfil.apellido) : ''"></app-medico-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
   <!-- Edu: perfil médico dinámico -->
@@ -18,7 +11,7 @@
     <p><strong>Teléfono:</strong> {{ perfil.telefono || 'No registrado' }}</p>
     <p><strong>Especialidad:</strong> {{ perfil.nombre_especialidad }}</p>
     <p><strong>Registro Médico:</strong> {{ perfil.numero_registro }}</p>
-    <p><strong>Años de experiencia:</strong> {{ perfil.anos_experiencia }} años</p>
+    <p><strong>Años de experiencia:</strong> {{ perfil.anios_experiencia }} años</p>
     <p><strong>Estado:</strong> {{ perfil.estado }}</p>
   </div>
 
