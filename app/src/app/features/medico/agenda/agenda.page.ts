@@ -322,13 +322,12 @@ export class AgendaPage implements OnInit {
     }
 
     const fechas = this.fechasParaCrear();
-    const nuevosSlots: BloqueDisponibilidad[] = [];
+    const nuevosSlots: Partial<DisponibilidadBloque>[] = [];
 
     fechas.forEach((fecha) => {
-      this.bloquesForm.forEach((bloque, index) => {
+      this.bloquesForm.forEach((bloque) => {
         if (!this.existeBloque(fecha, bloque.horaInicio, bloque.horaFin)) {
           nuevosSlots.push({
-            id_disponibilidad: Date.now() + index,
             fecha,
             hora_inicio: bloque.horaInicio,
             hora_fin: bloque.horaFin,
@@ -339,10 +338,21 @@ export class AgendaPage implements OnInit {
       });
     });
 
-    this.disponibilidad = [...this.disponibilidad, ...nuevosSlots];
-    this.feedbackMessage = nuevosSlots.length > 0
-      ? `${nuevosSlots.length} bloque(s) creados. Falta conectarlos al endpoint POST.`
-      : 'No se crearon bloques: ya existían en esos rangos.';
+    if (nuevosSlots.length === 0) {
+      this.feedbackMessage = 'No se crearon bloques: ya existían en esos rangos.';
+      return;
+    }
+
+    this.medicoService.crearDisponibilidad(nuevosSlots).subscribe({
+      next: (creados: DisponibilidadBloque[]) => {
+        this.disponibilidad = [...this.disponibilidad, ...creados];
+        this.feedbackMessage = `${creados.length} bloque(s) creados correctamente.`;
+        this.bloqueEditandoId = null;
+      },
+      error: () => {
+        this.feedbackMessage = 'No fue posible guardar los bloques. Intenta nuevamente.';
+      },
+    });
   }
 
   // ── Helpers privados de disponibilidad ──────────────────────────────────────

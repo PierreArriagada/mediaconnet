@@ -6,6 +6,8 @@ app/.angular/
 app/www/
 app/dist/
 app/.ionic/
+backend/node_modules/
+Ubuntudev/
 
 # ── Variables de entorno con secretos
 .env
