@@ -194,6 +194,46 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
 
           <p *ngIf="feedbackMessage" class="ag-feedback">{{ feedbackMessage }}</p>
 
+          <div *ngIf="disponibilidadFiltrada.length > 0" class="ag-slots-lista">
+            <h4>Bloques de la semana</h4>
+            <div
+              *ngFor="let slot of disponibilidadFiltrada"
+              class="ag-slot"
+              [class.ag-slot--disponible]="slot.estado === 'disponible'"
+              [class.ag-slot--reservada]="slot.estado === 'reservada'"
+              [class.ag-slot--bloqueada]="slot.estado === 'bloqueada'"
+            >
+              <div class="ag-slot__info">
+                <span class="ag-slot__fecha">{{ formatFechaSlot(slot.fecha) }}</span>
+                <span class="ag-slot__hora">{{ formatHora(slot.hora_inicio) }} – {{ formatHora(slot.hora_fin) }}</span>
+                <span class="ag-slot__estado">{{ slot.estado }}</span>
+              </div>
+              <div class="ag-slot__acciones">
+                <button type="button" class="ag-icon-btn" (click)="editarBloque(slot)" aria-label="Editar bloque">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <button
+                  type="button"
+                  class="ag-icon-btn"
+                  (click)="alternarBloqueo(slot)"
+                  [disabled]="slot.estado === 'reservada'"
+                  aria-label="Alternar bloqueo"
+                >
+                  <span class="material-symbols-outlined">{{ slot.estado === 'bloqueada' ? 'lock_open' : 'lock' }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="ag-icon-btn ag-icon-btn--danger"
+                  (click)="eliminarBloque(slot)"
+                  [disabled]="slot.estado === 'reservada'"
+                  aria-label="Eliminar bloque"
+                >
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
         </div>
 
       </div>

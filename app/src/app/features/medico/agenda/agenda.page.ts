@@ -524,6 +524,14 @@ export class AgendaPage implements OnInit {
     return cita.fecha_cita.split('T')[0];
   }
 
+  formatFechaSlot(fechaISO: string): string {
+    return formatFechaLargaConDia(fechaISO);
+  }
+
+  formatHora(hora: string): string {
+    return hora.slice(0, 5);
+  }
+
   /**
    * helper: Devuelve true si la fecha ISO dada cae dentro del rango visible actual.
    * - Vista semana: entre el lunes y el domingo de la semana seleccionada.
