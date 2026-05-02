@@ -7,6 +7,7 @@
 
 ion-content {
   --background: var(--mc-surface);
+  --padding-bottom: calc(6rem + env(safe-area-inset-bottom));
   font-family: var(--mc-font-utility);
 }
 
@@ -85,8 +86,10 @@ ion-content > div:not(:first-child) {
 /* Edu: botones simples con identidad MediConnect. */
 button {
   width: 100%;
+  max-width: 100%;
   min-height: 46px;
   margin-top: 1rem;
+  margin-bottom: calc(5rem + env(safe-area-inset-bottom));
   border: 0;
   border-radius: var(--mc-radius-lg);
   background: var(--mc-primary);
@@ -111,5 +114,10 @@ button:active {
   ion-content > div:not(:first-child) {
     padding: 0.9rem;
     border-radius: var(--mc-radius-lg);
+  }
+
+  // Edu: evita que el botón inferior quede fuera del marco en pantallas pequeñas.
+  button {
+    margin-bottom: calc(6.5rem + env(safe-area-inset-bottom));
   }
 }
