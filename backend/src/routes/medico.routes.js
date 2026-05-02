@@ -8,6 +8,10 @@ const {
   getFichaPaciente,
   getPacientesMedico,
   getPerfilMedico,
+  getDisponibilidad,
+  crearDisponibilidad,
+  actualizarDisponibilidad,
+  eliminarDisponibilidad,
 } = require('../controllers/medico.controller');
 
 const router = Router();
@@ -17,14 +21,17 @@ router.use(requireAuth);
 router.use(requireRole('Medico'));
 
 router.get('/dashboard', getDashboardMedico);
-// Edu: perfil del médico autenticado
 router.get('/perfil', getPerfilMedico);
 router.get('/citas-hoy', getCitasParaMarcar);
 router.get('/citas-proximas', getCitasProximas);
-// Edu: listado inicial de pacientes asociados al profesional autenticado.
 router.get('/pacientes', getPacientesMedico);
-// Edu: ficha paciente para futuras vistas clínicas del profesional.
 router.get('/paciente/:idPaciente/ficha', getFichaPaciente);
 router.patch('/cita/:idCita/marcar-asistencia', marcarAsistencia);
+
+// Disponibilidad médica
+router.get('/disponibilidad', getDisponibilidad);
+router.post('/disponibilidad', crearDisponibilidad);
+router.patch('/disponibilidad/:id', actualizarDisponibilidad);
+router.delete('/disponibilidad/:id', eliminarDisponibilidad);
 
 module.exports = router;
