@@ -228,6 +228,19 @@ export class AgendaPage implements OnInit {
   }
 
   /**
+   * C1: Devuelve solo los bloques de disponibilidad que caen dentro del periodo
+   * visible en el calendario (semana o mes actual). Ordenados por fecha y hora.
+   * Así la lista del panel no muestra historial completo, solo lo relevante al contexto.
+   */
+  get disponibilidadFiltrada(): BloqueDisponibilidad[] {
+    return this.disponibilidad
+      .filter((slot) => this.fechaDentroDelPeriodo(slot.fecha))
+      .sort((a, b) =>
+        `${a.fecha} ${a.hora_inicio}`.localeCompare(`${b.fecha} ${b.hora_inicio}`)
+      );
+  }
+
+  /**
    * Realiza el filtrado cliente side por cada pulsación de tecla o cada click a un <select>.
    * Es una getter porque la vista itera esto: '*ngFor="let cita of citasFiltradas"'.
    * Se evalúan fecha seleccionada, texto, estado, y modalidad. Todos deben pasar para que la cita se pinte.
@@ -457,6 +470,28 @@ export class AgendaPage implements OnInit {
   // Retorna solo la parte año-mes-día en bruto, sin colas de TimeZone. EJ: 2026-05-01.
   fechaCita(cita: CitaMedico): string {
     return cita.fecha_cita.split('T')[0];
+  }
+
+  /**
+   * C1 helper: Devuelve true si la fecha ISO dada cae dentro del rango visible actual.
+   * - Vista semana: entre el lunes y el domingo de la semana seleccionada.
+   * - Vista mes: dentro del mes del año de la fecha seleccionada.
+   * - Vista día: coincide exactamente con la fecha seleccionada.
+   */
+  private fechaDentroDelPeriodo(fechaISO: string): boolean {
+    if (this.vistaActiva === 'dia') {
+      return fechaISO === this.fechaSeleccionada;
+    }
+
+    if (this.vistaActiva === 'mes') {
+      // Compara solo año y mes (los primeros 7 caracteres de YYYY-MM-DD)
+      return fechaISO.slice(0, 7) === this.fechaSeleccionada.slice(0, 7);
+    }
+
+    // Vista semana: desde el lunes hasta el domingo de la semana activa
+    const inicio = this.inicioSemana(this.parseISODate(this.fechaSeleccionada));
+    const fin = this.sumarDias(inicio, 6);
+    return fechaISO >= this.toISODate(inicio) && fechaISO <= this.toISODate(fin);
   }
 
   // helper UTC local. Descubre qué fecha fue "este lunes", partiendo desde `fecha`.
