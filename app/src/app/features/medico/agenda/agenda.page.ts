@@ -9,6 +9,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import {
   CitaMedico,
   CitasMedicoData,
+  DisponibilidadBloque,
   MedicoService,
 } from '../../../core/services/medico.service';
 import { formatFechaCorta, formatFechaDiaMesAnio, formatFechaLargaConDia, formatHoraCorta, formatMesAnio } from '../../../shared/utils/fecha.utils';
@@ -106,7 +107,7 @@ export class AgendaPage implements OnInit {
   // ── B2: estado del panel de gestión de horario ──────────────────────────────
 
   // Bloques de disponibilidad guardados (local hasta que se conecte el backend en E1).
-  disponibilidad: BloqueDisponibilidad[] = [];
+  disponibilidad: DisponibilidadBloque[] = [];
 
   // Id del bloque que se está editando. null = ninguno (modo creación).
   bloqueEditandoId: number | null = null;
@@ -280,6 +281,9 @@ export class AgendaPage implements OnInit {
   togglePanelHorario(): void {
     this.panelHorarioAbierto = !this.panelHorarioAbierto;
     this.feedbackMessage = '';
+    if (this.panelHorarioAbierto) {
+      this.cargarDisponibilidad();
+    }
   }
 
   // ── métodos del bento grid de horario ────────────────────────────────────
@@ -456,6 +460,25 @@ export class AgendaPage implements OnInit {
   // Acumula el día clikado en el panel como pivote y fuerza al componente a re-calcular "diasDelPeriodo" con el nuevo pivote
   seleccionarDia(fecha: string): void {
     this.fechaSeleccionada = fecha;
+  }
+
+  /**
+   * Carga los bloques de disponibilidad del periodo visible desde el backend.
+   * Se llama cada vez que el médico abre el panel de horario.
+   * Mientras el endpoint no exista, el error se captura y muestra feedback sin romper la app.
+   */
+  cargarDisponibilidad(): void {
+    const inicio = this.toISODate(this.inicioSemana(this.parseISODate(this.fechaSeleccionada)));
+    const fin = this.toISODate(this.sumarDias(this.parseISODate(inicio), 6));
+
+    this.medicoService.getDisponibilidad(inicio, fin).subscribe({
+      next: (data: DisponibilidadBloque[]) => {
+        this.disponibilidad = data;
+      },
+      error: () => {
+        this.feedbackMessage = 'No fue posible cargar la disponibilidad del servidor.';
+      },
+    });
   }
 
   /**
