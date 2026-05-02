@@ -20,7 +20,6 @@ Thumbs.db
 *.log
 README.md
 claude.md
-.codex/
 app/ng/
 
 # ── Docker
