@@ -11,7 +11,7 @@ import {
   CitasMedicoData,
   MedicoService,
 } from '../../../core/services/medico.service';
-import { formatFechaCorta, formatFechaDiaMesAnio, formatFechaLargaConDia, formatMesAnio } from '../../../shared/utils/fecha.utils';
+import { formatFechaCorta, formatFechaDiaMesAnio, formatFechaLargaConDia, formatHoraCorta, formatMesAnio } from '../../../shared/utils/fecha.utils';
 
 type VistaAgenda = 'dia' | 'semana' | 'mes'; // Solo 'semana' y 'mes' están implementadas visualmente
 // Opciones válidas para el filtro de estado de cita. Sirve para autocompletar y evitar strings sueltos.
@@ -524,12 +524,12 @@ export class AgendaPage implements OnInit {
     return cita.fecha_cita.split('T')[0];
   }
 
-  formatFechaSlot(fechaISO: string): string {
+  formatFechaSlot(fechaISO: string | null | undefined): string {
     return formatFechaLargaConDia(fechaISO);
   }
 
-  formatHora(hora: string): string {
-    return hora.slice(0, 5);
+  formatHora(hora: string | null | undefined): string {
+    return formatHoraCorta(hora);
   }
 
   /**

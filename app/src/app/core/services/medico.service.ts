@@ -100,6 +100,16 @@ export interface MensajeResponse {
   message: string;
 }
 
+export interface DisponibilidadBloque {
+  id_disponibilidad: number;
+  fecha: string;
+  hora_inicio: string;
+  hora_fin: string;
+  estado: 'disponible' | 'reservada' | 'bloqueada';
+  modalidad: 'presencial' | 'telemedicina' | 'mixta';
+  nota?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class MedicoService {
   private readonly http = inject(HttpClient);
@@ -132,5 +142,23 @@ export class MedicoService {
       `${this.API}/cita/${idCita}/marcar-asistencia`,
       { asistio }
     );
+  }
+
+  getDisponibilidad(desde: string, hasta: string): Observable<DisponibilidadBloque[]> {
+    return this.http.get<DisponibilidadBloque[]>(
+      `${this.API}/disponibilidad?desde=${desde}&hasta=${hasta}`
+    );
+  }
+
+  crearDisponibilidad(bloques: Partial<DisponibilidadBloque>[]): Observable<DisponibilidadBloque[]> {
+    return this.http.post<DisponibilidadBloque[]>(`${this.API}/disponibilidad`, { bloques });
+  }
+
+  actualizarDisponibilidad(id: number, cambios: Partial<DisponibilidadBloque>): Observable<DisponibilidadBloque> {
+    return this.http.patch<DisponibilidadBloque>(`${this.API}/disponibilidad/${id}`, cambios);
+  }
+
+  eliminarDisponibilidad(id: number): Observable<MensajeResponse> {
+    return this.http.delete<MensajeResponse>(`${this.API}/disponibilidad/${id}`);
   }
 }
