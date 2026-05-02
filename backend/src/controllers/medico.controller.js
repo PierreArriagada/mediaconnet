@@ -531,6 +531,214 @@ async function getPacientesMedico(req, res) {
   }
 }
 
+/**
+ * GET /api/medico/disponibilidad?desde=YYYY-MM-DD&hasta=YYYY-MM-DD
+ * Devuelve los bloques de disponibilidad del médico autenticado en el rango de fechas dado.
+ * Anti-IDOR: id_medico siempre se obtiene del JWT, nunca del query string.
+ */
+async function getDisponibilidad(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const { desde, hasta } = req.query;
+
+  if (!desde || !hasta) {
+    return res.status(400).json({ message: 'Los parámetros desde y hasta son obligatorios.' });
+  }
+
+  try {
+    const medicoResult = await pool.query(
+      'SELECT id_medico FROM medicos WHERE id_usuario = $1 AND estado = $2',
+      [idUsuario, 'activo']
+    );
+    if (medicoResult.rowCount === 0) {
+      return res.status(403).json({ message: 'No se encontró perfil de médico activo.' });
+    }
+    const idMedico = medicoResult.rows[0].id_medico;
+
+    const result = await pool.query(
+      `SELECT
+         id_disponibilidad,
+         fecha::text,
+         hora_inicio::text,
+         hora_fin::text,
+         estado,
+         observacion AS nota
+       FROM disponibilidad_medica
+       WHERE id_medico = $1
+         AND fecha BETWEEN $2 AND $3
+       ORDER BY fecha, hora_inicio`,
+      [idMedico, desde, hasta]
+    );
+
+    return res.json(result.rows);
+  } catch (err) {
+    console.error('Error en getDisponibilidad:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * POST /api/medico/disponibilidad
+ * Crea uno o varios bloques de disponibilidad para el médico autenticado.
+ * Body: { bloques: [{ fecha, hora_inicio, hora_fin, estado?, nota? }] }
+ * Si un bloque ya existe (UNIQUE), se ignora silenciosamente.
+ */
+async function crearDisponibilidad(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const { bloques } = req.body;
+
+  if (!Array.isArray(bloques) || bloques.length === 0) {
+    return res.status(400).json({ message: 'El campo bloques debe ser un arreglo con al menos un elemento.' });
+  }
+
+  try {
+    const medicoResult = await pool.query(
+      'SELECT id_medico FROM medicos WHERE id_usuario = $1 AND estado = $2',
+      [idUsuario, 'activo']
+    );
+    if (medicoResult.rowCount === 0) {
+      return res.status(403).json({ message: 'No se encontró perfil de médico activo.' });
+    }
+    const idMedico = medicoResult.rows[0].id_medico;
+
+    const creados = [];
+
+    for (const bloque of bloques) {
+      const { fecha, hora_inicio, hora_fin, estado = 'disponible', nota = null } = bloque;
+
+      if (!fecha || !hora_inicio || !hora_fin) {
+        continue;
+      }
+
+      const result = await pool.query(
+        `INSERT INTO disponibilidad_medica (id_medico, fecha, hora_inicio, hora_fin, estado, observacion)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         ON CONFLICT (id_medico, fecha, hora_inicio, hora_fin) DO NOTHING
+         RETURNING id_disponibilidad, fecha::text, hora_inicio::text, hora_fin::text, estado, observacion AS nota`,
+        [idMedico, fecha, hora_inicio, hora_fin, estado, nota]
+      );
+
+      if (result.rowCount > 0) {
+        creados.push(result.rows[0]);
+      }
+    }
+
+    return res.status(201).json(creados);
+  } catch (err) {
+    console.error('Error en crearDisponibilidad:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * PATCH /api/medico/disponibilidad/:id
+ * Actualiza estado u observacion de un bloque del médico autenticado.
+ * No permite modificar bloques de otro médico (Anti-IDOR).
+ */
+async function actualizarDisponibilidad(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idDisponibilidad = parseInt(req.params.id, 10);
+  const { estado, hora_inicio, hora_fin, nota } = req.body;
+
+  if (isNaN(idDisponibilidad)) {
+    return res.status(400).json({ message: 'ID de disponibilidad inválido.' });
+  }
+
+  try {
+    const medicoResult = await pool.query(
+      'SELECT id_medico FROM medicos WHERE id_usuario = $1 AND estado = $2',
+      [idUsuario, 'activo']
+    );
+    if (medicoResult.rowCount === 0) {
+      return res.status(403).json({ message: 'No se encontró perfil de médico activo.' });
+    }
+    const idMedico = medicoResult.rows[0].id_medico;
+
+    // Verificar que el bloque pertenece al médico autenticado
+    const bloqueResult = await pool.query(
+      'SELECT estado FROM disponibilidad_medica WHERE id_disponibilidad = $1 AND id_medico = $2',
+      [idDisponibilidad, idMedico]
+    );
+    if (bloqueResult.rowCount === 0) {
+      return res.status(404).json({ message: 'Bloque no encontrado.' });
+    }
+
+    const campos = [];
+    const valores = [];
+    let idx = 1;
+
+    if (estado !== undefined) { campos.push(`estado = $${idx++}`); valores.push(estado); }
+    if (hora_inicio !== undefined) { campos.push(`hora_inicio = $${idx++}`); valores.push(hora_inicio); }
+    if (hora_fin !== undefined) { campos.push(`hora_fin = $${idx++}`); valores.push(hora_fin); }
+    if (nota !== undefined) { campos.push(`observacion = $${idx++}`); valores.push(nota); }
+
+    if (campos.length === 0) {
+      return res.status(400).json({ message: 'No se proporcionaron campos a actualizar.' });
+    }
+
+    valores.push(idDisponibilidad);
+
+    const result = await pool.query(
+      `UPDATE disponibilidad_medica
+       SET ${campos.join(', ')}
+       WHERE id_disponibilidad = $${idx}
+       RETURNING id_disponibilidad, fecha::text, hora_inicio::text, hora_fin::text, estado, observacion AS nota`,
+      valores
+    );
+
+    return res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error en actualizarDisponibilidad:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * DELETE /api/medico/disponibilidad/:id
+ * Elimina un bloque de disponibilidad. Rechaza si tiene una cita reservada.
+ * Anti-IDOR: verifica que el bloque pertenece al médico del JWT.
+ */
+async function eliminarDisponibilidad(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idDisponibilidad = parseInt(req.params.id, 10);
+
+  if (isNaN(idDisponibilidad)) {
+    return res.status(400).json({ message: 'ID de disponibilidad inválido.' });
+  }
+
+  try {
+    const medicoResult = await pool.query(
+      'SELECT id_medico FROM medicos WHERE id_usuario = $1 AND estado = $2',
+      [idUsuario, 'activo']
+    );
+    if (medicoResult.rowCount === 0) {
+      return res.status(403).json({ message: 'No se encontró perfil de médico activo.' });
+    }
+    const idMedico = medicoResult.rows[0].id_medico;
+
+    const bloqueResult = await pool.query(
+      'SELECT estado FROM disponibilidad_medica WHERE id_disponibilidad = $1 AND id_medico = $2',
+      [idDisponibilidad, idMedico]
+    );
+    if (bloqueResult.rowCount === 0) {
+      return res.status(404).json({ message: 'Bloque no encontrado.' });
+    }
+
+    if (bloqueResult.rows[0].estado === 'reservada') {
+      return res.status(409).json({ message: 'No se puede eliminar un bloque con cita reservada.' });
+    }
+
+    await pool.query(
+      'DELETE FROM disponibilidad_medica WHERE id_disponibilidad = $1',
+      [idDisponibilidad]
+    );
+
+    return res.json({ message: 'Bloque eliminado correctamente.' });
+  } catch (err) {
+    console.error('Error en eliminarDisponibilidad:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
 module.exports = {
   getDashboardMedico,
   getCitasParaMarcar,
@@ -539,4 +747,8 @@ module.exports = {
   getFichaPaciente,
   getPacientesMedico,
   getPerfilMedico,
+  getDisponibilidad,
+  crearDisponibilidad,
+  actualizarDisponibilidad,
+  eliminarDisponibilidad,
 };

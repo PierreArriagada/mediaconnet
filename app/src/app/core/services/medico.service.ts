@@ -106,7 +106,6 @@ export interface DisponibilidadBloque {
   hora_inicio: string;
   hora_fin: string;
   estado: 'disponible' | 'reservada' | 'bloqueada';
-  modalidad: 'presencial' | 'telemedicina' | 'mixta';
   nota?: string;
 }
 

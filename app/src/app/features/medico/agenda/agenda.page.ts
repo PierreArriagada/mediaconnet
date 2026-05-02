@@ -32,25 +32,11 @@ interface DiaAgenda {
 }
 
 // Estados posibles de un bloque de disponibilidad médica.
-// 'disponible' = el médico puede recibir citas en ese horario.
-// 'reservada'  = ya hay una cita asignada (no se puede eliminar sin cancelar la cita antes).
-// 'bloqueada'  = el médico cerró ese espacio (reunión, almuerzo, etc.).
+// Estados posibles de un bloque de disponibilidad — coincide con el CHECK de la base de datos.
 type EstadoDisponibilidad = 'disponible' | 'reservada' | 'bloqueada';
 
-// Representa un bloque de disponibilidad tal como viene (o irá) al backend.
-// Imita la tabla `disponibilidad_medica` de la base de datos.
-interface BloqueDisponibilidad {
-  id_disponibilidad: number;
-  fecha: string;          // YYYY-MM-DD — siempre generado con toISODate() para evitar UTC shift
-  hora_inicio: string;    // HH:MM
-  hora_fin: string;       // HH:MM
-  estado: EstadoDisponibilidad;
-  modalidad: 'presencial' | 'telemedicina' | 'mixta';
-  nota?: string;          // opcional, uso interno del médico
-}
-
 // Representa los campos del formulario de creación de bloques tal como los ingresa el médico.
-// Es distinto a BloqueDisponibilidad porque incluye campos de UI (repetirSemanas, diasActivos).
+// Es distinto a DisponibilidadBloque porque incluye campos de UI (repetirSemanas, diasActivos).
 interface FormDisponibilidad {
   fechaInicio: string;    // YYYY-MM-DD — fecha de la primera semana a generar
   horaInicio: string;     // HH:MM
@@ -233,7 +219,7 @@ export class AgendaPage implements OnInit {
    * visible en el calendario (semana o mes actual). Ordenados por fecha y hora.
    * Así la lista del panel no muestra historial completo, solo lo relevante al contexto.
    */
-  get disponibilidadFiltrada(): BloqueDisponibilidad[] {
+  get disponibilidadFiltrada(): DisponibilidadBloque[] {
     return this.disponibilidad
       .filter((slot) => this.fechaDentroDelPeriodo(slot.fecha))
       .sort((a, b) =>
@@ -332,7 +318,6 @@ export class AgendaPage implements OnInit {
             hora_inicio: bloque.horaInicio,
             hora_fin: bloque.horaFin,
             estado: 'disponible',
-            modalidad: 'presencial',
           });
         }
       });
@@ -407,7 +392,7 @@ export class AgendaPage implements OnInit {
    * corregirlas y volver a guardar. Marca bloqueEditandoId para que guardarDisponibilidad
    * sepa que está actualizando un bloque existente (conectar en E2).
    */
-  editarBloque(slot: BloqueDisponibilidad): void {
+  editarBloque(slot: DisponibilidadBloque): void {
     this.bloqueEditandoId = slot.id_disponibilidad;
     this.bloquesForm = [{ horaInicio: slot.hora_inicio, horaFin: slot.hora_fin }];
     this.feedbackMessage = 'Editando bloque existente. Ajusta el rango y guarda.';
@@ -424,7 +409,7 @@ export class AgendaPage implements OnInit {
    * Protege los slots 'reservada': tienen un paciente asignado y no se pueden
    * bloquear sin resolver primero la cita (regla de negocio, no solo de UI).
    */
-  alternarBloqueo(slot: BloqueDisponibilidad): void {
+  alternarBloqueo(slot: DisponibilidadBloque): void {
     if (slot.estado === 'reservada') {
       this.feedbackMessage = 'No se puede bloquear una reserva sin resolver primero la cita.';
       return;
@@ -441,7 +426,7 @@ export class AgendaPage implements OnInit {
    * Elimina un slot del array local.
    * Protege los slots 'reservada' por la misma razón que alternarBloqueo.
    */
-  eliminarBloque(slot: BloqueDisponibilidad): void {
+  eliminarBloque(slot: DisponibilidadBloque): void {
     if (slot.estado === 'reservada') {
       this.feedbackMessage = 'No se puede eliminar una disponibilidad con cita reservada.';
       return;
