@@ -1004,3 +1004,75 @@ ion-content > div {
   color: var(--mc-on-surface-variant);
   text-align: right;
 }
+
+/* Lista de slots guardados dentro del panel */
+.ag-slots-lista {
+  margin-top: 1.5rem;
+
+  h4 {
+    margin: 0 0 1rem;
+    font-family: var(--mc-font-authority);
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--mc-on-surface);
+  }
+}
+
+.ag-slot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-radius: var(--mc-radius-md);
+  margin-bottom: 0.65rem;
+  background: var(--mc-surface-container-lowest);
+  border-left: 4px solid transparent;
+  transition: opacity 0.15s;
+
+  &.ag-slot--disponible {
+    border-left-color: var(--mc-primary);
+  }
+
+  &.ag-slot--reservada {
+    border-left-color: #2e7d32;
+  }
+
+  &.ag-slot--bloqueada {
+    border-left-color: var(--mc-outline);
+    opacity: 0.6;
+  }
+}
+
+.ag-slot__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ag-slot__fecha {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--mc-on-surface);
+}
+
+.ag-slot__hora {
+  font-size: 0.85rem;
+  color: var(--mc-on-surface-variant);
+}
+
+.ag-slot__estado {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mc-on-surface-variant);
+}
+
+.ag-slot__acciones {
+  display: flex;
+  gap: 0.4rem;
+
+  button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
