@@ -228,7 +228,7 @@ export class AgendaPage implements OnInit {
   }
 
   /**
-   * C1: Devuelve solo los bloques de disponibilidad que caen dentro del periodo
+   *Devuelve solo los bloques de disponibilidad que caen dentro del periodo
    * visible en el calendario (semana o mes actual). Ordenados por fecha y hora.
    * Así la lista del panel no muestra historial completo, solo lo relevante al contexto.
    */
@@ -282,7 +282,7 @@ export class AgendaPage implements OnInit {
     this.feedbackMessage = '';
   }
 
-  // ── B3: métodos del bento grid de horario ────────────────────────────────────
+  // ── métodos del bento grid de horario ────────────────────────────────────
 
   /** Activa o desactiva un día del selector de días laborales. */
   toggleDia(dia: number): void {
@@ -386,6 +386,58 @@ export class AgendaPage implements OnInit {
     return [...new Set(fechas)].sort();
   }
 
+  // ── C2: acciones sobre slots guardados ──────────────────────────────────────
+
+  /**
+   * Carga las horas del slot en el editor de bloques para que el médico pueda
+   * corregirlas y volver a guardar. Marca bloqueEditandoId para que guardarDisponibilidad
+   * sepa que está actualizando un bloque existente (conectar en E2).
+   */
+  editarBloque(slot: BloqueDisponibilidad): void {
+    this.bloqueEditandoId = slot.id_disponibilidad;
+    this.bloquesForm = [{ horaInicio: slot.hora_inicio, horaFin: slot.hora_fin }];
+    this.feedbackMessage = 'Editando bloque existente. Ajusta el rango y guarda.';
+  }
+
+  /** Sale del modo edición sin guardar cambios. */
+  cancelarEdicion(): void {
+    this.bloqueEditandoId = null;
+    this.feedbackMessage = '';
+  }
+
+  /**
+   * Alterna el estado de un slot entre 'disponible' y 'bloqueada'.
+   * Protege los slots 'reservada': tienen un paciente asignado y no se pueden
+   * bloquear sin resolver primero la cita (regla de negocio, no solo de UI).
+   */
+  alternarBloqueo(slot: BloqueDisponibilidad): void {
+    if (slot.estado === 'reservada') {
+      this.feedbackMessage = 'No se puede bloquear una reserva sin resolver primero la cita.';
+      return;
+    }
+
+    this.disponibilidad = this.disponibilidad.map((item) =>
+      item.id_disponibilidad !== slot.id_disponibilidad
+        ? item
+        : { ...item, estado: item.estado === 'bloqueada' ? 'disponible' : 'bloqueada' }
+    );
+  }
+
+  /**
+   * Elimina un slot del array local.
+   * Protege los slots 'reservada' por la misma razón que alternarBloqueo.
+   */
+  eliminarBloque(slot: BloqueDisponibilidad): void {
+    if (slot.estado === 'reservada') {
+      this.feedbackMessage = 'No se puede eliminar una disponibilidad con cita reservada.';
+      return;
+    }
+
+    this.disponibilidad = this.disponibilidad.filter(
+      (item) => item.id_disponibilidad !== slot.id_disponibilidad
+    );
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
 
   // Adelanta o retrocede usando +1 y -1 de salto, dependiendo si veo semanas o meses.
@@ -473,7 +525,7 @@ export class AgendaPage implements OnInit {
   }
 
   /**
-   * C1 helper: Devuelve true si la fecha ISO dada cae dentro del rango visible actual.
+   * helper: Devuelve true si la fecha ISO dada cae dentro del rango visible actual.
    * - Vista semana: entre el lunes y el domingo de la semana seleccionada.
    * - Vista mes: dentro del mes del año de la fecha seleccionada.
    * - Vista día: coincide exactamente con la fecha seleccionada.
