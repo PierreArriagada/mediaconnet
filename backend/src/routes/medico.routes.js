@@ -7,6 +7,7 @@ const {
   marcarAsistencia,
   getFichaPaciente,
   getPacientesMedico,
+  getPerfilMedico,
 } = require('../controllers/medico.controller');
 
 const router = Router();
@@ -16,6 +17,8 @@ router.use(requireAuth);
 router.use(requireRole('Medico'));
 
 router.get('/dashboard', getDashboardMedico);
+// Edu: perfil del médico autenticado
+router.get('/perfil', getPerfilMedico);
 router.get('/citas-hoy', getCitasParaMarcar);
 router.get('/citas-proximas', getCitasProximas);
 // Edu: listado inicial de pacientes asociados al profesional autenticado.
