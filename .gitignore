@@ -20,6 +20,8 @@ Thumbs.db
 *.log
 README.md
 claude.md
+.codex/
+app/ng/
 
 # ── Docker
 docker-compose.override.yml
