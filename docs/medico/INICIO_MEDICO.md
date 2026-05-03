@@ -1,103 +1,61 @@
 # Vista Inicio del Profesional - MediConnect
 
-## Descripción General
-La vista Inicio del módulo profesional es la pantalla principal que se carga al acceder al rol de médico. Reemplaza la pantalla de pruebas anterior y proporciona un dashboard operativo con información clave para gestionar la asistencia de pacientes.
+## Descripcion general
+La vista Inicio del modulo medico ya reemplaza la pantalla de pruebas anterior. Hoy funciona como portada operativa del profesional para revisar actividad del dia, marcar asistencia y navegar al resto del modulo.
 
-## Estructura de la Vista
+## Bloques visibles hoy
 
-### 1. Header del Médico
-- **Componente**: `MedicoHeaderComponent`
-- **Funcionalidades**:
-  - Nombre del profesional
-  - Identidad visual clínica
-  - Badge de notificaciones no leídas
-  - Acceso directo a la bandeja de notificaciones
+### 1. Header compartido
+- **Componente:** `MedicoHeaderComponent`
+- **Funcionalidad:** muestra nombre del profesional, identidad visual clinica y acceso a la bandeja de notificaciones.
 
-### 2. Saludo Personalizado
-- Mensaje de bienvenida con nombre del doctor
-- Subtítulo descriptivo de la funcionalidad
+### 2. Saludo y accesos rapidos
+- Saludo con el primer nombre del medico.
+- Botones a `Agenda`, `Pacientes` y `Notificaciones`.
 
-### 3. Accesos Rápidos
-- **Agenda**: Navega a `/medico/agenda`
-- **Pacientes**: Navega a `/medico/pacientes`
-- **Notificaciones**: Navega a `/medico/notificaciones`
-- Diseño en grid de 3 columnas con iconos Material Symbols
+### 3. Resumen operativo
+- Tarjeta con `pendientesMarcar`.
+- Tarjeta con cantidad de `citasHoy`.
+- Datos cargados desde `GET /api/medico/dashboard`.
 
-### 4. Tarjetas de Resumen Estadístico
-- **Pendientes de marcar**: Número de citas que requieren marcar asistencia
-- **Citas hoy**: Cantidad de citas programadas para el día actual
-- Iconos diferenciados y colores temáticos
+### 4. Proxima cita
+- Tarjeta destacada con paciente, especialidad, fecha, hora y modalidad.
+- Solo se muestra cuando el backend devuelve `proximaCita`.
 
-### 5. Solicitudes Pendientes (Preparado para implementación)
-- Sección reservada para solicitudes del flujo invitado
-- Actualmente oculto hasta que el backend proporcione datos separados
-- Diseño preparado con título y nota explicativa
+### 5. Tabs de trabajo
+- `Citas pasadas / hoy`.
+- `Proximas`.
+- Cada tab carga su lista por separado para no refrescar toda la pantalla.
 
-### 6. Próxima Cita Futura
-- Muestra la próxima cita confirmada
-- Información del paciente, especialidad, fecha, hora y modalidad
-- Efecto visual con gradiente primario
+### 6. Tarjetas de cita
+- Paciente, especialidad, fecha, hora, modalidad y motivo.
+- Badge de preconfirmacion del paciente cuando aplica.
+- Badge de asistencia cuando la cita ya fue marcada.
+- Boton `Ver detalle`.
+- Botones `Asistio` y `No asistio` solo para citas del tab `hoy` sin registro previo.
 
-### 7. Sistema de Tabs
-- **Citas pasadas/hoy**: Muestra citas que requieren revisión de asistencia
-- **Próximas**: Lista citas futuras confirmadas
-- Carga diferida por tab para optimizar rendimiento
+### 7. Estados auxiliares
+- Pull to refresh.
+- Skeleton de carga inicial y por tab.
+- Toast de exito y error.
+- Estado vacio por seccion.
+- Navbar inferior del medico.
 
-### 8. Grid de Citas
-- **Tarjetas de cita** con información completa:
-  - Badge de estado de asistencia (si aplica)
-  - Avatar y nombre del paciente
-  - Especialidad
-  - Fecha, hora y modalidad
-  - Pre-confirmación del paciente (si aplica)
-  - Motivo de consulta
-  - Botón "Ver detalle" (navega a página de citas)
-  - Botones de acción para marcar asistencia (solo para citas de hoy sin marcar)
+## Servicios y endpoints usados hoy
+- `MedicoService.getDashboard()` -> `GET /api/medico/dashboard`
+- `MedicoService.getCitasParaMarcar()` -> `GET /api/medico/citas-hoy`
+- `MedicoService.getCitasProximas()` -> `GET /api/medico/citas-proximas`
+- `MedicoService.marcarAsistencia()` -> `PATCH /api/medico/cita/:idCita/marcar-asistencia`
+- `AuthService` para resolver el usuario autenticado.
+- `ModalController` + `McAlertComponent` para la confirmacion previa al marcado.
 
-### 9. Estados de Cita
-- **Asistió**: Badge verde con check
-- **No asistió**: Badge rojo con cancel
-- **Pendiente**: Sin badge, muestra botones de acción
+## Estado real de implementacion
+- El Inicio ya esta conectado a datos reales del backend.
+- El bloque de solicitudes del flujo invitado sigue presente como TODO y hoy no se renderiza.
+- El boton `Ver detalle` aun no abre una vista clinica real: redirige a `/medico/citas`, que sigue siendo placeholder.
+- El badge de notificaciones del header depende del estado compartido del modulo y hoy se alimenta principalmente desde la bandeja de notificaciones.
 
-### 10. Estado Vacío
-- Mensaje cuando no hay citas en la sección seleccionada
-- Icono y texto contextual por tab
-
-## Funcionalidades Interactivas
-
-### Marcado de Asistencia
-- Modal de confirmación antes de registrar asistencia
-- Prevención de clics múltiples durante el proceso
-- Recarga automática del dashboard tras marcar
-- Mensajes de éxito/error con toast
-
-### Navegación
-- Pull-to-refresh para actualizar datos
-- Navegación a detalle de cita (placeholder actual)
-- Accesos rápidos a secciones principales
-
-## Estados de Carga
-- Skeleton loader durante carga inicial
-- Skeleton por tab durante cambio de sección
-- Indicadores de carga para acciones asíncronas
-
-## Diseño Responsivo
-- Grid adaptable para tarjetas de resumen
-- Flex layout para elementos de cita
-- Breakpoints para diferentes tamaños de pantalla
-
-## Servicios Utilizados
-- `MedicoService`: Para obtener dashboard, citas y marcar asistencia
-- `AuthService`: Para información del usuario actual
-- `ModalController`: Para confirmaciones de asistencia
-
-## Notas de Implementación
-- La separación de solicitudes pendientes requiere actualización del backend para proporcionar datos diferenciados
-- El detalle de cita navega actualmente a una página placeholder; requiere implementación de la Fase 5
-- Los accesos rápidos complementan la navegación por bottom nav sin reemplazarla
-
-## Próximos Pasos
-- Implementar backend para solicitudes pendientes
-- Desarrollar vista de detalle de cita completa
-- Agregar filtros adicionales en el grid de citas
-- Implementar notificaciones push en tiempo real
+## Proximos ajustes naturales
+- Separar solicitudes pendientes del flujo invitado frente a reservas confirmadas.
+- Reemplazar `/medico/citas` por una vista real de detalle de cita.
+- Integrar el contador de no leidas desde el dashboard o una carga global para no depender de abrir la bandeja.

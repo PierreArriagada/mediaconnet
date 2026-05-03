@@ -1,15 +1,16 @@
 * **Documento:** Roadmap funcional del modulo profesional de MediConnect.
 * **Objetivo:** Definir las vistas, funciones, dependencias y orden de implementacion necesarios para pasar del modulo medico actual a un modulo profesional completo con datos reales.
 * **Complemento operativo:** El seguimiento ejecutable del desarrollo vive en CHECKLIST_MODULO_PROFESIONAL.md y debe actualizarse a medida que se cierre cada bloque.
-* **Estado actual validado:** Hoy el rol Medico solo tiene la ruta /medico/home con dashboard simple, tabs de citas pasadas o de hoy y proximas, y marcado de asistencia; el backend expone dashboard, citas para marcar, citas proximas y marcado de asistencia; la base ya dispone de medicos, disponibilidad_medica, citas_medicas, historial_atenciones y notificaciones.
-* **Hallazgo clave:** La base ya permite agenda, disponibilidad, citas, historial clinico basico y notificaciones, pero todavia no existe una entidad para documentos clinicos ni un flujo del medico para escribir historial_atenciones.
+* **Estado actual validado:** Hoy el rol Medico ya cuenta en frontend con `/medico/home`, `/medico/agenda`, `/medico/citas`, `/medico/pacientes`, `/medico/pacientes/:id/ficha`, `/medico/perfil` y `/medico/notificaciones`; el shell compartido usa header, badge de notificaciones y navbar inferior en la mayor parte del modulo.
+* **Estado actual validado:** El backend medico ya expone dashboard, citas para marcar, citas proximas, perfil, pacientes, ficha individual, disponibilidad por rango con CRUD basico y bandeja de notificaciones con marcado de lectura y eliminacion individual.
+* **Hallazgo clave:** La base ya permite agenda, disponibilidad, citas, historial clinico basico y notificaciones, pero todavia no existe una pagina real de detalle de cita ni un flujo del medico para escribir historial_atenciones o adjuntar documentos clinicos.
 * **Hallazgo clave:** Las solicitudes de invitado crean citas con estado pendiente, sin id_disponibilidad, con datos de contacto en la propia cita y con medico autoasignado; deben tratarse distinto a una reserva confirmada.
 * **Decision de navegacion principal:** El modulo profesional debe quedar con un navbar persistente de cuatro entradas: Inicio, Agenda, Pacientes y Perfil; notificaciones debe vivir en el header con badge y acceso a bandeja propia, no como pestana principal.
 * **Ruta objetivo:** /medico/home debe conservarse como Inicio para no romper la redireccion por rol ya existente.
 * **Ruta objetivo:** /medico/agenda debe concentrar el calendario, el listado por rango y la gestion de disponibilidad.
-* **Ruta objetivo:** /medico/citas/:idCita debe resolver el detalle operativo y clinico de cada cita.
+* **Ruta objetivo:** /medico/citas/:idCita debe resolver el detalle operativo y clinico de cada cita; hoy solo existe `/medico/citas` como vista placeholder.
 * **Ruta objetivo:** /medico/pacientes debe listar la cartera real del profesional.
-* **Ruta objetivo:** /medico/pacientes/:idPaciente debe exponer la ficha consolidada del paciente segun la relacion clinica real.
+* **Ruta objetivo:** /medico/pacientes/:id/ficha ya existe como ficha basica; el objetivo es consolidarla con mas contexto clinico y mantenerla alineada con la relacion real del profesional.
 * **Ruta objetivo:** /medico/perfil debe consolidar datos personales, datos profesionales y seguridad de cuenta.
 * **Ruta objetivo:** /medico/notificaciones debe existir como bandeja completa o como vista equivalente respaldada por datos reales del backend.
 * **Vista Inicio:** Debe reemplazar la pantalla de pruebas y mostrar atenciones del dia, solicitudes pendientes, proximas citas confirmadas, cantidad de pendientes por revisar, badge de no leidas y accesos rapidos a agenda, pacientes y documentos recientes.
