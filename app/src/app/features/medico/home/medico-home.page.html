@@ -19,6 +19,25 @@
       <p class="md-subtitle">Gestiona la asistencia de tus pacientes.</p>
     </section>
 
+    <!-- Accesos rápidos -->
+    <section class="md-quick-access">
+      <h2 class="md-section-title">Accesos rápidos</h2>
+      <div class="md-quick-grid">
+        <button class="md-quick-btn" (click)="irAAgenda()">
+          <span class="material-symbols-outlined md-quick-btn__icon">calendar_view_week</span>
+          <span class="md-quick-btn__label">Agenda</span>
+        </button>
+        <button class="md-quick-btn" (click)="irAPacientes()">
+          <span class="material-symbols-outlined md-quick-btn__icon">group</span>
+          <span class="md-quick-btn__label">Pacientes</span>
+        </button>
+        <button class="md-quick-btn" (click)="irANotificaciones()">
+          <span class="material-symbols-outlined md-quick-btn__icon">notifications</span>
+          <span class="md-quick-btn__label">Notificaciones</span>
+        </button>
+      </div>
+    </section>
+
     <!-- Skeleton de carga -->
     @if (isLoading) {
       <div class="md-skeleton-wrap">
@@ -47,6 +66,16 @@
           </div>
         </div>
       </div>
+
+      <!-- ── Solicitudes pendientes del flujo invitado ── -->
+      <!-- TODO: Implementar cuando backend proporcione datos separados -->
+      @if (false) {  <!-- Cambiar a condición real cuando esté disponible -->
+        <section class="md-pending-requests">
+          <h2 class="md-section-title">Solicitudes pendientes</h2>
+          <p class="md-pending-note">Solicitudes de invitados que requieren revisión antes de confirmar.</p>
+          <!-- Lista de solicitudes aquí -->
+        </section>
+      }
 
       <!-- ── Próxima cita futura ── -->
       @if (data.proximaCita) {
@@ -155,6 +184,14 @@
               <div class="md-card__motivo">
                 <p class="md-card__motivo-label">Motivo:</p>
                 <p class="md-card__motivo-text">{{ cita.motivo_consulta }}</p>
+              </div>
+
+              <!-- Botón para ver detalle -->
+              <div class="md-card__detail">
+                <button class="md-btn md-btn--outline" (click)="verDetalleCita(cita.id_cita)">
+                  <span class="material-symbols-outlined">visibility</span>
+                  Ver detalle
+                </button>
               </div>
 
               <!-- Acciones: solo si no tiene asistencia marcada y es tab 'hoy' -->

@@ -173,8 +173,27 @@ export class MedicoHomePage implements OnInit {
     return hora?.slice(0, 5) ?? '—';
   }
 
+  irAAgenda(): void {
+    this.router.navigate(['/medico/agenda']);
+  }
+
+  irAPacientes(): void {
+    this.router.navigate(['/medico/pacientes']);
+  }
+
+  irANotificaciones(): void {
+    this.router.navigate(['/medico/notificaciones']);
+  }
+
+  verDetalleCita(idCita: number): void {
+    // TODO: Navegar al detalle de cita cuando esté implementado
+    // Por ahora, ir a la página de citas
+    this.router.navigate(['/medico/citas']);
+  }
+
   cerrarSesion(): void {
     this.auth.logout();
     this.router.navigate(['/auth/login']);
   }
+  
 }

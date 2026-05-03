@@ -12,7 +12,7 @@
 * [x] Crear barra de navegacion profesional con Inicio, Agenda, Pacientes y Perfil.
 * [x] Crear estado compartido de notificaciones del profesional para evitar desincronizacion entre vistas cacheadas.
 * [x] Extender el arbol de rutas del modulo medico con home, agenda, citas, pacientes, ficha de paciente, perfil y notificaciones.
-* [ ] Ajustar la redireccion por rol para conservar /medico/home como punto de entrada del profesional.
+* [x] Ajustar la redireccion por rol para conservar /medico/home como punto de entrada del profesional.
 * [x] Documentar el shell visual del modulo profesional en docs/medico.
 * **Fase 2 - Vista Inicio del profesional**
 * [ ] Reemplazar la pantalla de pruebas actual por un Inicio operativo del profesional.
@@ -21,9 +21,9 @@
 * [ ] Mostrar proximas citas confirmadas y pendientes de revision clinica.
 * [ ] Mostrar contador de pendientes por marcar asistencia.
 * [ ] Mantener la accion de marcar asistencia ya construida dentro del nuevo Inicio.
-* [ ] Permitir navegar desde cada tarjeta al detalle completo de la cita.
-* [ ] Agregar accesos rapidos a Agenda, Pacientes y Notificaciones.
-* [ ] Documentar la vista Inicio del profesional en docs/medico.
+* [x] Permitir navegar desde cada tarjeta al detalle completo de la cita.
+* [x] Agregar accesos rapidos a Agenda, Pacientes y Notificaciones.
+* [x] Documentar la vista Inicio del profesional en docs/medico.
 * **Fase 3 - Notificaciones del profesional**
 * [ ] Crear endpoint para listar notificaciones del profesional autenticado.
 * [ ] Crear endpoint para marcar notificaciones como leidas usando id_usuario desde el JWT.

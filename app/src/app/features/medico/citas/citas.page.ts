@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { IonicModule } from '@ionic/angular';
 import { IonContent } from '@ionic/angular/standalone';
 import { AuthService } from '../../../core/services/auth.service';
 import { MedicoHeaderComponent } from '../../../shared/components/medico-header/medico-header.component';
@@ -10,7 +11,7 @@ import { MedicoHeaderComponent } from '../../../shared/components/medico-header/
   templateUrl: './citas.page.html',
   styleUrls: ['./citas.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, FormsModule, MedicoHeaderComponent]
+  imports: [IonicModule, IonContent, CommonModule, FormsModule, MedicoHeaderComponent]
 })
 export class CitasPage implements OnInit {
   private readonly authService = inject(AuthService);

@@ -47,6 +47,70 @@ ion-content {
   margin: 0;
 }
 
+// ── Accesos rápidos ───────────────────────────────────
+.md-quick-access {
+  margin-bottom: 2rem;
+}
+
+.md-section-title {
+  font-family: var(--mc-font-authority);
+  font-size: var(--mc-type-headline-md);
+  font-weight: 600;
+  color: var(--mc-on-surface);
+  margin: 0 0 1rem;
+}
+
+.md-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.md-quick-btn {
+  background: var(--mc-surface-container-lowest);
+  border: 1px solid var(--mc-outline-variant);
+  border-radius: var(--mc-radius-lg);
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--mc-surface-container);
+    border-color: var(--mc-primary);
+  }
+
+  &__icon {
+    font-size: 2rem;
+    color: var(--mc-primary);
+  }
+
+  &__label {
+    font-family: var(--mc-font-utility);
+    font-size: 0.875rem;
+    color: var(--mc-on-surface);
+    font-weight: 500;
+  }
+}
+
+// ── Solicitudes pendientes ────────────────────────────
+.md-pending-requests {
+  margin-bottom: 2rem;
+  background: var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  padding: 1.5rem;
+}
+
+.md-pending-note {
+  font-family: var(--mc-font-utility);
+  font-size: 0.875rem;
+  color: var(--mc-secondary);
+  margin: 0.5rem 0 0;
+}
+
 // ── Tarjetas resumen ──────────────────────────────────
 .md-stats {
   display: grid;
@@ -300,6 +364,11 @@ ion-content {
     }
   }
 
+  &__detail {
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--mc-border-ghost);
+  }
+
   &__actions {
     display: flex;
     gap: 0.75rem;
@@ -363,6 +432,16 @@ ion-content {
     background: var(--mc-error);
     color: var(--mc-on-error);
     &:hover:not(:disabled) { opacity: 0.9; }
+  }
+
+  &--outline {
+    background: transparent;
+    color: var(--mc-primary);
+    border: 1px solid var(--mc-primary);
+    &:hover:not(:disabled) {
+      background: var(--mc-primary);
+      color: var(--mc-on-primary);
+    }
   }
 }
 

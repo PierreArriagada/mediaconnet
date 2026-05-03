@@ -2,11 +2,11 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent } from '@ionic/angular/standalone';
+import { IonicModule } from '@ionic/angular';
+import { IonContent, IonHeader, IonToolbar, IonTitle } from '@ionic/angular/standalone';
 import { AuthService } from '../../../core/services/auth.service';
 import { MedicoService, NotificacionMedico } from '../../../core/services/medico.service';
 import { NotificacionesMedicoStateService } from '../../../core/services/notificaciones-medico-state.service';
-import { MedicoHeaderComponent } from '../../../shared/components/medico-header/medico-header.component';
 import { MedicoBottomNavComponent } from '../../../shared/components/medico-bottom-nav/medico-bottom-nav.component';
 
 @Component({
@@ -14,7 +14,7 @@ import { MedicoBottomNavComponent } from '../../../shared/components/medico-bott
   templateUrl: './notificaciones.page.html',
   styleUrls: ['./notificaciones.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, FormsModule, MedicoHeaderComponent, MedicoBottomNavComponent]
+  imports: [IonicModule, IonHeader, IonToolbar, IonTitle, IonContent, CommonModule, FormsModule, MedicoBottomNavComponent]
 })
 export class NotificacionesPage implements OnInit {
   private readonly authService = inject(AuthService);
