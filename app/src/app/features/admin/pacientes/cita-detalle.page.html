@@ -1,0 +1,241 @@
+<app-admin-header [userName]="user?.name ?? ''" [noLeidas]="0"></app-admin-header>
+
+<ion-content class="cd-content">
+  <div class="cd-wrap">
+
+    <!-- Navegación de regreso -->
+    <button class="cd-back-btn" (click)="volver()" aria-label="Volver a ficha del paciente">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Paciente
+    </button>
+
+    <!-- Cargando -->
+    @if (cargando) {
+      <div class="cd-loading" role="status" aria-live="polite">
+        <span class="material-symbols-outlined cd-spin" aria-hidden="true">sync</span>
+        Cargando cita…
+      </div>
+    }
+
+    <!-- Error -->
+    @if (!cargando && errorCarga) {
+      <div class="cd-error" role="alert">
+        <span class="material-symbols-outlined" aria-hidden="true">error</span>
+        {{ errorCarga }}
+      </div>
+    }
+
+    @if (!cargando && !errorCarga && cita) {
+
+      <!-- Hero de la cita -->
+      <div class="cd-hero">
+        <div class="cd-hero__fecha-col" aria-hidden="true">
+          <span class="cd-hero__dia">{{ cita.fecha_cita | date:'dd' }}</span>
+          <span class="cd-hero__mes">{{ cita.fecha_cita | date:'MMM' : '' : 'es-CL' }}</span>
+          <span class="cd-hero__anio">{{ cita.fecha_cita | date:'yyyy' }}</span>
+        </div>
+        <div class="cd-hero__info">
+          <div class="cd-hero__top">
+            <span class="cd-hero__especialidad">{{ cita.especialidad }}</span>
+            <span
+              class="cd-hero__badge"
+              [ngClass]="claseCita(cita.estado)"
+              [attr.aria-label]="'Estado: ' + labelCita(cita.estado)"
+            >
+              {{ labelCita(cita.estado) }}
+            </span>
+          </div>
+          <div class="cd-hero__meta">
+            <span class="cd-hero__meta-item">
+              <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+              {{ formatHora(cita.hora_cita) }}
+            </span>
+            <span class="cd-hero__meta-item">
+              <span class="material-symbols-outlined" aria-hidden="true">
+                {{ cita.modalidad === 'telemedicina' ? 'videocam' : 'local_hospital' }}
+              </span>
+              {{ cita.modalidad === 'telemedicina' ? 'Telemedicina' : 'Presencial' }}
+            </span>
+            @if (cita.es_invitado) {
+              <span class="cd-hero__meta-item cd-hero__meta-item--invitado">
+                <span class="material-symbols-outlined" aria-hidden="true">person_add</span>
+                Invitado
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Motivo de consulta -->
+      @if (cita.motivo_consulta) {
+        <div class="cd-motivo">
+          <span class="material-symbols-outlined cd-motivo__icon" aria-hidden="true">chat_bubble</span>
+          <div>
+            <p class="cd-motivo__label">Motivo de consulta</p>
+            <p class="cd-motivo__texto">{{ cita.motivo_consulta }}</p>
+          </div>
+        </div>
+      }
+
+      <!-- ── Paciente ──────────────────────────────────────────────────────── -->
+      <section class="cd-section" aria-label="Información del paciente">
+        <h2 class="cd-section__title">
+          <span class="material-symbols-outlined" aria-hidden="true">person</span>
+          Paciente
+        </h2>
+
+        @if (!cita.es_invitado) {
+          <dl class="cd-dl">
+            <div class="cd-dl__row">
+              <dt>Nombre</dt>
+              <dd>{{ cita.paciente_nombre }} {{ cita.paciente_apellido }}</dd>
+            </div>
+            <div class="cd-dl__row">
+              <dt>RUT</dt>
+              <dd>{{ cita.paciente_rut }}</dd>
+            </div>
+            <div class="cd-dl__row">
+              <dt>Correo</dt>
+              <dd>{{ cita.paciente_correo }}</dd>
+            </div>
+            <div class="cd-dl__row">
+              <dt>Teléfono</dt>
+              <dd>{{ cita.paciente_telefono ?? '—' }}</dd>
+            </div>
+          </dl>
+        } @else {
+          <div class="cd-invitado-notice">
+            <span class="material-symbols-outlined" aria-hidden="true">info</span>
+            Cita creada por flujo invitado. Los datos de contacto son los ingresados al momento de la solicitud.
+          </div>
+          <dl class="cd-dl">
+            <div class="cd-dl__row">
+              <dt>Nombre</dt>
+              <dd>{{ cita.nombre_invitado ?? '—' }} {{ cita.apellido_invitado ?? '' }}</dd>
+            </div>
+            <div class="cd-dl__row">
+              <dt>Correo</dt>
+              <dd>{{ cita.correo_invitado ?? '—' }}</dd>
+            </div>
+            <div class="cd-dl__row">
+              <dt>Teléfono</dt>
+              <dd>{{ cita.telefono_invitado ?? '—' }}</dd>
+            </div>
+          </dl>
+        }
+      </section>
+
+      <!-- ── Médico ────────────────────────────────────────────────────────── -->
+      <section class="cd-section" aria-label="Médico que atendió">
+        <h2 class="cd-section__title">
+          <span class="material-symbols-outlined" aria-hidden="true">stethoscope</span>
+          Médico
+        </h2>
+        <dl class="cd-dl">
+          <div class="cd-dl__row">
+            <dt>Nombre</dt>
+            <dd>Dr. {{ cita.medico_nombre }} {{ cita.medico_apellido }}</dd>
+          </div>
+          <div class="cd-dl__row">
+            <dt>Especialidad</dt>
+            <dd>{{ cita.especialidad }}</dd>
+          </div>
+          <div class="cd-dl__row">
+            <dt>N.º registro</dt>
+            <dd>{{ cita.medico_registro }}</dd>
+          </div>
+          <div class="cd-dl__row">
+            <dt>Experiencia</dt>
+            <dd>{{ cita.medico_experiencia }} año{{ cita.medico_experiencia !== 1 ? 's' : '' }}</dd>
+          </div>
+          <div class="cd-dl__row">
+            <dt>Correo</dt>
+            <dd>{{ cita.medico_correo }}</dd>
+          </div>
+        </dl>
+        <button class="cd-btn cd-btn--ghost cd-btn--medico" (click)="irMedico()" aria-label="Ver ficha del médico">
+          <span class="material-symbols-outlined" aria-hidden="true">open_in_new</span>
+          Ver ficha del médico
+        </button>
+      </section>
+
+      <!-- ── Asistencia ────────────────────────────────────────────────────── -->
+      <section class="cd-section" aria-label="Asistencia y seguimiento">
+        <h2 class="cd-section__title">
+          <span class="material-symbols-outlined" aria-hidden="true">fact_check</span>
+          Asistencia y seguimiento
+        </h2>
+        <dl class="cd-dl">
+          <div class="cd-dl__row">
+            <dt>Confirmó asistencia</dt>
+            <dd>{{ labelAsistencia(cita.confirmada_asistencia) }}</dd>
+          </div>
+          <div class="cd-dl__row">
+            <dt>Asistió a la cita</dt>
+            <dd>{{ labelAsistencia(cita.asistio_cita) }}</dd>
+          </div>
+          <div class="cd-dl__row">
+            <dt>Observaciones</dt>
+            <dd>{{ cita.observaciones ?? '—' }}</dd>
+          </div>
+          <div class="cd-dl__row">
+            <dt>Creada el</dt>
+            <dd>{{ formatFechaHora(cita.fecha_creacion) }}</dd>
+          </div>
+          <div class="cd-dl__row">
+            <dt>Actualizada el</dt>
+            <dd>{{ formatFechaHora(cita.fecha_actualizacion) }}</dd>
+          </div>
+          <div class="cd-dl__row">
+            <dt>ID cita</dt>
+            <dd># {{ cita.id_cita }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- ── Historial de atención ─────────────────────────────────────────── -->
+      <section class="cd-section" aria-label="Historial de atención clínica">
+        <h2 class="cd-section__title">
+          <span class="material-symbols-outlined" aria-hidden="true">description</span>
+          Historial de atención
+        </h2>
+
+        @if (!historial) {
+          <div class="cd-sin-historial">
+            <span class="material-symbols-outlined" aria-hidden="true">file_present</span>
+            No hay historial de atención registrado para esta cita.
+          </div>
+        } @else {
+          <dl class="cd-dl">
+            @if (historial.diagnostico) {
+              <div class="cd-dl__row cd-dl__row--block">
+                <dt>Diagnóstico</dt>
+                <dd>{{ historial.diagnostico }}</dd>
+              </div>
+            }
+            @if (historial.tratamiento) {
+              <div class="cd-dl__row cd-dl__row--block">
+                <dt>Tratamiento</dt>
+                <dd>{{ historial.tratamiento }}</dd>
+              </div>
+            }
+            @if (historial.notas_historial) {
+              <div class="cd-dl__row cd-dl__row--block">
+                <dt>Notas adicionales</dt>
+                <dd>{{ historial.notas_historial }}</dd>
+              </div>
+            }
+            <div class="cd-dl__row">
+              <dt>Registrado el</dt>
+              <dd>{{ formatFechaHora(historial.fecha_registro) }}</dd>
+            </div>
+          </dl>
+        }
+      </section>
+
+    }
+
+  </div>
+</ion-content>
+
+<app-admin-bottom-nav activeTab="pacientes"></app-admin-bottom-nav>

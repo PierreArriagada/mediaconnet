@@ -1,0 +1,314 @@
+<app-admin-header [userName]="user?.name ?? ''" [noLeidas]="0"></app-admin-header>
+
+<ion-content class="pd-content">
+  <div class="pd-wrap">
+
+    <!-- Navegación de regreso -->
+    <button class="pd-back-btn" (click)="volver()" aria-label="Volver a lista de pacientes">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Pacientes
+    </button>
+
+    <!-- Cargando -->
+    @if (cargando) {
+      <div class="pd-loading" role="status" aria-live="polite">
+        <span class="material-symbols-outlined pd-spin" aria-hidden="true">sync</span>
+        Cargando ficha…
+      </div>
+    }
+
+    <!-- Error -->
+    @if (!cargando && errorCarga) {
+      <div class="pd-error" role="alert">
+        <span class="material-symbols-outlined" aria-hidden="true">error</span>
+        {{ errorCarga }}
+      </div>
+    }
+
+    @if (!cargando && !errorCarga && paciente) {
+
+      <!-- Hero del paciente -->
+      <div class="pd-hero">
+        <div class="pd-hero__avatar" aria-hidden="true">
+          {{ paciente.nombre.charAt(0) }}{{ paciente.apellido.charAt(0) }}
+        </div>
+        <div class="pd-hero__info">
+          <h1 class="pd-hero__nombre">{{ paciente.nombre }} {{ paciente.apellido }}</h1>
+          <span class="pd-hero__rut">RUT {{ paciente.rut }}</span>
+          <span
+            class="pd-hero__badge"
+            [ngClass]="claseCuenta(paciente.estado_cuenta)"
+            [attr.aria-label]="'Cuenta ' + labelCuenta(paciente.estado_cuenta)"
+          >
+            {{ labelCuenta(paciente.estado_cuenta) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Stats rápidas -->
+      <div class="pd-stats" role="list">
+        <div class="pd-stat" role="listitem">
+          <span class="pd-stat__value">{{ citas.length }}</span>
+          <span class="pd-stat__label">Citas totales</span>
+        </div>
+        <div class="pd-stat" role="listitem">
+          <span class="pd-stat__value">{{ citasFuturas.length }}</span>
+          <span class="pd-stat__label">Pendientes</span>
+        </div>
+        <div class="pd-stat" role="listitem">
+          <span class="pd-stat__value">{{ calcularEdad(paciente.fecha_nacimiento) }}</span>
+          <span class="pd-stat__label">Edad</span>
+        </div>
+        <div class="pd-stat" role="listitem">
+          <span class="pd-stat__value">{{ formatFecha(paciente.fecha_registro) }}</span>
+          <span class="pd-stat__label">Registro</span>
+        </div>
+      </div>
+
+      <!-- Pestañas -->
+      <div class="pd-tabs" role="tablist" aria-label="Secciones del paciente">
+        <button
+          class="pd-tab"
+          [class.pd-tab--active]="tabActiva === 'ficha'"
+          (click)="setTab('ficha')"
+          role="tab"
+          [attr.aria-selected]="tabActiva === 'ficha'"
+          aria-controls="tab-ficha"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">person</span>
+          Ficha
+        </button>
+        <button
+          class="pd-tab"
+          [class.pd-tab--active]="tabActiva === 'citas'"
+          (click)="setTab('citas')"
+          role="tab"
+          [attr.aria-selected]="tabActiva === 'citas'"
+          aria-controls="tab-citas"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+          Citas
+          @if (citas.length > 0) {
+            <span class="pd-tab__count" aria-hidden="true">{{ citas.length }}</span>
+          }
+        </button>
+      </div>
+
+      <!-- ── Tab: Ficha administrativa ─────────────────────────────────────── -->
+      @if (tabActiva === 'ficha') {
+        <div id="tab-ficha" role="tabpanel" aria-label="Ficha administrativa">
+
+          <section class="pd-section">
+            <h2 class="pd-section__title">Datos personales</h2>
+            <dl class="pd-dl">
+              <div class="pd-dl__row">
+                <dt>Nombre completo</dt>
+                <dd>{{ paciente.nombre }} {{ paciente.apellido }}</dd>
+              </div>
+              <div class="pd-dl__row">
+                <dt>RUT</dt>
+                <dd>{{ paciente.rut }}</dd>
+              </div>
+              <div class="pd-dl__row">
+                <dt>Fecha de nacimiento</dt>
+                <dd>{{ formatFecha(paciente.fecha_nacimiento) }} ({{ calcularEdad(paciente.fecha_nacimiento) }})</dd>
+              </div>
+              <div class="pd-dl__row">
+                <dt>Correo electrónico</dt>
+                <dd>{{ paciente.correo }}</dd>
+              </div>
+              <div class="pd-dl__row">
+                <dt>Teléfono</dt>
+                <dd>{{ paciente.telefono ?? '—' }}</dd>
+              </div>
+              @if (paciente.direccion) {
+                <div class="pd-dl__row">
+                  <dt>Dirección</dt>
+                  <dd>{{ paciente.direccion }}{{ paciente.comuna ? ', ' + paciente.comuna : '' }}{{ paciente.ciudad ? ', ' + paciente.ciudad : '' }}</dd>
+                </div>
+              }
+            </dl>
+          </section>
+
+          <section class="pd-section">
+            <h2 class="pd-section__title">Contacto de emergencia</h2>
+            <dl class="pd-dl">
+              <div class="pd-dl__row">
+                <dt>Nombre</dt>
+                <dd>{{ paciente.contacto_emergencia ?? '—' }}</dd>
+              </div>
+              <div class="pd-dl__row">
+                <dt>Teléfono</dt>
+                <dd>{{ paciente.telefono_emergencia ?? '—' }}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="pd-section">
+            <h2 class="pd-section__title">Estado de la cuenta</h2>
+            <dl class="pd-dl">
+              <div class="pd-dl__row">
+                <dt>Estado</dt>
+                <dd>
+                  <span class="pd-inline-badge" [ngClass]="claseCuenta(paciente.estado_cuenta)">
+                    {{ labelCuenta(paciente.estado_cuenta) }}
+                  </span>
+                </dd>
+              </div>
+              <div class="pd-dl__row">
+                <dt>Fecha de registro</dt>
+                <dd>{{ formatFecha(paciente.fecha_registro) }}</dd>
+              </div>
+              <div class="pd-dl__row">
+                <dt>ID usuario</dt>
+                <dd>{{ paciente.id_usuario }}</dd>
+              </div>
+              <div class="pd-dl__row">
+                <dt>ID paciente</dt>
+                <dd>{{ paciente.id_paciente }}</dd>
+              </div>
+            </dl>
+          </section>
+
+        </div>
+      }
+
+      <!-- ── Tab: Historial de citas ────────────────────────────────────────── -->
+      @if (tabActiva === 'citas') {
+        <div id="tab-citas" role="tabpanel" aria-label="Historial de citas">
+
+          @if (citas.length === 0) {
+            <div class="pd-empty" role="status">
+              <span class="material-symbols-outlined pd-empty__icon" aria-hidden="true">calendar_month</span>
+              <p class="pd-empty__msg">Este paciente no tiene citas registradas.</p>
+            </div>
+          }
+
+          <!-- Citas próximas o activas -->
+          @if (citasFuturas.length > 0) {
+            <div class="pd-citas-grupo">
+              <h2 class="pd-citas-grupo__title">
+                <span class="material-symbols-outlined" aria-hidden="true">event_upcoming</span>
+                Próximas / activas
+              </h2>
+              <ul class="pd-citas-list" role="list">
+                @for (c of citasFuturas; track c.id_cita) {
+                  <li>
+                    <button
+                      class="pd-cita-card"
+                      (click)="verCita(c.id_cita)"
+                      [attr.aria-label]="'Ver detalle de cita del ' + formatFecha(c.fecha_cita)"
+                    >
+                      <div class="pd-cita-card__fecha-col" aria-hidden="true">
+                        <span class="pd-cita-card__dia">{{ c.fecha_cita | date:'dd' }}</span>
+                        <span class="pd-cita-card__mes">{{ c.fecha_cita | date:'MMM' : '' : 'es-CL' }}</span>
+                      </div>
+                      <div class="pd-cita-card__body">
+                        <div class="pd-cita-card__top">
+                          <span class="pd-cita-card__doctor">
+                            Dr. {{ c.medico_nombre }} {{ c.medico_apellido }}
+                          </span>
+                          <span
+                            class="pd-cita-card__badge"
+                            [ngClass]="claseCita(c.estado)"
+                          >
+                            {{ labelCita(c.estado) }}
+                          </span>
+                        </div>
+                        <span class="pd-cita-card__especialidad">{{ c.especialidad }}</span>
+                        <div class="pd-cita-card__meta">
+                          <span class="pd-cita-card__hora">
+                            <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+                            {{ formatHora(c.hora_cita) }}
+                          </span>
+                          <span class="pd-cita-card__modalidad">
+                            <span class="material-symbols-outlined" aria-hidden="true">
+                              {{ c.modalidad === 'telemedicina' ? 'videocam' : 'local_hospital' }}
+                            </span>
+                            {{ c.modalidad === 'telemedicina' ? 'Telemedicina' : 'Presencial' }}
+                          </span>
+                          @if (c.tiene_historial) {
+                            <span class="pd-cita-card__historial-badge">
+                              <span class="material-symbols-outlined" aria-hidden="true">description</span>
+                              Historial
+                            </span>
+                          }
+                        </div>
+                      </div>
+                      <span class="material-symbols-outlined pd-cita-card__arrow" aria-hidden="true">chevron_right</span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+
+          <!-- Citas pasadas -->
+          @if (citasPasadas.length > 0) {
+            <div class="pd-citas-grupo">
+              <h2 class="pd-citas-grupo__title">
+                <span class="material-symbols-outlined" aria-hidden="true">history</span>
+                Historial pasado
+              </h2>
+              <ul class="pd-citas-list" role="list">
+                @for (c of citasPasadas; track c.id_cita) {
+                  <li>
+                    <button
+                      class="pd-cita-card"
+                      [class.pd-cita-card--pasada]="true"
+                      (click)="verCita(c.id_cita)"
+                      [attr.aria-label]="'Ver detalle de cita del ' + formatFecha(c.fecha_cita)"
+                    >
+                      <div class="pd-cita-card__fecha-col" aria-hidden="true">
+                        <span class="pd-cita-card__dia">{{ c.fecha_cita | date:'dd' }}</span>
+                        <span class="pd-cita-card__mes">{{ c.fecha_cita | date:'MMM' : '' : 'es-CL' }}</span>
+                      </div>
+                      <div class="pd-cita-card__body">
+                        <div class="pd-cita-card__top">
+                          <span class="pd-cita-card__doctor">
+                            Dr. {{ c.medico_nombre }} {{ c.medico_apellido }}
+                          </span>
+                          <span
+                            class="pd-cita-card__badge"
+                            [ngClass]="claseCita(c.estado)"
+                          >
+                            {{ labelCita(c.estado) }}
+                          </span>
+                        </div>
+                        <span class="pd-cita-card__especialidad">{{ c.especialidad }}</span>
+                        <div class="pd-cita-card__meta">
+                          <span class="pd-cita-card__hora">
+                            <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+                            {{ formatHora(c.hora_cita) }}
+                          </span>
+                          <span class="pd-cita-card__modalidad">
+                            <span class="material-symbols-outlined" aria-hidden="true">
+                              {{ c.modalidad === 'telemedicina' ? 'videocam' : 'local_hospital' }}
+                            </span>
+                            {{ c.modalidad === 'telemedicina' ? 'Telemedicina' : 'Presencial' }}
+                          </span>
+                          @if (c.tiene_historial) {
+                            <span class="pd-cita-card__historial-badge">
+                              <span class="material-symbols-outlined" aria-hidden="true">description</span>
+                              Historial
+                            </span>
+                          }
+                        </div>
+                      </div>
+                      <span class="material-symbols-outlined pd-cita-card__arrow" aria-hidden="true">chevron_right</span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+
+        </div>
+      }
+
+    }
+
+  </div>
+</ion-content>
+
+<app-admin-bottom-nav activeTab="pacientes"></app-admin-bottom-nav>

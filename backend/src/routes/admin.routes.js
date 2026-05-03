@@ -12,6 +12,9 @@ const {
   editarPerfilMedico,
   cambiarEstadoLaboral,
   getEspecialidades,
+  getPacientes,
+  getPacienteDetalle,
+  getCitaDetalle,
 } = require('../controllers/admin.controller');
 
 const router = Router();
@@ -36,5 +39,12 @@ router.delete('/disponibilidad/:id', eliminarDisponibilidadMedico);
 
 // ── Catálogos ───────────────────────────────────────────────────────────────
 router.get('/especialidades', getEspecialidades);
+
+// ── Pacientes ───────────────────────────────────────────────────────────────
+router.get('/pacientes', getPacientes);
+router.get('/pacientes/:id', getPacienteDetalle);
+
+// ── Citas (detalle individual) ──────────────────────────────────────────────
+router.get('/citas/:id', getCitaDetalle);
 
 module.exports = router;

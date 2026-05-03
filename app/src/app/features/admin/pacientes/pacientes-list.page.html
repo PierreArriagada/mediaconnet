@@ -1,0 +1,146 @@
+<app-admin-header [userName]="user?.name ?? ''" [noLeidas]="0"></app-admin-header>
+
+<ion-content class="pl-content">
+  <div class="pl-wrap">
+
+    <!-- Cabecera de sección -->
+    <div class="pl-header">
+      <div class="pl-header__title-row">
+        <span class="material-symbols-outlined pl-header__icon" aria-hidden="true">group</span>
+        <h1 class="pl-header__title">Pacientes</h1>
+        <span class="pl-header__count" aria-live="polite">{{ pacientes.length }}</span>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="pl-filters" role="search" aria-label="Filtros de pacientes">
+      <div class="pl-filters__row">
+        <div class="pl-filters__field pl-filters__field--busqueda">
+          <label class="pl-filters__label" for="busqueda">Buscar</label>
+          <div class="pl-filters__input-wrap">
+            <span class="material-symbols-outlined pl-filters__icon" aria-hidden="true">search</span>
+            <input
+              id="busqueda"
+              type="search"
+              class="pl-filters__input"
+              [(ngModel)]="filtroBusqueda"
+              (keyup.enter)="cargarPacientes()"
+              placeholder="Nombre, apellido, RUT o correo…"
+              aria-label="Buscar por nombre, apellido, RUT o correo"
+            />
+          </div>
+        </div>
+
+        <div class="pl-filters__field">
+          <label class="pl-filters__label" for="filtroEstado">Estado cuenta</label>
+          <select
+            id="filtroEstado"
+            class="pl-filters__select"
+            [(ngModel)]="filtroEstado"
+            aria-label="Filtrar por estado de cuenta"
+          >
+            @for (op of estadosCuenta; track op.value) {
+              <option [value]="op.value">{{ op.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="pl-filters__actions">
+        <button class="pl-btn pl-btn--ghost" (click)="limpiarFiltros()" aria-label="Limpiar filtros">
+          <span class="material-symbols-outlined" aria-hidden="true">filter_list_off</span>
+          Limpiar
+        </button>
+        <button class="pl-btn pl-btn--primary" (click)="cargarPacientes()" aria-label="Aplicar filtros">
+          <span class="material-symbols-outlined" aria-hidden="true">search</span>
+          Buscar
+        </button>
+      </div>
+    </div>
+
+    <!-- Estado cargando -->
+    @if (cargando) {
+      <div class="pl-loading" role="status" aria-live="polite">
+        <span class="material-symbols-outlined pl-spin" aria-hidden="true">sync</span>
+        Cargando pacientes…
+      </div>
+    }
+
+    <!-- Error -->
+    @if (!cargando && error) {
+      <div class="pl-error" role="alert">
+        <span class="material-symbols-outlined" aria-hidden="true">error</span>
+        {{ error }}
+      </div>
+    }
+
+    <!-- Sin resultados -->
+    @if (!cargando && !error && pacientes.length === 0) {
+      <div class="pl-empty" role="status">
+        <span class="material-symbols-outlined pl-empty__icon" aria-hidden="true">person_search</span>
+        <p class="pl-empty__msg">No se encontraron pacientes con los filtros aplicados.</p>
+      </div>
+    }
+
+    <!-- Lista -->
+    @if (!cargando && !error && pacientes.length > 0) {
+      <ul class="pl-list" role="list" aria-label="Lista de pacientes">
+        @for (p of pacientes; track p.id_paciente) {
+          <li class="pl-card" role="listitem">
+            <button
+              class="pl-card__btn"
+              (click)="verDetalle(p.id_paciente)"
+              [attr.aria-label]="'Ver ficha de ' + p.nombre + ' ' + p.apellido"
+            >
+              <!-- Avatar -->
+              <div class="pl-card__avatar" aria-hidden="true">
+                {{ p.nombre.charAt(0) }}{{ p.apellido.charAt(0) }}
+              </div>
+
+              <!-- Info principal -->
+              <div class="pl-card__body">
+                <div class="pl-card__top">
+                  <span class="pl-card__nombre">{{ p.nombre }} {{ p.apellido }}</span>
+                  <span
+                    class="pl-card__badge"
+                    [ngClass]="claseCuenta(p.estado_cuenta)"
+                    [attr.aria-label]="'Cuenta ' + labelCuenta(p.estado_cuenta)"
+                  >
+                    {{ labelCuenta(p.estado_cuenta) }}
+                  </span>
+                </div>
+
+                <span class="pl-card__rut">RUT {{ p.rut }}</span>
+                <span class="pl-card__correo">{{ p.correo }}</span>
+
+                <div class="pl-card__meta">
+                  <span class="pl-card__meta-item" aria-label="Total de citas">
+                    <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+                    {{ p.total_citas }} cita{{ p.total_citas !== 1 ? 's' : '' }}
+                  </span>
+                  @if (p.proxima_cita) {
+                    <span class="pl-card__meta-item pl-card__meta-item--prox" aria-label="Próxima cita">
+                      <span class="material-symbols-outlined" aria-hidden="true">event_upcoming</span>
+                      Próx. {{ formatFecha(p.proxima_cita) }}
+                    </span>
+                  }
+                  @if (!p.proxima_cita && p.ultima_cita) {
+                    <span class="pl-card__meta-item" aria-label="Última cita">
+                      <span class="material-symbols-outlined" aria-hidden="true">history</span>
+                      Últ. {{ formatFecha(p.ultima_cita) }}
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <span class="material-symbols-outlined pl-card__arrow" aria-hidden="true">chevron_right</span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+
+  </div>
+</ion-content>
+
+<app-admin-bottom-nav activeTab="pacientes"></app-admin-bottom-nav>

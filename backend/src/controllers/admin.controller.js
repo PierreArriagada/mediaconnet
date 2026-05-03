@@ -661,6 +661,251 @@ async function getEspecialidades(req, res) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// GESTIÓN DE PACIENTES — backoffice administrador
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/admin/pacientes
+ * Lista todos los pacientes con datos básicos y estadísticas de citas.
+ * Query params: q (texto libre en nombre, apellido, correo o RUT),
+ *               estado (activo | inactivo | bloqueado)
+ */
+async function getPacientes(req, res) {
+  const { q, estado } = req.query;
+
+  const conditions = [];
+  const values = [];
+  let idx = 1;
+
+  if (q && typeof q === 'string' && q.trim()) {
+    const term = `%${q.trim()}%`;
+    conditions.push(
+      `(LOWER(u.nombre) LIKE LOWER($${idx})
+        OR LOWER(u.apellido) LIKE LOWER($${idx})
+        OR LOWER(u.correo) LIKE LOWER($${idx})
+        OR LOWER(p.rut) LIKE LOWER($${idx}))`,
+    );
+    values.push(term);
+    idx++;
+  }
+
+  const estadosPermitidos = ['activo', 'inactivo', 'bloqueado'];
+  if (estado && estadosPermitidos.includes(estado)) {
+    conditions.push(`u.estado = $${idx}`);
+    values.push(estado);
+    idx++;
+  }
+
+  const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  try {
+    const result = await pool.query(
+      `SELECT
+         p.id_paciente,
+         u.nombre,
+         u.apellido,
+         u.correo,
+         u.telefono,
+         u.estado          AS estado_cuenta,
+         p.rut,
+         p.fecha_nacimiento::text,
+         p.ciudad,
+         p.comuna,
+         u.fecha_registro,
+         (
+           SELECT COUNT(*) FROM citas_medicas c
+           WHERE c.id_paciente = p.id_paciente
+             AND c.estado_cita <> 'cancelada'
+         ) AS total_citas,
+         (
+           SELECT MAX(c.fecha_cita)::text FROM citas_medicas c
+           WHERE c.id_paciente = p.id_paciente
+             AND c.fecha_cita < CURRENT_DATE
+             AND c.estado_cita = 'completada'
+         ) AS ultima_cita,
+         (
+           SELECT MIN(c.fecha_cita)::text FROM citas_medicas c
+           WHERE c.id_paciente = p.id_paciente
+             AND c.fecha_cita >= CURRENT_DATE
+             AND c.estado_cita IN ('pendiente', 'confirmada')
+         ) AS proxima_cita
+       FROM pacientes p
+       JOIN usuarios u ON u.id_usuario = p.id_usuario
+       ${where}
+       ORDER BY u.apellido, u.nombre`,
+      values,
+    );
+
+    return res.json({ pacientes: result.rows });
+  } catch (err) {
+    console.error('Error en getPacientes (admin):', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * GET /api/admin/pacientes/:id
+ * Devuelve la ficha completa de un paciente con su historial de citas.
+ */
+async function getPacienteDetalle(req, res) {
+  const idPaciente = parseInt(req.params.id, 10);
+
+  if (isNaN(idPaciente) || idPaciente < 1) {
+    return res.status(400).json({ message: 'ID de paciente inválido.' });
+  }
+
+  try {
+    const pacienteRes = await pool.query(
+      `SELECT
+         p.id_paciente,
+         p.id_usuario,
+         u.nombre,
+         u.apellido,
+         u.correo,
+         u.telefono,
+         u.estado          AS estado_cuenta,
+         u.fecha_registro,
+         p.rut,
+         p.fecha_nacimiento::text,
+         p.direccion,
+         p.comuna,
+         p.ciudad,
+         p.contacto_emergencia,
+         p.telefono_emergencia,
+         p.fecha_creacion,
+         p.fecha_actualizacion
+       FROM pacientes p
+       JOIN usuarios u ON u.id_usuario = p.id_usuario
+       WHERE p.id_paciente = $1`,
+      [idPaciente],
+    );
+
+    if (pacienteRes.rowCount === 0) {
+      return res.status(404).json({ message: 'Paciente no encontrado.' });
+    }
+
+    const citasRes = await pool.query(
+      `SELECT
+         c.id_cita,
+         c.fecha_cita::text,
+         c.hora_cita::text,
+         c.estado_cita       AS estado,
+         c.modalidad,
+         c.motivo_consulta,
+         c.observaciones,
+         c.es_invitado,
+         c.confirmada_asistencia,
+         c.asistio_cita,
+         e.nombre_especialidad AS especialidad,
+         u.nombre             AS medico_nombre,
+         u.apellido           AS medico_apellido,
+         m.id_medico,
+         CASE WHEN ha.id_historial IS NOT NULL THEN TRUE ELSE FALSE END AS tiene_historial
+       FROM citas_medicas c
+       JOIN medicos m ON m.id_medico = c.id_medico
+       JOIN usuarios u ON u.id_usuario = m.id_usuario
+       JOIN especialidades e ON e.id_especialidad = c.id_especialidad
+       LEFT JOIN historial_atenciones ha ON ha.id_cita = c.id_cita
+       WHERE c.id_paciente = $1
+       ORDER BY c.fecha_cita DESC, c.hora_cita DESC`,
+      [idPaciente],
+    );
+
+    return res.json({
+      paciente: pacienteRes.rows[0],
+      citas: citasRes.rows,
+    });
+  } catch (err) {
+    console.error('Error en getPacienteDetalle (admin):', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * GET /api/admin/citas/:id
+ * Devuelve el detalle completo de una cita incluyendo historial de atención si existe.
+ */
+async function getCitaDetalle(req, res) {
+  const idCita = parseInt(req.params.id, 10);
+
+  if (isNaN(idCita) || idCita < 1) {
+    return res.status(400).json({ message: 'ID de cita inválido.' });
+  }
+
+  try {
+    const citaRes = await pool.query(
+      `SELECT
+         c.id_cita,
+         c.fecha_cita::text,
+         c.hora_cita::text,
+         c.estado_cita           AS estado,
+         c.modalidad,
+         c.motivo_consulta,
+         c.observaciones,
+         c.es_invitado,
+         c.confirmada_asistencia,
+         c.asistio_cita,
+         c.nombre_invitado,
+         c.apellido_invitado,
+         c.correo_invitado,
+         c.telefono_invitado,
+         c.fecha_creacion,
+         c.fecha_actualizacion,
+         -- Paciente
+         pac.id_paciente,
+         up.nombre             AS paciente_nombre,
+         up.apellido           AS paciente_apellido,
+         up.correo             AS paciente_correo,
+         up.telefono           AS paciente_telefono,
+         pac.rut               AS paciente_rut,
+         -- Médico
+         m.id_medico,
+         um.nombre             AS medico_nombre,
+         um.apellido           AS medico_apellido,
+         um.correo             AS medico_correo,
+         um.telefono           AS medico_telefono,
+         m.numero_registro     AS medico_registro,
+         m.anios_experiencia   AS medico_experiencia,
+         -- Especialidad
+         e.id_especialidad,
+         e.nombre_especialidad AS especialidad
+       FROM citas_medicas c
+       JOIN pacientes pac ON pac.id_paciente = c.id_paciente
+       JOIN usuarios up ON up.id_usuario = pac.id_usuario
+       JOIN medicos m ON m.id_medico = c.id_medico
+       JOIN usuarios um ON um.id_usuario = m.id_usuario
+       JOIN especialidades e ON e.id_especialidad = c.id_especialidad
+       WHERE c.id_cita = $1`,
+      [idCita],
+    );
+
+    if (citaRes.rowCount === 0) {
+      return res.status(404).json({ message: 'Cita no encontrada.' });
+    }
+
+    const historialRes = await pool.query(
+      `SELECT
+         ha.id_historial,
+         ha.diagnostico,
+         ha.tratamiento,
+         ha.observaciones    AS notas_historial,
+         ha.fecha_registro
+       FROM historial_atenciones ha
+       WHERE ha.id_cita = $1`,
+      [idCita],
+    );
+
+    return res.json({
+      cita: citaRes.rows[0],
+      historial: historialRes.rowCount > 0 ? historialRes.rows[0] : null,
+    });
+  } catch (err) {
+    console.error('Error en getCitaDetalle (admin):', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
 module.exports = {
   getMedicos,
   getDisponibilidadMedico,
@@ -674,4 +919,8 @@ module.exports = {
   editarPerfilMedico,
   cambiarEstadoLaboral,
   getEspecialidades,
+  // gestión de pacientes
+  getPacientes,
+  getPacienteDetalle,
+  getCitaDetalle,
 };

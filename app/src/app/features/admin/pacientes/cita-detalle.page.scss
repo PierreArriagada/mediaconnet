@@ -1,0 +1,350 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.cd-content {
+  --background: var(--mc-surface, #f5f5f5);
+}
+
+.cd-wrap {
+  padding: 16px 16px 100px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+// ── Navegación atrás ─────────────────────────────────────────────────────────
+
+.cd-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--mc-primary, #6750a4);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0 16px;
+
+  .material-symbols-outlined {
+    font-size: 1.2rem;
+  }
+
+  &:hover { opacity: 0.8; }
+}
+
+// ── Estados ──────────────────────────────────────────────────────────────────
+
+.cd-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 0;
+  color: var(--mc-on-surface-variant, #49454f);
+  font-size: 0.95rem;
+}
+
+.cd-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.cd-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fdecea;
+  color: #b3261e;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 0.9rem;
+
+  .material-symbols-outlined {
+    font-size: 1.3rem;
+  }
+}
+
+// ── Hero ─────────────────────────────────────────────────────────────────────
+
+.cd-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--mc-surface-container-low, #f7f2fa);
+  border: 1.5px solid var(--mc-outline-variant, #cac4d0);
+  border-radius: 20px;
+  padding: 18px 16px;
+  margin-bottom: 14px;
+
+  &__fecha-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--mc-secondary-container, #e8def8);
+    border-radius: 14px;
+    padding: 10px 12px;
+    min-width: 50px;
+    flex-shrink: 0;
+  }
+
+  &__dia {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--mc-on-secondary-container, #1d192b);
+    line-height: 1;
+  }
+
+  &__mes {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--mc-on-secondary-container, #1d192b);
+    opacity: 0.7;
+  }
+
+  &__anio {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--mc-on-secondary-container, #1d192b);
+    opacity: 0.6;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__especialidad {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--mc-on-surface, #1c1b1f);
+  }
+
+  &__badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 2px 10px;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  &__meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.82rem;
+    color: var(--mc-on-surface-variant, #49454f);
+
+    .material-symbols-outlined {
+      font-size: 1rem;
+    }
+
+    &--invitado {
+      color: var(--mc-tertiary, #7d5260);
+      font-weight: 600;
+    }
+  }
+}
+
+// ── Motivo ───────────────────────────────────────────────────────────────────
+
+.cd-motivo {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--mc-secondary-container, #e8def8);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+
+  &__icon {
+    font-size: 1.3rem;
+    color: var(--mc-on-secondary-container, #1d192b);
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--mc-on-secondary-container, #1d192b);
+    opacity: 0.7;
+    margin: 0 0 4px;
+  }
+
+  &__texto {
+    font-size: 0.9rem;
+    color: var(--mc-on-secondary-container, #1d192b);
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+// ── Secciones ────────────────────────────────────────────────────────────────
+
+.cd-section {
+  margin-bottom: 20px;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--mc-on-surface-variant, #49454f);
+    margin: 0 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1.5px solid var(--mc-outline-variant, #cac4d0);
+
+    .material-symbols-outlined {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+// ── DL ───────────────────────────────────────────────────────────────────────
+
+.cd-dl {
+  display: flex;
+  flex-direction: column;
+  background: var(--mc-surface-container-low, #f7f2fa);
+  border-radius: 14px;
+  border: 1.5px solid var(--mc-outline-variant, #cac4d0);
+  overflow: hidden;
+
+  &__row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--mc-outline-variant, #cac4d0);
+
+    &:last-child { border-bottom: none; }
+
+    &--block {
+      flex-direction: column;
+      gap: 4px;
+
+      dd { padding-left: 0; }
+    }
+
+    dt {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--mc-on-surface-variant, #49454f);
+      min-width: 140px;
+      flex-shrink: 0;
+    }
+
+    dd {
+      font-size: 0.88rem;
+      color: var(--mc-on-surface, #1c1b1f);
+      margin: 0;
+      flex: 1;
+      line-height: 1.4;
+    }
+  }
+}
+
+// ── Sin historial ─────────────────────────────────────────────────────────────
+
+.cd-sin-historial {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--mc-surface-container, #ece6f0);
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 0.88rem;
+  color: var(--mc-on-surface-variant, #49454f);
+
+  .material-symbols-outlined {
+    font-size: 1.4rem;
+    opacity: 0.5;
+  }
+}
+
+// ── Aviso invitado ────────────────────────────────────────────────────────────
+
+.cd-invitado-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #fff3cd;
+  color: #856404;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  margin-bottom: 10px;
+
+  .material-symbols-outlined {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+// ── Botón médico ─────────────────────────────────────────────────────────────
+
+.cd-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  margin-top: 10px;
+
+  .material-symbols-outlined {
+    font-size: 1.05rem;
+  }
+
+  &--ghost {
+    background: transparent;
+    color: var(--mc-primary, #6750a4);
+    border: 1.5px solid var(--mc-primary, #6750a4);
+    &:hover { background: rgba(103, 80, 164, 0.06); }
+  }
+
+  &--medico {
+    margin-left: auto;
+  }
+}
+
+// ── Badges de estado ─────────────────────────────────────────────────────────
+
+.estado--pendiente    { background: #fff3cd; color: #856404; }
+.estado--confirmada   { background: #d4f0d4; color: #1b5e20; }
+.estado--completada   { background: #e8def8; color: #4a148c; }
+.estado--cancelada    { background: #fdecea; color: #b3261e; }
+.estado--reprogramada { background: #e3f2fd; color: #0d47a1; }

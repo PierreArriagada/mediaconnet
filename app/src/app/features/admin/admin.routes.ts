@@ -21,7 +21,11 @@ export const ADMIN_ROUTES: Routes = [
     loadChildren: () =>
       import('./medicos/medicos.routes').then((m) => m.MEDICOS_ADMIN_ROUTES),
   },
-  // path: 'pacientes'      → pendiente
+  {
+    path: 'pacientes',
+    loadChildren: () =>
+      import('./pacientes/pacientes.routes').then((m) => m.PACIENTES_ADMIN_ROUTES),
+  },
   // path: 'auditoria'      → pendiente
   // path: 'notificaciones' → pendiente
   // path: 'ajustes'        → pendiente

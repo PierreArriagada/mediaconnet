@@ -97,6 +97,123 @@ export interface EspecialidadItem {
   estado: string;
 }
 
+// ── Pacientes ────────────────────────────────────────────────────────────────
+
+export interface PacienteListItem {
+  id_paciente: number;
+  nombre: string;
+  apellido: string;
+  correo: string;
+  telefono: string | null;
+  estado_cuenta: string;
+  rut: string;
+  fecha_nacimiento: string;
+  ciudad: string | null;
+  comuna: string | null;
+  fecha_registro: string;
+  total_citas: number;
+  ultima_cita: string | null;
+  proxima_cita: string | null;
+}
+
+export interface PacienteDetalle {
+  id_paciente: number;
+  id_usuario: number;
+  nombre: string;
+  apellido: string;
+  correo: string;
+  telefono: string | null;
+  estado_cuenta: string;
+  fecha_registro: string;
+  rut: string;
+  fecha_nacimiento: string;
+  direccion: string | null;
+  comuna: string | null;
+  ciudad: string | null;
+  contacto_emergencia: string | null;
+  telefono_emergencia: string | null;
+  fecha_creacion: string;
+  fecha_actualizacion: string;
+}
+
+export interface CitaPacienteItem {
+  id_cita: number;
+  fecha_cita: string;
+  hora_cita: string;
+  estado: string;
+  modalidad: string;
+  motivo_consulta: string | null;
+  observaciones: string | null;
+  es_invitado: boolean;
+  confirmada_asistencia: boolean | null;
+  asistio_cita: boolean | null;
+  especialidad: string;
+  medico_nombre: string;
+  medico_apellido: string;
+  id_medico: number;
+  tiene_historial: boolean;
+}
+
+export interface PacienteDetalleResponse {
+  paciente: PacienteDetalle;
+  citas: CitaPacienteItem[];
+}
+
+export interface CitaAdminDetalle {
+  id_cita: number;
+  fecha_cita: string;
+  hora_cita: string;
+  estado: string;
+  modalidad: string;
+  motivo_consulta: string | null;
+  observaciones: string | null;
+  es_invitado: boolean;
+  confirmada_asistencia: boolean | null;
+  asistio_cita: boolean | null;
+  nombre_invitado: string | null;
+  apellido_invitado: string | null;
+  correo_invitado: string | null;
+  telefono_invitado: string | null;
+  fecha_creacion: string;
+  fecha_actualizacion: string;
+  // Paciente
+  id_paciente: number;
+  paciente_nombre: string;
+  paciente_apellido: string;
+  paciente_correo: string;
+  paciente_telefono: string | null;
+  paciente_rut: string;
+  // Médico
+  id_medico: number;
+  medico_nombre: string;
+  medico_apellido: string;
+  medico_correo: string;
+  medico_telefono: string | null;
+  medico_registro: string;
+  medico_experiencia: number;
+  // Especialidad
+  id_especialidad: number;
+  especialidad: string;
+}
+
+export interface HistorialAtencion {
+  id_historial: number;
+  diagnostico: string | null;
+  tratamiento: string | null;
+  notas_historial: string | null;
+  fecha_registro: string;
+}
+
+export interface CitaAdminDetalleResponse {
+  cita: CitaAdminDetalle;
+  historial: HistorialAtencion | null;
+}
+
+export interface FiltrosPacientes {
+  q?: string;
+  estado?: string;
+}
+
 export interface NuevoMedicoPayload {
   nombre: string;
   apellido: string;
@@ -214,6 +331,26 @@ export class AdminService {
     return this.http
       .get<{ especialidades: EspecialidadItem[] }>(`${this.API}/especialidades`)
       .pipe(map((r) => r.especialidades));
+  }
+
+  // ── Pacientes ──────────────────────────────────────────────────────────────
+
+  getPacientes(filtros?: FiltrosPacientes): Observable<PacienteListItem[]> {
+    let params = new HttpParams();
+    if (filtros?.q)      params = params.set('q', filtros.q);
+    if (filtros?.estado) params = params.set('estado', filtros.estado);
+
+    return this.http
+      .get<{ pacientes: PacienteListItem[] }>(`${this.API}/pacientes`, { params })
+      .pipe(map((r) => r.pacientes));
+  }
+
+  getPacienteDetalle(id: number): Observable<PacienteDetalleResponse> {
+    return this.http.get<PacienteDetalleResponse>(`${this.API}/pacientes/${id}`);
+  }
+
+  getCitaDetalle(id: number): Observable<CitaAdminDetalleResponse> {
+    return this.http.get<CitaAdminDetalleResponse>(`${this.API}/citas/${id}`);
   }
 }
 
