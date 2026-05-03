@@ -25,7 +25,8 @@
   * `app/src/app/features/auth/login/login.page.ts` - redireccion por rol al modulo correcto
   * `backend/src/server.js` - montaje de `/api/admin`
   * `app/src/app/features/admin/home/admin-home.page.scss` - fondo y layout del Inicio admin
-* **Rutas habilitadas:** `/admin/home`, `/admin/operacion`, `/admin/operacion/horarios`, `/admin/operacion/especialidades`
-* **Cobertura actual del shell:** Inicio reemplaza el dashboard generico; Operacion enlaza a Horarios y Especialidades; la barra inferior conserva Medicos, Pacientes y Auditoria como objetivos visuales aun no montados como vistas reales. `Especialidades` sigue con datos stub; `Horarios` ya consume backend real.
+* **Rutas habilitadas:** `/admin/home`, `/admin/operacion`, `/admin/operacion/horarios`, `/admin/operacion/especialidades`, `/admin/medicos`, `/admin/medicos/nuevo`, `/admin/medicos/:idMedico`, `/admin/pacientes`, `/admin/pacientes/:idPaciente`, `/admin/pacientes/:idPaciente/citas/:idCita`
+* **Cobertura actual del shell:** Inicio reemplaza el dashboard generico; Operacion enlaza a Horarios y Especialidades; la barra inferior ya conecta modulos reales de Medicos y Pacientes. `Especialidades` sigue con datos stub; `Horarios`, `Medicos` y `Pacientes` ya consumen backend real; `Auditoria` continua pendiente.
+* **Relacion documental:** La gestion funcional de pacientes del backoffice quedo documentada en `PACIENTES_ADMIN.md`.
 * **Diseno:** avatar con gradiente secondary->primary para distinguir del modulo medico; barra inferior con estado activo en `--mc-secondary-container`; notificaciones y ajustes viven en el header y no en la barra inferior.
 * **Dependencias:** `AdminHeaderComponent`, `AdminBottomNavComponent`, `AdminService`, `NotificacionesAdminStateService`, `roleGuard`, `AuthService`, `IonContent`

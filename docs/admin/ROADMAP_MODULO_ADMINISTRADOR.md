@@ -3,10 +3,12 @@
 * **Complemento operativo:** El seguimiento ejecutable del desarrollo vive en CHECKLIST_MODULO_ADMINISTRADOR.md y debe actualizarse a medida que se cierre cada bloque.
 * **Estado actual validado:** Hoy si existe modulo admin en frontend con `/admin/home`, `/admin/operacion`, `/admin/operacion/horarios` y `/admin/operacion/especialidades`; el rol Administrador entra por redireccion dedicada y ya no usa el dashboard generico legacy.
 * **Estado actual validado:** El backend ya monta `/api/admin` con JWT + `requireRole('Administrador')` y expone listado de medicos activos junto con CRUD basico de disponibilidad por medico.
+* **Estado actual validado:** El backoffice admin ya expone `/admin/pacientes`, `/admin/pacientes/:idPaciente` y `/admin/pacientes/:idPaciente/citas/:idCita` con consumo real de `/api/admin/pacientes`, `/api/admin/pacientes/:id` y `/api/admin/citas/:id`.
 * **Estado actual validado:** La base ya dispone de roles, usuarios, pacientes, medicos, especialidades, disponibilidad_medica, citas_medicas, historial_atenciones y notificaciones, por lo que el backoffice puede construirse sobre datos reales sin inventar nuevas entidades para la operacion basica.
 * **Hallazgo clave:** El flujo de solicitud de hora invitado ya existe y crea citas `pendiente` con `es_invitado = TRUE`, sin `id_disponibilidad`, con medico autoasignado y con una experiencia de paciente que habla de una revision por el equipo; todavia no existe una cola admin que resuelva esa revision.
 * **Hallazgo clave:** La base soporta desactivacion logica en `usuarios.estado`, `medicos.estado` y `especialidades.estado`; por las llaves foraneas actuales, eliminar fisicamente medicos, especialidades o historiales operativos no debe ser el comportamiento por defecto del administrador.
-* **Hallazgo clave:** `Horarios` ya consume backend real desde `AdminService`, pero `Especialidades` sigue en stub local y las rutas `Medicos`, `Pacientes`, `Auditoria`, `Notificaciones` y `Ajustes` aun no estan montadas como vistas operativas completas.
+* **Hallazgo clave:** `Horarios`, `Medicos` y `Pacientes` ya consumen backend real desde `AdminService`; `Especialidades` sigue en stub local y `Auditoria`, `Notificaciones` y `Ajustes` aun no estan montadas como vistas operativas completas.
+* **Hallazgo clave:** El flujo de pacientes hoy es de consulta administrativa: listado filtrable, ficha administrativa, historial de citas y detalle individual con médico e historial clínico; aun no incluye acciones de soporte ni mutaciones sobre datos sensibles.
 * **Hallazgo clave:** No existe hoy persistencia para auditoria, reseteo administrativo de contrasenas, preferencias de admin, metadatos navegables de notificaciones ni jerarquias internas de permisos administrativos.
 * **Decision de navegacion principal:** El modulo admin necesita un shell mas amplio que Paciente y Medico; se recomienda un navbar persistente de cinco entradas: Inicio, Medicos, Pacientes, Operacion y Auditoria.
 * **Decision de navegacion principal:** Notificaciones y Ajustes del administrador deben vivir en el header o en un menu secundario, no en el navbar principal, para no desplazar modulos operativos mas criticos.
@@ -17,6 +19,7 @@
 * **Ruta objetivo:** /admin/medicos/:idMedico debe exponer el detalle administrativo del medico, su informacion profesional, su agenda y sus acciones de soporte.
 * **Ruta objetivo:** /admin/pacientes debe concentrar la revision de pacientes, solicitudes vinculadas y estado de sus cuentas.
 * **Ruta objetivo:** /admin/pacientes/:idPaciente debe exponer la ficha administrativa del paciente con sus datos reales y contexto clinico visible para soporte.
+* **Ruta objetivo:** /admin/pacientes/:idPaciente/citas/:idCita debe exponer el detalle administrativo individual de la cita con medico, asistencia e historial de atencion si existe.
 * **Ruta objetivo:** /admin/operacion debe funcionar como centro operativo para citas, solicitudes pendientes, horarios globales y catalogos clinicos.
 * **Ruta objetivo:** /admin/operacion/citas debe listar y filtrar todas las citas del sistema con contexto de paciente, medico y especialidad.
 * **Ruta objetivo:** /admin/operacion/solicitudes debe concentrar las solicitudes pendientes del flujo invitado y cualquier otra cita que requiera revision administrativa.
@@ -38,8 +41,11 @@
 * **Vista Pacientes:** Debe listar pacientes registrados y tambien permitir identificar pacientes provenientes del flujo invitado cuando aun esten en proceso de vinculacion o revision operativa.
 * **Vista Pacientes:** Debe mostrar nombre, RUT, correo, telefono, estado de cuenta, ultima cita, proxima cita, origen del registro y alertas relevantes para soporte.
 * **Vista Pacientes:** Debe permitir revisar la historia operativa del paciente, sus solicitudes pendientes, sus citas confirmadas y su relacion con medicos y especialidades.
+* **Vista Pacientes (estado actual):** Ya existe un listado real con filtros `q` y `estado`, mostrando nombre, RUT, correo, telefono, estado de cuenta, total de citas, ultima cita y proxima cita.
 * **Vista Detalle de paciente:** Debe exponer la ficha administrativa completa con datos de `usuarios` y `pacientes`, historial de citas, solicitudes del flujo invitado, notificaciones y acciones de soporte autorizadas.
 * **Vista Detalle de paciente:** Debe dejar explicito si el administrador solo supervisa informacion clinica o tambien puede modificarla; si puede hacerlo, cada cambio debe quedar auditado con antes y despues.
+* **Vista Detalle de paciente (estado actual):** Ya existe una ficha administrativa con tabs `Ficha` y `Citas`, separando citas futuras y pasadas y conservando contexto al volver desde el detalle individual.
+* **Vista Detalle de cita de paciente (estado actual):** Ya existe una vista individual con datos del paciente o invitado, medico, especialidad, asistencia y `historial_atenciones` si existe.
 * **Vista Operacion:** Debe funcionar como centro operativo global y cubrir cuatro frentes: solicitudes pendientes, citas del sistema, horarios o disponibilidad y catalogos clinicos.
 * **Vista Operacion:** Debe permitir filtrar por fecha, estado de cita, modalidad, medico, paciente, especialidad y tipo de origen de la solicitud.
 * **Vista Solicitudes pendientes:** Debe resolver el hueco real del sistema para citas invitado con estado `pendiente`, permitiendo revisar, confirmar, reprogramar, reasignar o cancelar la solicitud desde una cola administrativa.

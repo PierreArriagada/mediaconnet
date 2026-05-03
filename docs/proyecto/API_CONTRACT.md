@@ -295,6 +295,48 @@ Request body:
 - crea notificación de tipo `reprogramacion`
 - operación transaccional
 
+## Endpoints del administrador (actuales)
+
+Todos requieren `Authorization: Bearer <token>` con rol `Administrador`.
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| `GET` | `/api/admin/medicos` | Listado básico de médicos activos para horarios |
+| `GET` | `/api/admin/medicos/gestion` | Listado administrativo de médicos con filtros y métricas |
+| `POST` | `/api/admin/medicos` | Alta administrativa de médico con usuario y perfil |
+| `GET` | `/api/admin/medicos/:id/detalle` | Ficha administrativa del médico con historial reciente |
+| `PUT` | `/api/admin/medicos/:id/perfil` | Actualiza perfil administrativo y profesional del médico |
+| `PATCH` | `/api/admin/medicos/:id/estado-laboral` | Cambia estado laboral con reglas de negocio del backoffice |
+| `GET` | `/api/admin/medicos/:id/disponibilidad` | Disponibilidad del médico por rango `desde` / `hasta` |
+| `POST` | `/api/admin/medicos/:id/disponibilidad` | Crea bloques de disponibilidad para un médico |
+| `PATCH` | `/api/admin/disponibilidad/:id` | Actualiza fecha, horario o estado de un bloque |
+| `DELETE` | `/api/admin/disponibilidad/:id` | Elimina un bloque no reservado |
+| `GET` | `/api/admin/especialidades` | Catálogo de especialidades para selectores del backoffice |
+| `GET` | `/api/admin/pacientes` | Listado administrativo de pacientes con filtros y métricas |
+| `GET` | `/api/admin/pacientes/:id` | Ficha administrativa del paciente con historial de citas |
+| `GET` | `/api/admin/citas/:id` | Detalle individual de cita con médico e historial de atención |
+
+### GET `/api/admin/pacientes`
+
+- query params opcionales: `q` y `estado`
+- `q` busca en nombre, apellido, correo y RUT
+- `estado` acepta `activo`, `inactivo` o `bloqueado`
+- retorna `total_citas`, `ultima_cita` y `proxima_cita` por paciente
+
+### GET `/api/admin/pacientes/:id`
+
+- devuelve `{ paciente, citas }`
+- `paciente` consolida datos de `usuarios` y `pacientes` para la ficha administrativa
+- `citas` incluye médico tratante, especialidad, modalidad, observaciones, asistencia y `tiene_historial`
+- responde `404` si el paciente no existe
+
+### GET `/api/admin/citas/:id`
+
+- devuelve `{ cita, historial }`
+- `cita` incluye datos del paciente registrado, datos del invitado si aplica, médico tratante y especialidad
+- `historial` entrega diagnóstico, tratamiento, notas y fecha de registro; cuando no existe, retorna `null`
+- responde `404` si la cita no existe
+
 ## Endpoints públicos de citas
 
 | Método | Endpoint | Descripción |
