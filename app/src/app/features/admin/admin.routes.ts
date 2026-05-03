@@ -16,9 +16,9 @@ export const ADMIN_ROUTES: Routes = [
     loadChildren: () =>
       import('./operacion/operacion.routes').then((m) => m.OPERACION_ROUTES),
   },
-  // path: 'medicos'        → Fase 4
-  // path: 'pacientes'      → Fase 6
-  // path: 'auditoria'      → Fase 10
-  // path: 'notificaciones' → Fase 11
-  // path: 'ajustes'        → Fase 12
+  // path: 'medicos'        → pendiente
+  // path: 'pacientes'      → pendiente
+  // path: 'auditoria'      → pendiente
+  // path: 'notificaciones' → pendiente
+  // path: 'ajustes'        → pendiente
 ];

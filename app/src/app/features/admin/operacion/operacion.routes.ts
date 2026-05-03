@@ -16,6 +16,6 @@ export const OPERACION_ROUTES: Routes = [
     loadComponent: () =>
       import('./especialidades/especialidades.page').then((m) => m.EspecialidadesPage),
   },
-  // path: 'solicitudes'   → Fase 3
-  // path: 'citas'         → Fase 7
+  // path: 'solicitudes'   → pendiente
+  // path: 'citas'         → pendiente
 ];
