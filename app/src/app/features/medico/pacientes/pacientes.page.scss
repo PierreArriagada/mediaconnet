@@ -5,6 +5,7 @@
 
 ion-content {
   --background: var(--mc-surface);
+  --padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
   font-family: var(--mc-font-utility);
 }
 

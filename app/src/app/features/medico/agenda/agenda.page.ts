@@ -236,9 +236,8 @@ export class AgendaPage implements OnInit {
     const busqueda = this.terminoBusqueda.trim().toLowerCase();
 
     return this.citasAgenda.filter((cita) => {
-      // Bug fix #1: Solo muestra citas del día que está seleccionado en el calendario.
-      // Sin esto, la lista ignoraba completamente qué día estaba clicado.
-      const coincideFecha = this.fechaCita(cita) === this.fechaSeleccionada;
+      // Edu: en "Próximas Citas" ya no filtramos por el día seleccionado, mostramos todas las futuras
+      const coincideFecha = this.fechaCita(cita) >= this.toISODate(new Date());
 
       // Formamos el string por si buscaron combinando nombre y apellido
       const nombrePaciente = `${cita.paciente_nombre} ${cita.paciente_apellido}`.toLowerCase();
@@ -405,9 +404,8 @@ export class AgendaPage implements OnInit {
   }
 
   /**
-   * Alterna el estado de un slot entre 'disponible' y 'bloqueada'.
-   * Protege los slots 'reservada': tienen un paciente asignado y no se pueden
-   * bloquear sin resolver primero la cita (regla de negocio, no solo de UI).
+   * Edu: alterna el estado de un slot entre 'disponible' y 'bloqueada', persistiendo el cambio en backend.
+   * Protege los slots 'reservada': tienen un paciente asignado y no se pueden bloquear sin resolver primero la cita.
    */
   alternarBloqueo(slot: DisponibilidadBloque): void {
     if (slot.estado === 'reservada') {
@@ -415,16 +413,31 @@ export class AgendaPage implements OnInit {
       return;
     }
 
-    this.disponibilidad = this.disponibilidad.map((item) =>
-      item.id_disponibilidad !== slot.id_disponibilidad
-        ? item
-        : { ...item, estado: item.estado === 'bloqueada' ? 'disponible' : 'bloqueada' }
-    );
+    const nuevoEstado: EstadoDisponibilidad = slot.estado === 'bloqueada' ? 'disponible' : 'bloqueada';
+
+    this.medicoService.actualizarDisponibilidad(slot.id_disponibilidad, {
+      fecha: slot.fecha,
+      hora_inicio: slot.hora_inicio,
+      hora_fin: slot.hora_fin,
+      estado: nuevoEstado,
+    }).subscribe({
+      next: (actualizado: DisponibilidadBloque) => {
+        this.disponibilidad = this.disponibilidad.map((item) =>
+          item.id_disponibilidad !== slot.id_disponibilidad ? item : actualizado
+        );
+        this.feedbackMessage = nuevoEstado === 'bloqueada'
+          ? 'Bloque horario bloqueado correctamente.'
+          : 'Bloque horario desbloqueado correctamente.';
+      },
+      error: () => {
+        this.feedbackMessage = 'No fue posible actualizar el estado del bloque.';
+      },
+    });
   }
 
   /**
-   * Elimina un slot del array local.
-   * Protege los slots 'reservada' por la misma razón que alternarBloqueo.
+   * Edu: elimina un slot persistiendo la eliminación en backend.
+   * Protege los slots 'reservada' para evitar borrar horarios con cita asignada.
    */
   eliminarBloque(slot: DisponibilidadBloque): void {
     if (slot.estado === 'reservada') {
@@ -432,9 +445,17 @@ export class AgendaPage implements OnInit {
       return;
     }
 
-    this.disponibilidad = this.disponibilidad.filter(
-      (item) => item.id_disponibilidad !== slot.id_disponibilidad
-    );
+    this.medicoService.eliminarDisponibilidad(slot.id_disponibilidad).subscribe({
+      next: () => {
+        this.disponibilidad = this.disponibilidad.filter(
+          (item) => item.id_disponibilidad !== slot.id_disponibilidad
+        );
+        this.feedbackMessage = 'Bloque horario eliminado correctamente.';
+      },
+      error: () => {
+        this.feedbackMessage = 'No fue posible eliminar el bloque horario.';
+      },
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

@@ -80,6 +80,9 @@
   padding: 1.5rem;
   margin-bottom: 2rem;
   border: 1px solid var(--mc-outline-variant);
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .ag-panel-horario__header {
@@ -660,6 +663,19 @@ ion-content {
   gap: 1.25rem;
 }
 
+// Edu: evita desbordes horizontales del panel "Gestionar mi horario" en pantallas pequeñas.
+.ag-panel-horario__grid,
+.ag-panel-horario__col-left,
+.ag-panel-horario__col-right,
+.ag-dias-card,
+.ag-stats-card,
+.ag-turnos-card,
+.ag-bloques-editor {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 /* Tarjeta de días laborales */
 .ag-dias-card {
   background: var(--mc-surface-container-lowest);
@@ -897,6 +913,17 @@ ion-content {
   }
 }
 
+/* Edu: hacer el editor de bloques responsive en móvil */
+@media (max-width: 480px) {
+  .ag-bloque-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ag-bloque-row__arrow {
+    display: none;
+  }
+}
+
 /* Variante danger para el botón de eliminar fila */
 .ag-icon-btn--danger {
   &:hover {
@@ -929,23 +956,46 @@ ion-content {
   }
 }
 
+/* Edu: tarjeta visual para agrupar repetición y acciones de agenda */
+.ag-acciones-card {
+  background: var(--mc-surface-container-lowest);
+  border: 1px solid var(--mc-outline-variant);
+  border-radius: var(--mc-radius-xl);
+  padding: 1.25rem;
+  margin-top: 1rem;
+  box-shadow: var(--mc-shadow-ambient);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 /* Fila de repetición de semanas */
 .ag-repetir-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
   label {
     display: flex;
     align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
     gap: 0.5rem;
     font-size: 0.9rem;
     color: var(--mc-on-surface-variant);
+    text-align: center;
 
     input {
       width: 4rem;
       text-align: center;
       padding: 0.35rem 0.5rem;
       border: 1px solid var(--mc-outline-variant);
-      border-radius: var(--mc-radius-md);
+      border-radius: 999px;
       font-size: 0.9rem;
-      background: var(--mc-surface-container-lowest);
+      background: var(--mc-surface-container-low);
       color: var(--mc-on-surface);
     }
   }
@@ -953,11 +1003,19 @@ ion-content {
 
 /* Fila final con Descartar y Guardar */
 .ag-panel-acciones {
+  width: 100%;
   display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding-top: 0.5rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+
+  .ag-btn-ghost,
+  .ag-btn-primary {
+    width: min(100%, 18rem);
+    text-align: center;
+    justify-content: center;
+  }
 }
 
 /* Botón fantasma (texto, sin fondo) */
@@ -1126,6 +1184,9 @@ ion-content {
 
   .ag-panel-horario {
     padding: 0.875rem;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
   }
 
   .ag-dias-card,
@@ -1162,13 +1223,12 @@ ion-content {
   }
 
   .ag-panel-acciones {
-    flex-direction: column;
-    align-items: stretch;
+    align-items: center;
 
     .ag-btn-ghost,
     .ag-btn-primary {
-      text-align: center;
       width: 100%;
+      text-align: center;
     }
   }
 }

@@ -12,6 +12,9 @@ const {
   crearDisponibilidad,
   actualizarDisponibilidad,
   eliminarDisponibilidad,
+  getNotificacionesMedico,
+  actualizarEstadoNotificacionMedico,
+  eliminarNotificacionMedico,
 } = require('../controllers/medico.controller');
 
 const router = Router();
@@ -22,6 +25,9 @@ router.use(requireRole('Medico'));
 
 router.get('/dashboard', getDashboardMedico);
 router.get('/perfil', getPerfilMedico);
+router.get('/notificaciones', getNotificacionesMedico);
+router.patch('/notificaciones/:id/leida', actualizarEstadoNotificacionMedico);
+router.delete('/notificaciones/:id', eliminarNotificacionMedico);
 router.get('/citas-hoy', getCitasParaMarcar);
 router.get('/citas-proximas', getCitasProximas);
 router.get('/pacientes', getPacientesMedico);

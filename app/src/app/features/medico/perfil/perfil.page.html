@@ -1,18 +1,19 @@
-<!-- Edu: header médico usando el nombre del perfil cargado dinámicamente -->
 <app-medico-header [userName]="perfil ? (perfil.nombre + ' ' + perfil.apellido) : ''"></app-medico-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
   <!-- Edu: perfil médico dinámico -->
-  <h1>Perfil Profesional</h1>
+  <div class="pf-card">
+    <h1>Perfil Profesional</h1>
 
-  <div *ngIf="perfil; else loading">
-    <p><strong>Nombre:</strong> {{ perfil.nombre }} {{ perfil.apellido }}</p>
-    <p><strong>Correo:</strong> {{ perfil.correo }}</p>
-    <p><strong>Teléfono:</strong> {{ perfil.telefono || 'No registrado' }}</p>
-    <p><strong>Especialidad:</strong> {{ perfil.nombre_especialidad }}</p>
-    <p><strong>Registro Médico:</strong> {{ perfil.numero_registro }}</p>
-    <p><strong>Años de experiencia:</strong> {{ perfil.anios_experiencia }} años</p>
-    <p><strong>Estado:</strong> {{ perfil.estado }}</p>
+    <div *ngIf="perfil; else loading">
+      <p><strong>Nombre:</strong> {{ perfil.nombre }} {{ perfil.apellido }}</p>
+      <p><strong>Correo:</strong> {{ perfil.correo }}</p>
+      <p><strong>Teléfono:</strong> {{ perfil.telefono || 'No registrado' }}</p>
+      <p><strong>Especialidad:</strong> {{ perfil.nombre_especialidad }}</p>
+      <p><strong>Registro Médico:</strong> {{ perfil.numero_registro }}</p>
+      <p><strong>Años de experiencia:</strong> {{ perfil.anios_experiencia }} años</p>
+      <p><strong>Estado:</strong> {{ perfil.estado }}</p>
+    </div>
   </div>
 
   <ng-template #loading>

@@ -100,6 +100,19 @@ export interface MensajeResponse {
   message: string;
 }
 
+export interface NotificacionMedico {
+  id_notificacion: number;
+  titulo: string;
+  mensaje: string;
+  tipo: string;
+  leida: boolean;
+  fecha_envio: string;
+}
+
+export interface NotificacionesMedicoData {
+  notificaciones: NotificacionMedico[];
+}
+
 export interface DisponibilidadBloque {
   id_disponibilidad: number;
   fecha: string;
@@ -159,5 +172,22 @@ export class MedicoService {
 
   eliminarDisponibilidad(id: number): Observable<MensajeResponse> {
     return this.http.delete<MensajeResponse>(`${this.API}/disponibilidad/${id}`);
+  }
+
+  getNotificaciones(): Observable<NotificacionesMedicoData> {
+    return this.http.get<NotificacionesMedicoData>(`${this.API}/notificaciones`);
+  }
+
+  // Edu: marca una notificación como leída o no leída.
+  actualizarEstadoNotificacion(idNotificacion: number, leida: boolean): Observable<{ notificacion: NotificacionMedico }> {
+    return this.http.patch<{ notificacion: NotificacionMedico }>(
+      `${this.API}/notificaciones/${idNotificacion}/leida`,
+      { leida }
+    );
+  }
+
+  // Edu: elimina una notificación del médico autenticado.
+  eliminarNotificacion(idNotificacion: number): Observable<MensajeResponse> {
+    return this.http.delete<MensajeResponse>(`${this.API}/notificaciones/${idNotificacion}`);
   }
 }

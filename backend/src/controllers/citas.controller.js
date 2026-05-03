@@ -76,7 +76,7 @@ async function crearCitaInvitado(req, res) {
 
     // Obtener primer médico activo de la especialidad para asignación automática
     const medicoResult = await client.query(
-      `SELECT id_medico FROM medicos
+      `SELECT id_medico, id_usuario FROM medicos
        WHERE  id_especialidad = $1 AND estado = 'activo'
        ORDER  BY id_medico ASC
        LIMIT  1`,
@@ -91,6 +91,7 @@ async function crearCitaInvitado(req, res) {
     }
 
     const idMedico = medicoResult.rows[0].id_medico;
+    const idUsuarioMedico = medicoResult.rows[0].id_usuario; // Edu: usuario del médico para notificación
 
     // Insertar cita con estado pendiente y campos de invitado
     const citaResult = await client.query(
@@ -106,6 +107,17 @@ async function crearCitaInvitado(req, res) {
         idPaciente, idMedico, id_especialidad,
         fecha_preferente, hora_cita, motivo_consulta,
         nombre, apellido, correo, telefono,
+      ]
+    );
+
+    // Edu: notificación al médico por nueva solicitud de cita
+    await client.query(
+      `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+       VALUES ($1, $2, $3, 'general', FALSE)`,
+      [
+        idUsuarioMedico,
+        'Nueva solicitud de cita',
+        'Tienes una nueva solicitud de cita médica pendiente de revisión.'
       ]
     );
 
