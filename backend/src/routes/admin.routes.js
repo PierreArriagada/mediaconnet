@@ -6,6 +6,12 @@ const {
   crearDisponibilidadMedico,
   actualizarDisponibilidadMedico,
   eliminarDisponibilidadMedico,
+  getMedicosGestion,
+  getMedicoDetalle,
+  crearMedico,
+  editarPerfilMedico,
+  cambiarEstadoLaboral,
+  getEspecialidades,
 } = require('../controllers/admin.controller');
 
 const router = Router();
@@ -14,15 +20,21 @@ const router = Router();
 router.use(requireAuth);
 router.use(requireRole('Administrador'));
 
-// Médicos
+// ── Médicos (horarios) — orden importa: /gestion antes de /:id ──────────────
 router.get('/medicos', getMedicos);
+router.get('/medicos/gestion', getMedicosGestion);
+router.post('/medicos', crearMedico);
+router.get('/medicos/:id/detalle', getMedicoDetalle);
+router.put('/medicos/:id/perfil', editarPerfilMedico);
+router.patch('/medicos/:id/estado-laboral', cambiarEstadoLaboral);
 
-// Disponibilidad de un médico específico
+// ── Disponibilidad ──────────────────────────────────────────────────────────
 router.get('/medicos/:id/disponibilidad', getDisponibilidadMedico);
 router.post('/medicos/:id/disponibilidad', crearDisponibilidadMedico);
-
-// Operaciones sobre un bloque individual
 router.patch('/disponibilidad/:id', actualizarDisponibilidadMedico);
 router.delete('/disponibilidad/:id', eliminarDisponibilidadMedico);
+
+// ── Catálogos ───────────────────────────────────────────────────────────────
+router.get('/especialidades', getEspecialidades);
 
 module.exports = router;

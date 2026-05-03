@@ -1,0 +1,217 @@
+<app-admin-header [user]="user"></app-admin-header>
+
+<ion-content class="mn-content">
+  <div class="mn-wrap">
+
+    <!-- Cabecera -->
+    <div class="mn-page-header">
+      <button class="mn-back-btn" (click)="volver()" aria-label="Volver a lista de médicos">
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      </button>
+      <div>
+        <h1 class="mn-page-title">Nuevo médico</h1>
+        <p class="mn-page-sub">Completa el perfil del profesional para darlo de alta en el sistema.</p>
+      </div>
+    </div>
+
+    <!-- Alertas -->
+    @if (errorMsg) {
+      <div class="mn-alert mn-alert--error" role="alert">
+        <span class="material-symbols-outlined" aria-hidden="true">error</span>
+        {{ errorMsg }}
+      </div>
+    }
+    @if (successMsg) {
+      <div class="mn-alert mn-alert--success" role="status">
+        <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+        {{ successMsg }}
+      </div>
+    }
+
+    <!-- Formulario -->
+    <form class="mn-form" (ngSubmit)="guardar()" novalidate>
+
+      <!-- Sección: Datos personales -->
+      <section class="mn-section">
+        <h2 class="mn-section__title">
+          <span class="material-symbols-outlined" aria-hidden="true">person</span>
+          Datos personales
+        </h2>
+
+        <div class="mn-grid-2">
+          <div class="mn-field">
+            <label class="mn-label" for="nombre">Nombre <span class="mn-required">*</span></label>
+            <input
+              id="nombre"
+              type="text"
+              class="mn-input"
+              [(ngModel)]="nombre"
+              name="nombre"
+              autocomplete="given-name"
+              placeholder="Ej: María"
+              required
+            />
+          </div>
+
+          <div class="mn-field">
+            <label class="mn-label" for="apellido">Apellido <span class="mn-required">*</span></label>
+            <input
+              id="apellido"
+              type="text"
+              class="mn-input"
+              [(ngModel)]="apellido"
+              name="apellido"
+              autocomplete="family-name"
+              placeholder="Ej: González"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="mn-field">
+          <label class="mn-label" for="correo">Correo electrónico <span class="mn-required">*</span></label>
+          <input
+            id="correo"
+            type="email"
+            class="mn-input"
+            [(ngModel)]="correo"
+            name="correo"
+            autocomplete="email"
+            placeholder="medico@mediconnect.cl"
+            required
+          />
+        </div>
+
+        <div class="mn-field">
+          <label class="mn-label" for="telefono">Teléfono</label>
+          <input
+            id="telefono"
+            type="tel"
+            class="mn-input"
+            [(ngModel)]="telefono"
+            name="telefono"
+            autocomplete="tel"
+            placeholder="+56 9 1234 5678"
+          />
+        </div>
+
+        <div class="mn-field">
+          <label class="mn-label" for="password">Contraseña inicial <span class="mn-required">*</span></label>
+          <div class="mn-password-wrap">
+            <input
+              id="password"
+              [type]="mostrarPassword ? 'text' : 'password'"
+              class="mn-input mn-input--password"
+              [(ngModel)]="passwordInicial"
+              name="passwordInicial"
+              autocomplete="new-password"
+              placeholder="Mínimo 8 caracteres"
+              required
+            />
+            <button
+              type="button"
+              class="mn-password-toggle"
+              (click)="togglePassword()"
+              [attr.aria-label]="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">
+                {{ mostrarPassword ? 'visibility_off' : 'visibility' }}
+              </span>
+            </button>
+          </div>
+          <span class="mn-hint">El médico deberá cambiarla en su primer inicio de sesión.</span>
+        </div>
+      </section>
+
+      <!-- Sección: Datos profesionales -->
+      <section class="mn-section">
+        <h2 class="mn-section__title">
+          <span class="material-symbols-outlined" aria-hidden="true">stethoscope</span>
+          Datos profesionales
+        </h2>
+
+        <div class="mn-field">
+          <label class="mn-label" for="especialidad">Especialidad <span class="mn-required">*</span></label>
+          <select
+            id="especialidad"
+            class="mn-input mn-select"
+            [(ngModel)]="idEspecialidad"
+            name="idEspecialidad"
+            required
+          >
+            <option [value]="null" disabled>Selecciona una especialidad</option>
+            @for (esp of especialidades; track esp.id_especialidad) {
+              <option [value]="esp.id_especialidad">{{ esp.nombre_especialidad }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mn-grid-2">
+          <div class="mn-field">
+            <label class="mn-label" for="numRegistro">N.º de registro médico <span class="mn-required">*</span></label>
+            <input
+              id="numRegistro"
+              type="text"
+              class="mn-input"
+              [(ngModel)]="numeroRegistro"
+              name="numeroRegistro"
+              placeholder="REG-MED-001"
+              required
+            />
+          </div>
+
+          <div class="mn-field">
+            <label class="mn-label" for="anios">Años de experiencia</label>
+            <input
+              id="anios"
+              type="number"
+              class="mn-input"
+              [(ngModel)]="aniosExperiencia"
+              name="aniosExperiencia"
+              min="0"
+              max="60"
+            />
+          </div>
+        </div>
+
+        <div class="mn-field">
+          <label class="mn-label" for="bio">Biografía profesional</label>
+          <textarea
+            id="bio"
+            class="mn-input mn-textarea"
+            [(ngModel)]="biografia"
+            name="biografia"
+            rows="4"
+            placeholder="Descripción del médico visible para los pacientes…"
+            maxlength="500"
+          ></textarea>
+          <span class="mn-hint">{{ biografia.length }}/500 caracteres</span>
+        </div>
+      </section>
+
+      <!-- Acciones -->
+      <div class="mn-actions">
+        <button type="button" class="mn-btn mn-btn--outline" (click)="volver()">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="mn-btn mn-btn--primary"
+          [disabled]="enviando || !esFormularioValido()"
+        >
+          @if (enviando) {
+            <span class="material-symbols-outlined mn-spin" aria-hidden="true">sync</span>
+            Guardando…
+          } @else {
+            <span class="material-symbols-outlined" aria-hidden="true">person_add</span>
+            Dar de alta
+          }
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</ion-content>
+
+<app-admin-bottom-nav activeTab="medicos"></app-admin-bottom-nav>

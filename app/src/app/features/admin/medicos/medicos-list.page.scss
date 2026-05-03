@@ -1,0 +1,370 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.ml-content {
+  --background: var(--mc-surface, #f5f5f5);
+}
+
+.ml-wrap {
+  padding: 16px 16px 100px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+// ── Cabecera de sección ──────────────────────────────────────────────────────
+
+.ml-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  &__title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--mc-on-surface, #1c1b1f);
+    margin: 0;
+  }
+
+  &__count {
+    background: var(--mc-secondary-container, #e8def8);
+    color: var(--mc-on-secondary-container, #1d192b);
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 2px 10px;
+  }
+
+  &__btn-nuevo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--mc-primary, #6750a4);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+
+    &:hover { opacity: 0.88; }
+
+    .material-symbols-outlined {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+// ── Filtros ──────────────────────────────────────────────────────────────────
+
+.ml-filters {
+  background: var(--mc-surface-container, #ece6f0);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &__search {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__search-icon {
+    position: absolute;
+    left: 10px;
+    font-size: 1.1rem;
+    color: var(--mc-outline, #79747e);
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 8px 12px 8px 36px;
+    border: 1px solid var(--mc-outline-variant, #cac4d0);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    background: var(--mc-surface, #fff);
+    outline: none;
+
+    &:focus {
+      border-color: var(--mc-primary, #6750a4);
+    }
+  }
+
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  &__select {
+    flex: 1;
+    min-width: 140px;
+    padding: 8px 10px;
+    border: 1px solid var(--mc-outline-variant, #cac4d0);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    background: var(--mc-surface, #fff);
+    outline: none;
+    cursor: pointer;
+
+    &:focus {
+      border-color: var(--mc-primary, #6750a4);
+    }
+  }
+
+  &__btn-buscar {
+    background: var(--mc-primary, #6750a4);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+
+    &:hover { opacity: 0.88; }
+  }
+
+  &__btn-limpiar {
+    background: transparent;
+    color: var(--mc-primary, #6750a4);
+    border: 1px solid var(--mc-primary, #6750a4);
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+
+    &:hover { opacity: 0.75; }
+  }
+}
+
+// ── Estados ──────────────────────────────────────────────────────────────────
+
+.ml-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 0;
+  color: var(--mc-on-surface-variant, #49454f);
+  font-size: 0.9rem;
+
+  &__icon {
+    animation: spin 1.2s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.ml-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fde7e7;
+  color: #b3261e;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 0.9rem;
+}
+
+.ml-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 48px 16px;
+  text-align: center;
+
+  &__icon {
+    font-size: 3rem;
+    color: var(--mc-outline, #79747e);
+  }
+
+  &__msg {
+    color: var(--mc-on-surface-variant, #49454f);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  &__btn {
+    background: transparent;
+    color: var(--mc-primary, #6750a4);
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+}
+
+// ── Tarjetas ─────────────────────────────────────────────────────────────────
+
+.ml-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ml-card {
+  position: relative;
+  background: var(--mc-surface, #fff);
+  border-radius: 16px;
+  padding: 16px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.12s;
+  border: 1px solid transparent;
+
+  &:hover,
+  &:focus {
+    box-shadow: 0 4px 16px rgba(103, 80, 164, 0.12);
+    border-color: var(--mc-outline-variant, #cac4d0);
+    outline: none;
+    transform: translateY(-1px);
+  }
+
+  &__top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding-right: 28px;
+  }
+
+  &__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--mc-secondary, #625b71), var(--mc-primary, #6750a4));
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    text-transform: uppercase;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__nombre {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--mc-on-surface, #1c1b1f);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__especialidad {
+    font-size: 0.8rem;
+    color: var(--mc-primary, #6750a4);
+    font-weight: 500;
+  }
+
+  &__correo {
+    font-size: 0.78rem;
+    color: var(--mc-on-surface-variant, #49454f);
+  }
+
+  &__badge {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 3px 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--mc-outline-variant, #e7e0ec);
+  }
+
+  &__meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    color: var(--mc-on-surface-variant, #49454f);
+
+    .material-symbols-outlined {
+      font-size: 0.95rem;
+    }
+  }
+
+  &__arrow {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--mc-outline, #79747e);
+
+    .material-symbols-outlined {
+      font-size: 1.3rem;
+    }
+  }
+}
+
+// ── Badges de estado laboral ──────────────────────────────────────────────────
+
+.badge--activo {
+  background: #e6f4ea;
+  color: #1e8e3e;
+}
+
+.badge--vacaciones {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.badge--licencia {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge--inactivo {
+  background: #f5f5f5;
+  color: #616161;
+}
+
+.badge--destituido {
+  background: #fce8e6;
+  color: #b3261e;
+}

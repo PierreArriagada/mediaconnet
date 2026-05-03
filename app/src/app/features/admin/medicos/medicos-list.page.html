@@ -1,0 +1,142 @@
+<app-admin-header [user]="user"></app-admin-header>
+
+<ion-content class="ml-content">
+  <div class="ml-wrap">
+
+    <!-- Cabecera de sección -->
+    <div class="ml-header">
+      <div class="ml-header__title-row">
+        <h1 class="ml-header__title">Médicos</h1>
+        <span class="ml-header__count">{{ medicos.length }}</span>
+      </div>
+      <button class="ml-header__btn-nuevo" (click)="irANuevoMedico()" aria-label="Agregar nuevo médico">
+        <span class="material-symbols-outlined" aria-hidden="true">person_add</span>
+        Nuevo médico
+      </button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="ml-filters">
+      <div class="ml-filters__search">
+        <span class="material-symbols-outlined ml-filters__search-icon" aria-hidden="true">search</span>
+        <input
+          type="text"
+          class="ml-filters__input"
+          placeholder="Buscar por nombre, apellido o correo…"
+          [(ngModel)]="filtroBusqueda"
+          (keyup.enter)="cargarMedicos()"
+          aria-label="Buscar médico"
+        />
+      </div>
+
+      <div class="ml-filters__row">
+        <select
+          class="ml-filters__select"
+          [(ngModel)]="filtroEspecialidad"
+          (change)="cargarMedicos()"
+          aria-label="Filtrar por especialidad"
+        >
+          <option value="">Todas las especialidades</option>
+          @for (esp of especialidades; track esp.id_especialidad) {
+            <option [value]="esp.nombre_especialidad">{{ esp.nombre_especialidad }}</option>
+          }
+        </select>
+
+        <select
+          class="ml-filters__select"
+          [(ngModel)]="filtroEstadoLaboral"
+          (change)="cargarMedicos()"
+          aria-label="Filtrar por estado laboral"
+        >
+          @for (est of estadosLaborales; track est.value) {
+            <option [value]="est.value">{{ est.label }}</option>
+          }
+        </select>
+
+        <button class="ml-filters__btn-buscar" (click)="cargarMedicos()" aria-label="Aplicar filtros">
+          Buscar
+        </button>
+        <button class="ml-filters__btn-limpiar" (click)="limpiarFiltros()" aria-label="Limpiar filtros">
+          Limpiar
+        </button>
+      </div>
+    </div>
+
+    <!-- Estado de carga -->
+    @if (cargando) {
+      <div class="ml-loading" role="status" aria-live="polite">
+        <span class="material-symbols-outlined ml-loading__icon" aria-hidden="true">sync</span>
+        Cargando médicos…
+      </div>
+    }
+
+    <!-- Error -->
+    @if (!cargando && error) {
+      <div class="ml-error" role="alert">
+        <span class="material-symbols-outlined" aria-hidden="true">error</span>
+        {{ error }}
+      </div>
+    }
+
+    <!-- Lista vacía -->
+    @if (!cargando && !error && medicos.length === 0) {
+      <div class="ml-empty">
+        <span class="material-symbols-outlined ml-empty__icon" aria-hidden="true">person_search</span>
+        <p class="ml-empty__msg">No se encontraron médicos con los filtros aplicados.</p>
+        <button class="ml-empty__btn" (click)="limpiarFiltros()">Ver todos</button>
+      </div>
+    }
+
+    <!-- Tarjetas -->
+    @if (!cargando && !error && medicos.length > 0) {
+      <ul class="ml-list" role="list">
+        @for (med of medicos; track trackByMedico($index, med)) {
+          <li class="ml-card" role="listitem" (click)="irADetalle(med.id_medico)" tabindex="0"
+              (keyup.enter)="irADetalle(med.id_medico)" aria-label="Ver detalle de {{ med.nombre }} {{ med.apellido }}">
+
+            <div class="ml-card__top">
+              <div class="ml-card__avatar" aria-hidden="true">
+                {{ med.nombre.charAt(0) }}{{ med.apellido.charAt(0) }}
+              </div>
+              <div class="ml-card__info">
+                <span class="ml-card__nombre">Dr. {{ med.nombre }} {{ med.apellido }}</span>
+                <span class="ml-card__especialidad">{{ med.especialidad }}</span>
+                <span class="ml-card__correo">{{ med.correo }}</span>
+              </div>
+              <span
+                class="ml-card__badge"
+                [ngClass]="badgeEstadoLaboral(med.estado_laboral).clase"
+                aria-label="Estado: {{ badgeEstadoLaboral(med.estado_laboral).label }}"
+              >
+                {{ badgeEstadoLaboral(med.estado_laboral).label }}
+              </span>
+            </div>
+
+            <div class="ml-card__meta">
+              <span class="ml-card__meta-item">
+                <span class="material-symbols-outlined" aria-hidden="true">badge</span>
+                {{ med.numero_registro }}
+              </span>
+              <span class="ml-card__meta-item">
+                <span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>
+                {{ med.citas_futuras }} citas futuras
+              </span>
+              <span class="ml-card__meta-item">
+                <span class="material-symbols-outlined" aria-hidden="true">star</span>
+                {{ med.valoracion_promedio | number:'1.1-1' }}
+              </span>
+            </div>
+
+            <span class="ml-card__arrow" aria-hidden="true">
+              <span class="material-symbols-outlined">chevron_right</span>
+            </span>
+
+          </li>
+        }
+      </ul>
+    }
+
+  </div>
+</ion-content>
+
+<app-admin-bottom-nav activeTab="medicos"></app-admin-bottom-nav>

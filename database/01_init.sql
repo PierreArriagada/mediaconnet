@@ -97,11 +97,13 @@ CREATE TABLE medicos (
     valoracion_promedio NUMERIC(2,1) DEFAULT 0.0,
     total_valoraciones INTEGER DEFAULT 0,
     estado VARCHAR(20) DEFAULT 'activo' NOT NULL,
+    estado_laboral VARCHAR(30) DEFAULT 'activo' NOT NULL,
     fecha_creacion TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     fecha_actualizacion TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT uq_medicos_numero_registro UNIQUE (numero_registro),
     CONSTRAINT chk_medicos_experiencia CHECK (anios_experiencia >= 0),
     CONSTRAINT chk_medicos_estado CHECK (estado IN ('activo', 'inactivo')),
+    CONSTRAINT chk_medicos_estado_laboral CHECK (estado_laboral IN ('activo', 'vacaciones', 'licencia_medica', 'licencia_administrativa', 'inactivo', 'destituido')),
     CONSTRAINT fk_medicos_usuarios FOREIGN KEY (id_usuario)
         REFERENCES usuarios(id_usuario) ON DELETE RESTRICT,
     CONSTRAINT fk_medicos_especialidades FOREIGN KEY (id_especialidad)

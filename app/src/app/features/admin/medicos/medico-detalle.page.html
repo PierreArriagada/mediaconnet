@@ -1,0 +1,408 @@
+<app-admin-header [user]="user"></app-admin-header>
+
+<ion-content class="md-content">
+  <div class="md-wrap">
+
+    <!-- Navegación de regreso -->
+    <button class="md-back-btn" (click)="volver()" aria-label="Volver a lista de médicos">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Médicos
+    </button>
+
+    <!-- Estado de carga -->
+    @if (cargando) {
+      <div class="md-loading" role="status" aria-live="polite">
+        <span class="material-symbols-outlined md-spin" aria-hidden="true">sync</span>
+        Cargando…
+      </div>
+    }
+
+    <!-- Error de carga -->
+    @if (!cargando && errorCarga) {
+      <div class="md-error" role="alert">
+        <span class="material-symbols-outlined" aria-hidden="true">error</span>
+        {{ errorCarga }}
+      </div>
+    }
+
+    @if (!cargando && !errorCarga && medico) {
+
+      <!-- Hero del médico -->
+      <div class="md-hero">
+        <div class="md-hero__avatar" aria-hidden="true">
+          {{ medico.nombre.charAt(0) }}{{ medico.apellido.charAt(0) }}
+        </div>
+        <div class="md-hero__info">
+          <h1 class="md-hero__nombre">Dr. {{ medico.nombre }} {{ medico.apellido }}</h1>
+          <span class="md-hero__especialidad">{{ medico.especialidad }}</span>
+          <span
+            class="md-hero__badge"
+            [ngClass]="claseEstado(medico.estado_laboral)"
+            [attr.aria-label]="'Estado: ' + labelEstado(medico.estado_laboral)"
+          >
+            {{ labelEstado(medico.estado_laboral) }}
+          </span>
+        </div>
+        <button class="md-hero__horarios-btn" (click)="irHorarios()" aria-label="Ir a gestión de horarios">
+          <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+        </button>
+      </div>
+
+      <!-- Stats rápidas -->
+      <div class="md-stats" role="list">
+        <div class="md-stat" role="listitem">
+          <span class="md-stat__value">{{ medico.valoracion_promedio | number:'1.1-1' }}</span>
+          <span class="md-stat__label">Valoración</span>
+        </div>
+        <div class="md-stat" role="listitem">
+          <span class="md-stat__value">{{ medico.total_valoraciones }}</span>
+          <span class="md-stat__label">Reseñas</span>
+        </div>
+        <div class="md-stat" role="listitem">
+          <span class="md-stat__value">{{ historialCitas.length }}</span>
+          <span class="md-stat__label">Citas totales</span>
+        </div>
+        <div class="md-stat" role="listitem">
+          <span class="md-stat__value">{{ medico.anios_experiencia }}</span>
+          <span class="md-stat__label">Años exp.</span>
+        </div>
+      </div>
+
+      <!-- Pestañas -->
+      <div class="md-tabs" role="tablist" aria-label="Secciones del médico">
+        <button
+          class="md-tab"
+          [class.md-tab--active]="tabActiva === 'perfil'"
+          (click)="setTab('perfil')"
+          role="tab"
+          [attr.aria-selected]="tabActiva === 'perfil'"
+          aria-controls="tab-perfil"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">person</span>
+          Perfil
+        </button>
+        <button
+          class="md-tab"
+          [class.md-tab--active]="tabActiva === 'estado'"
+          (click)="setTab('estado')"
+          role="tab"
+          [attr.aria-selected]="tabActiva === 'estado'"
+          aria-controls="tab-estado"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">work_history</span>
+          Estado laboral
+        </button>
+        <button
+          class="md-tab"
+          [class.md-tab--active]="tabActiva === 'historial'"
+          (click)="setTab('historial')"
+          role="tab"
+          [attr.aria-selected]="tabActiva === 'historial'"
+          aria-controls="tab-historial"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">history</span>
+          Historial
+        </button>
+      </div>
+
+      <!-- ── PESTAÑA: PERFIL ───────────────────────────────────────────────── -->
+      @if (tabActiva === 'perfil') {
+        <div id="tab-perfil" role="tabpanel" class="md-panel">
+
+          <!-- Alertas perfil -->
+          @if (errorPerfil) {
+            <div class="md-alert md-alert--error" role="alert">
+              <span class="material-symbols-outlined" aria-hidden="true">error</span>
+              {{ errorPerfil }}
+            </div>
+          }
+          @if (successPerfil) {
+            <div class="md-alert md-alert--success" role="status">
+              <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+              {{ successPerfil }}
+            </div>
+          }
+
+          <!-- Vista lectura -->
+          @if (!editando) {
+            <div class="md-card">
+              <div class="md-card__header">
+                <h2 class="md-card__title">Información personal</h2>
+                <button class="md-edit-btn" (click)="toggleEditar()" aria-label="Editar perfil del médico">
+                  <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+                  Editar
+                </button>
+              </div>
+
+              <dl class="md-dl">
+                <div class="md-dl__row">
+                  <dt>Nombre completo</dt>
+                  <dd>{{ medico.nombre }} {{ medico.apellido }}</dd>
+                </div>
+                <div class="md-dl__row">
+                  <dt>Correo electrónico</dt>
+                  <dd>{{ medico.correo }}</dd>
+                </div>
+                <div class="md-dl__row">
+                  <dt>Teléfono</dt>
+                  <dd>{{ medico.telefono ?? '—' }}</dd>
+                </div>
+                <div class="md-dl__row">
+                  <dt>Estado del sistema</dt>
+                  <dd>{{ medico.estado_sistema }}</dd>
+                </div>
+                <div class="md-dl__row">
+                  <dt>Registrado el</dt>
+                  <dd>{{ formatFecha(medico.fecha_registro) }}</dd>
+                </div>
+              </dl>
+
+              <div class="md-card__divider"></div>
+
+              <dl class="md-dl">
+                <div class="md-dl__row">
+                  <dt>Especialidad</dt>
+                  <dd>{{ medico.especialidad }}</dd>
+                </div>
+                <div class="md-dl__row">
+                  <dt>N.º de registro</dt>
+                  <dd>{{ medico.numero_registro }}</dd>
+                </div>
+                <div class="md-dl__row">
+                  <dt>Años de experiencia</dt>
+                  <dd>{{ medico.anios_experiencia }}</dd>
+                </div>
+                <div class="md-dl__row">
+                  <dt>Última actualización</dt>
+                  <dd>{{ formatFecha(medico.fecha_actualizacion) }}</dd>
+                </div>
+              </dl>
+
+              @if (medico.biografia) {
+                <div class="md-card__divider"></div>
+                <p class="md-bio">{{ medico.biografia }}</p>
+              }
+            </div>
+          }
+
+          <!-- Vista edición -->
+          @if (editando) {
+            <form class="md-card md-form" (ngSubmit)="guardarPerfil()" novalidate>
+              <div class="md-card__header">
+                <h2 class="md-card__title">Editar perfil</h2>
+              </div>
+
+              <div class="md-grid-2">
+                <div class="md-field">
+                  <label class="md-label" for="eNombre">Nombre <span class="md-req">*</span></label>
+                  <input id="eNombre" type="text" class="md-input" [(ngModel)]="editNombre" name="editNombre" required />
+                </div>
+                <div class="md-field">
+                  <label class="md-label" for="eApellido">Apellido <span class="md-req">*</span></label>
+                  <input id="eApellido" type="text" class="md-input" [(ngModel)]="editApellido" name="editApellido" required />
+                </div>
+              </div>
+
+              <div class="md-field">
+                <label class="md-label" for="eCorreo">Correo <span class="md-req">*</span></label>
+                <input id="eCorreo" type="email" class="md-input" [(ngModel)]="editCorreo" name="editCorreo" required />
+              </div>
+
+              <div class="md-field">
+                <label class="md-label" for="eTelefono">Teléfono</label>
+                <input id="eTelefono" type="tel" class="md-input" [(ngModel)]="editTelefono" name="editTelefono" />
+              </div>
+
+              <div class="md-field">
+                <label class="md-label" for="eEsp">Especialidad <span class="md-req">*</span></label>
+                <select id="eEsp" class="md-input md-select" [(ngModel)]="editIdEspecialidad" name="editIdEspecialidad" required>
+                  @for (esp of especialidades; track esp.id_especialidad) {
+                    <option [value]="esp.id_especialidad">{{ esp.nombre_especialidad }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="md-grid-2">
+                <div class="md-field">
+                  <label class="md-label" for="eReg">N.º registro <span class="md-req">*</span></label>
+                  <input id="eReg" type="text" class="md-input" [(ngModel)]="editNumeroRegistro" name="editNumeroRegistro" required />
+                </div>
+                <div class="md-field">
+                  <label class="md-label" for="eAnios">Años experiencia</label>
+                  <input id="eAnios" type="number" class="md-input" [(ngModel)]="editAnios" name="editAnios" min="0" max="60" />
+                </div>
+              </div>
+
+              <div class="md-field">
+                <label class="md-label" for="eBio">Biografía</label>
+                <textarea id="eBio" class="md-input md-textarea" [(ngModel)]="editBiografia" name="editBiografia" rows="4" maxlength="500"></textarea>
+                <span class="md-hint">{{ editBiografia.length }}/500</span>
+              </div>
+
+              <div class="md-form-actions">
+                <button type="button" class="md-btn md-btn--outline" (click)="toggleEditar()">Cancelar</button>
+                <button type="submit" class="md-btn md-btn--primary" [disabled]="guardandoPerfil || !esPerfilValido()">
+                  @if (guardandoPerfil) {
+                    <span class="material-symbols-outlined md-spin" aria-hidden="true">sync</span>
+                    Guardando…
+                  } @else {
+                    Guardar cambios
+                  }
+                </button>
+              </div>
+            </form>
+          }
+
+        </div>
+      }
+
+      <!-- ── PESTAÑA: ESTADO LABORAL ───────────────────────────────────────── -->
+      @if (tabActiva === 'estado') {
+        <div id="tab-estado" role="tabpanel" class="md-panel">
+
+          <!-- Estado actual -->
+          <div class="md-card md-estado-actual">
+            <span class="md-estado-actual__label">Estado actual</span>
+            <span
+              class="md-estado-actual__badge"
+              [ngClass]="claseEstado(medico.estado_laboral)"
+            >
+              {{ labelEstado(medico.estado_laboral) }}
+            </span>
+            <span class="md-estado-actual__sistema">
+              Sistema: <strong>{{ medico.estado_sistema }}</strong>
+            </span>
+          </div>
+
+          <!-- Alertas estado -->
+          @if (errorEstado) {
+            <div class="md-alert md-alert--error" role="alert">
+              <span class="material-symbols-outlined" aria-hidden="true">error</span>
+              {{ errorEstado }}
+            </div>
+          }
+          @if (successEstado) {
+            <div class="md-alert md-alert--success" role="status">
+              <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+              {{ successEstado }}
+            </div>
+          }
+
+          <!-- Transiciones disponibles -->
+          @if (!nuevoEstadoSeleccionado) {
+            <div class="md-transiciones">
+              <p class="md-transiciones__titulo">Cambiar estado laboral</p>
+              <div class="md-transiciones__grid">
+                @for (cfg of transicionesAplicables(); track cfg.nuevo_estado) {
+                  <button
+                    class="estado-btn"
+                    [ngClass]="cfg.clase"
+                    (click)="seleccionarTransicion(cfg)"
+                    [attr.aria-label]="cfg.label + ': ' + cfg.descripcion"
+                  >
+                    <span class="estado-btn__label">{{ cfg.label }}</span>
+                    <span class="estado-btn__desc">{{ cfg.descripcion }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Panel de confirmación -->
+          @if (nuevoEstadoSeleccionado) {
+            <div class="md-confirm-panel">
+              <h3 class="md-confirm-panel__title">
+                Confirmar: {{ labelEstado(nuevoEstadoSeleccionado) }}
+              </h3>
+
+              @if (nuevoEstadoSeleccionado === 'destituido') {
+                <div class="md-confirm-panel__warning">
+                  <span class="material-symbols-outlined" aria-hidden="true">warning</span>
+                  <span>Esta acción bloqueará inmediatamente el acceso del médico al sistema.</span>
+                </div>
+              }
+
+              @if (nuevoEstadoSeleccionado === 'inactivo') {
+                <div class="md-confirm-panel__warning md-confirm-panel__warning--soft">
+                  <span class="material-symbols-outlined" aria-hidden="true">info</span>
+                  <span>El médico quedará inactivo en el sistema.</span>
+                </div>
+              }
+
+              <div class="md-field md-confirm-panel__motivo">
+                <label class="md-label" for="motivoCambio">Motivo (opcional)</label>
+                <textarea
+                  id="motivoCambio"
+                  class="md-input md-textarea"
+                  [(ngModel)]="motivoCambio"
+                  rows="3"
+                  placeholder="Detalla el motivo del cambio de estado…"
+                  maxlength="300"
+                ></textarea>
+              </div>
+
+              <div class="md-confirm-panel__actions">
+                <button class="md-btn md-btn--outline" (click)="cancelarTransicion()">Cancelar</button>
+                <button
+                  class="md-btn md-btn--danger"
+                  (click)="aplicarCambioEstado()"
+                  [disabled]="aplicandoEstado"
+                >
+                  @if (aplicandoEstado) {
+                    <span class="material-symbols-outlined md-spin" aria-hidden="true">sync</span>
+                    Aplicando…
+                  } @else {
+                    Confirmar cambio
+                  }
+                </button>
+              </div>
+            </div>
+          }
+
+        </div>
+      }
+
+      <!-- ── PESTAÑA: HISTORIAL ────────────────────────────────────────────── -->
+      @if (tabActiva === 'historial') {
+        <div id="tab-historial" role="tabpanel" class="md-panel">
+
+          @if (historialCitas.length === 0) {
+            <div class="md-empty">
+              <span class="material-symbols-outlined md-empty__icon" aria-hidden="true">calendar_today</span>
+              <p>No hay citas registradas para este médico.</p>
+            </div>
+          } @else {
+            <ul class="md-citas-list" role="list">
+              @for (cita of historialCitas; track cita.id_cita) {
+                <li class="md-cita" role="listitem">
+                  <div class="md-cita__fecha">
+                    <span class="md-cita__dia">{{ formatFechaCita(cita.fecha_cita) }}</span>
+                    <span class="md-cita__hora">{{ formatHora(cita.hora_cita) }}</span>
+                  </div>
+                  <div class="md-cita__info">
+                    <span class="md-cita__paciente">
+                      {{ cita.paciente_nombre ?? 'Paciente' }} {{ cita.paciente_apellido ?? '' }}
+                    </span>
+                    <span class="md-cita__motivo">{{ cita.motivo_consulta ?? '—' }}</span>
+                  </div>
+                  <span
+                    class="md-cita__badge"
+                    [ngClass]="claseCita(cita.estado)"
+                    [attr.aria-label]="labelEstadoCita(cita.estado)"
+                  >
+                    {{ labelEstadoCita(cita.estado) }}
+                  </span>
+                </li>
+              }
+            </ul>
+          }
+
+        </div>
+      }
+
+    }
+
+  </div>
+</ion-content>
+
+<app-admin-bottom-nav activeTab="medicos"></app-admin-bottom-nav>
