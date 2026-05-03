@@ -7,6 +7,7 @@ import { NotificacionesPacienteStateService } from '../../../core/services/notif
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { AuthService } from '../../../core/services/auth.service';
+import { formatFechaDiaMesAnio, formatHoraCorta, formatMesAnio } from '../../../shared/utils/fecha.utils';
 
 interface DiaCalendario {
   dia:        number;
@@ -98,10 +99,7 @@ export default class ElegirHorarioPage implements OnInit {
   }
 
   nombreMes(): string {
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    const m = this.mesActual();
-    return `${meses[m.getMonth()]} ${m.getFullYear()}`;
+    return formatMesAnio(this.mesActual());
   }
 
   // ── Selección de fecha y slot ───────────────
@@ -115,7 +113,7 @@ export default class ElegirHorarioPage implements OnInit {
     return this.dispPorFecha.get(this.fechaSeleccionada()) ?? [];
   }
 
-  slotsManana(): DisponibilidadSlot[] {
+  slotsMatutinos(): DisponibilidadSlot[] {
     return this.slotsDelDia().filter(s => parseInt(s.hora_inicio, 10) < 12);
   }
 
@@ -160,15 +158,11 @@ export default class ElegirHorarioPage implements OnInit {
   }
 
   formatHora(hora: string): string {
-    return hora.slice(0, 5);
+    return formatHoraCorta(hora);
   }
 
   formatFechaCorta(fechaStr: string): string {
-    const [y, m, d] = fechaStr.split('-').map(Number);
-    const fecha = new Date(y, m - 1, d);
-    const dias  = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    return `${dias[fecha.getDay()]} ${d} ${meses[m - 1]} ${y}`;
+    return formatFechaDiaMesAnio(fechaStr);
   }
 
   // ── Internos ────────────────────────────────

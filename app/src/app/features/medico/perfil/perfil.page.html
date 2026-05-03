@@ -1,13 +1,43 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>perfil</ion-title>
-  </ion-toolbar>
-</ion-header>
+<!-- Edu: header médico usando el nombre del perfil cargado dinámicamente -->
+<app-medico-header [userName]="perfil ? (perfil.nombre + ' ' + perfil.apellido) : ''"></app-medico-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">perfil</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Edu: perfil médico dinámico -->
+  <h1>Perfil Profesional</h1>
+
+  <div *ngIf="perfil; else loading">
+    <p><strong>Nombre:</strong> {{ perfil.nombre }} {{ perfil.apellido }}</p>
+    <p><strong>Correo:</strong> {{ perfil.correo }}</p>
+    <p><strong>Teléfono:</strong> {{ perfil.telefono || 'No registrado' }}</p>
+    <p><strong>Especialidad:</strong> {{ perfil.nombre_especialidad }}</p>
+    <p><strong>Registro Médico:</strong> {{ perfil.numero_registro }}</p>
+    <p><strong>Años de experiencia:</strong> {{ perfil.anios_experiencia }} años</p>
+    <p><strong>Estado:</strong> {{ perfil.estado }}</p>
+  </div>
+
+  <ng-template #loading>
+    <p>Cargando perfil del médico...</p>
+  </ng-template>
+
+  <!-- Edu: contenedor de menú para igualar layout del perfil paciente -->
+  <div class="pf-menu">
+    <!-- Edu: botón para cerrar sesión usando la misma estructura visual del perfil paciente -->
+    <button
+      class="pf-menu-item pf-menu-item--danger"
+      (click)="cerrarSesion()"
+      role="listitem"
+      aria-label="Cerrar sesión"
+    >
+      <div class="pf-menu-item__icon-wrap pf-menu-item__icon-wrap--error">
+        <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+      </div>
+      <div class="pf-menu-item__content">
+        <span class="pf-menu-item__title pf-menu-item__title--error">Cerrar sesión</span>
+        <span class="pf-menu-item__sub pf-menu-item__sub--error">Finalizar sesión actual</span>
+      </div>
+    </button>
+  </div>
 </ion-content>
+
+<!-- Edu: menú inferior del módulo médico -->
+<app-medico-bottom-nav activeTab="perfil"></app-medico-bottom-nav>

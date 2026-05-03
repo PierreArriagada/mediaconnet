@@ -8,6 +8,7 @@ import { PacienteService, PerfilData } from '../../../core/services/paciente.ser
 import { NotificacionesPacienteStateService } from '../../../core/services/notificaciones-paciente-state.service';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
+import { formatFechaCompleta, formatFechaCorta } from '../../../shared/utils/fecha.utils';
 
 @Component({
   selector: 'app-perfil',
@@ -75,20 +76,12 @@ export class PerfilPage implements OnInit {
 
   /** Formatea una fecha ISO a "12 abr. 2026" sin desfase de zona horaria */
   formatFecha(fecha: string | null | undefined): string {
-    if (!fecha) return '—';
-    const [y, m, d] = (fecha as string).split('T')[0].split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString('es-CL', {
-      day: 'numeric', month: 'short', year: 'numeric',
-    });
+    return formatFechaCompleta(fecha);
   }
 
   /** Formatea fecha de próxima cita a "12 Oct" para el bento */
   formatFechaBento(fecha: string | null | undefined): string {
-    if (!fecha) return '—';
-    const [y, m, d] = (fecha as string).split('T')[0].split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString('es-CL', {
-      day: 'numeric', month: 'short',
-    });
+    return formatFechaCorta(fecha);
   }
 
   navegar(destino: string): void {

@@ -6,6 +6,8 @@ app/.angular/
 app/www/
 app/dist/
 app/.ionic/
+backend/node_modules/
+Ubuntudev/
 
 # ── Variables de entorno con secretos
 .env
@@ -18,6 +20,7 @@ Thumbs.db
 *.log
 README.md
 claude.md
+app/ng/
 
 # ── Docker
 docker-compose.override.yml

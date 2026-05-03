@@ -11,3 +11,356 @@
     </ion-toolbar>
   </ion-header>
 </ion-content>
+<!-- aqui usaremos el componente de header de medico que etsa en shared/components/medico-header
+con ese componente debemos usar en todas las demas vistas, asi simplificamos trabajo, el header tiene notificaiones
+y trae el nombre del medico a la vista principal con un diseño mejor by pierre-->
+<app-medico-header [userName]="user?.name ?? ''"></app-medico-header>
+
+<ion-content class="ag-content">
+  <main class="ag-main">
+
+    <!-- Hero -->
+    <div class="ag-hero">
+      <div class="ag-hero__text">
+        <h2>Mi Agenda</h2>
+        <p>Revisa tus citas para hoy y gestiona tu disponibilidad clínica.</p>
+      </div>
+      <button class="ag-btn-block" type="button" (click)="togglePanelHorario()">
+        <span class="material-symbols-outlined">tune</span>
+        Gestionar mi horario
+      </button>
+    </div>
+
+    <!-- Calendario -->
+    <section class="ag-cal" aria-label="Calendario semanal">
+      <div class="ag-cal__header">
+        <div class="ag-cal__nav">
+          <h3>{{ periodoTitulo }}</h3>
+          <button class="ag-cal__arrow" type="button" (click)="moverPeriodo(-1)" aria-label="Semana anterior">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <button class="ag-cal__arrow" type="button" (click)="moverPeriodo(1)" aria-label="Semana siguiente">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+        <div class="ag-cal__views">
+          <button type="button" class="ag-view-pill" [class.ag-view-pill--active]="vistaActiva === 'semana'" (click)="cambiarVista('semana')">Semana</button>
+          <button type="button" class="ag-view-pill" [class.ag-view-pill--active]="vistaActiva === 'mes'" (click)="cambiarVista('mes')">Mes</button>
+        </div>
+      </div>
+
+      <div class="ag-week-strip" aria-label="Semana visible">
+        <div
+          *ngFor="let dia of diasDelPeriodo"
+          class="ag-day"
+          [class.ag-day--today]="dia.esHoy"
+          [class.ag-day--active]="dia.esSeleccionado"
+        >
+          <span class="ag-day__label">{{ dia.etiquetaDia }}</span>
+          <button
+            type="button"
+            class="ag-day__btn"
+            (click)="seleccionarDia(dia.fecha)"
+            [attr.aria-pressed]="dia.esSeleccionado"
+            [attr.aria-label]="dia.etiquetaDia + ' ' + dia.numeroDia"
+          >{{ dia.numeroDia }}</button>
+        <!-- Dot indicator: aparece si ese día tiene citas agendadas -->
+        <span *ngIf="dia.cantidadCitas > 0" class="ag-day__dot">{{ dia.cantidadCitas }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Panel de gestión de horario. Se muestra/oculta con el botón del hero. -->
+    <section
+      *ngIf="panelHorarioAbierto"
+      class="ag-panel-horario"
+      aria-label="Panel de gestión de horario"
+    >
+      <div class="ag-panel-horario__header">
+        <h3>Gestionar mi horario</h3>
+        <button type="button" class="ag-icon-btn" (click)="togglePanelHorario()" aria-label="Cerrar panel">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Bento grid: columna izquierda (días + stats) | columna derecha (jornadas + bloques + acciones) -->
+      <div class="ag-panel-horario__grid">
+
+        <!-- ── Columna izquierda ─────────────────────────────────────────────── -->
+        <div class="ag-panel-horario__col-left">
+
+          <!-- Selector de días laborales: una fila con checkbox por día -->
+          <div class="ag-dias-card">
+            <h4 class="ag-dias-card__title">Días Laborales</h4>
+            <div class="ag-dias-card__list">
+              <label
+                *ngFor="let dia of diasConfigurables"
+                class="ag-dia-row"
+                [class.ag-dia-row--activo]="diaActivo(dia.value)"
+              >
+                <span>{{ dia.label }}</span>
+                <input
+                  type="checkbox"
+                  [checked]="diaActivo(dia.value)"
+                  (change)="toggleDia(dia.value)"
+                />
+              </label>
+            </div>
+          </div>
+
+          <!-- Tarjeta decorativa con contador de bloques guardados esta semana -->
+          <div class="ag-stats-card">
+            <span class="material-symbols-outlined">insights</span>
+            <p class="ag-stats-card__label">Bloques esta semana</p>
+            <p class="ag-stats-card__value">{{ disponibilidad.length }}</p>
+          </div>
+
+        </div>
+
+        <!-- ── Columna derecha ────────────────────────────────────────────────── -->
+        <div class="ag-panel-horario__col-right">
+
+          <!-- Toggles de jornada mañana / tarde -->
+          <div class="ag-turnos-card">
+            <div class="ag-turno">
+              <div class="ag-turno__info">
+                <span class="material-symbols-outlined">wb_sunny</span>
+                <div>
+                  <h4>Jornada Mañana</h4>
+                  <p>{{ jornadaManana ? 'Bloques activos 08:00 – 13:00' : 'Desactivada' }}</p>
+                </div>
+              </div>
+              <label class="ag-toggle">
+                <input type="checkbox" [(ngModel)]="jornadaManana" name="jornadaManana" />
+                <span class="ag-toggle__track"></span>
+              </label>
+            </div>
+            <div class="ag-turno ag-turno--separator">
+              <div class="ag-turno__info">
+                <span class="material-symbols-outlined">dark_mode</span>
+                <div>
+                  <h4>Jornada Tarde</h4>
+                  <p>{{ jornadaTarde ? 'Bloques activos 14:00 – 18:00' : 'Desactivada' }}</p>
+                </div>
+              </div>
+              <label class="ag-toggle">
+                <input type="checkbox" [(ngModel)]="jornadaTarde" name="jornadaTarde" />
+                <span class="ag-toggle__track"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Editor de bloques horarios: filas desde/hasta + botón agregar -->
+          <div class="ag-bloques-editor">
+            <h4 class="ag-bloques-editor__title">Editor de Bloques Horarios</h4>
+
+            <div class="ag-bloque-row" *ngFor="let bloque of bloquesForm; let i = index">
+              <div class="ag-bloque-row__field">
+                <label>Desde</label>
+                <input type="time" [(ngModel)]="bloque.horaInicio" [name]="'horaInicio_' + i" />
+              </div>
+              <span class="material-symbols-outlined ag-bloque-row__arrow">trending_flat</span>
+              <div class="ag-bloque-row__field">
+                <label>Hasta</label>
+                <input type="time" [(ngModel)]="bloque.horaFin" [name]="'horaFin_' + i" />
+              </div>
+              <button
+                type="button"
+                class="ag-icon-btn ag-icon-btn--danger"
+                (click)="eliminarBloqueForm(i)"
+                aria-label="Eliminar rango horario"
+              >
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+
+            <button type="button" class="ag-add-bloque" (click)="agregarBloqueForm()">
+              <span class="material-symbols-outlined">add_circle</span>
+              Agregar bloque horario
+            </button>
+          </div>
+
+          <!-- Repetir semanas -->
+          <div class="ag-repetir-row">
+            <label>
+              Repetir durante
+              <input
+                type="number"
+                [(ngModel)]="repetirSemanas"
+                name="repetirSemanas"
+                min="1"
+                max="12"
+              />
+              semana(s)
+            </label>
+          </div>
+
+          <!-- Acciones: Descartar | Guardar -->
+          <div class="ag-panel-acciones">
+            <button type="button" class="ag-btn-ghost" (click)="togglePanelHorario()">
+              Descartar cambios
+            </button>
+            <button type="button" class="ag-btn-primary" (click)="guardarDisponibilidad()">
+              Guardar configuración de agenda
+            </button>
+          </div>
+
+          <p *ngIf="feedbackMessage" class="ag-feedback">{{ feedbackMessage }}</p>
+
+          <div *ngIf="disponibilidadFiltrada.length > 0" class="ag-slots-lista">
+            <h4>Bloques de la semana</h4>
+            <div
+              *ngFor="let slot of disponibilidadFiltrada"
+              class="ag-slot"
+              [class.ag-slot--disponible]="slot.estado === 'disponible'"
+              [class.ag-slot--reservada]="slot.estado === 'reservada'"
+              [class.ag-slot--bloqueada]="slot.estado === 'bloqueada'"
+            >
+              <div class="ag-slot__info">
+                <span class="ag-slot__fecha">{{ formatFechaSlot(slot.fecha) }}</span>
+                <span class="ag-slot__hora">{{ formatHora(slot.hora_inicio) }} – {{ formatHora(slot.hora_fin) }}</span>
+                <span class="ag-slot__estado">{{ slot.estado }}</span>
+              </div>
+              <div class="ag-slot__acciones">
+                <button type="button" class="ag-icon-btn" (click)="editarBloque(slot)" aria-label="Editar bloque">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <button
+                  type="button"
+                  class="ag-icon-btn"
+                  (click)="alternarBloqueo(slot)"
+                  [disabled]="slot.estado === 'reservada'"
+                  aria-label="Alternar bloqueo"
+                >
+                  <span class="material-symbols-outlined">{{ slot.estado === 'bloqueada' ? 'lock_open' : 'lock' }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="ag-icon-btn ag-icon-btn--danger"
+                  (click)="eliminarBloque(slot)"
+                  [disabled]="slot.estado === 'reservada'"
+                  aria-label="Eliminar bloque"
+                >
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Toolbar de filtros: se oculta cuando el panel de horario está abierto -->
+    <div class="ag-toolbar" *ngIf="!panelHorarioAbierto">
+      <label class="ag-search">
+        <span class="material-symbols-outlined">search</span>
+        <input
+          name="terminoBusqueda"
+          type="search"
+          placeholder="Buscar paciente, especialidad o motivo"
+          [(ngModel)]="terminoBusqueda"
+        />
+      </label>
+
+      <div class="ag-filters">
+        <label class="ag-filter-label">
+          <span>Estado</span>
+          <select name="filtroEstado" [(ngModel)]="filtroEstado">
+            <option *ngFor="let op of estadosCita" [ngValue]="op.value">{{ op.label }}</option>
+          </select>
+        </label>
+
+        <label class="ag-filter-label">
+          <span>Modalidad</span>
+          <select name="filtroModalidad" [(ngModel)]="filtroModalidad">
+            <option *ngFor="let op of modalidades" [ngValue]="op.value">{{ op.label }}</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <!-- Lista de citas: se oculta cuando el panel de horario está abierto -->
+    <ng-container *ngIf="!panelHorarioAbierto">
+
+    <!-- Edu: estado inicial de carga de agenda médica -->
+    <div *ngIf="isLoading">
+      <h2>Cargando agenda...</h2>
+      <p>Espere un momento mientras se consultan las citas del profesional.</p>
+    </div>
+
+    <!-- Edu: mensaje de error cuando falla la consulta al backend -->
+    <div *ngIf="!isLoading && errorMessage">
+      <h2>No disponible</h2>
+      <p>{{ errorMessage }}</p>
+      <button type="button" (click)="refrescarAgenda()">Reintentar</button>
+    </div>
+
+    <!-- Edu: contenido principal de agenda médica -->
+    <div *ngIf="!isLoading && !errorMessage">
+
+    <section class="ag-appointments">
+      <h2 class="ag-appointments__title">Próximas Citas</h2>
+
+      <div *ngIf="citasFiltradas.length === 0" class="ag-empty-state">
+        <span class="material-symbols-outlined">event_busy</span>
+        <h3>Sin citas agendadas</h3>
+        <p>No hay citas que coincidan con los filtros seleccionados para este día.</p>
+      </div>
+
+      <div class="ag-cards-grid" *ngIf="citasFiltradas.length > 0">
+        <div class="ag-card" *ngFor="let cita of citasFiltradas">
+          <div class="ag-card__header">
+            <div class="ag-card__time">
+              <span class="material-symbols-outlined">schedule</span>
+              {{ cita.hora_cita.substring(0, 5) }} <!-- format as HH:MM -->
+            </div>
+            <!-- Usamos un badge para el estado -->
+            <span class="ag-badge" [ngClass]="'ag-badge--' + normalizarEstado(cita.estado_cita)">
+              {{ normalizarEstado(cita.estado_cita) | titlecase }}
+            </span>
+          </div>
+          
+          <div class="ag-card__body">
+            <h3 class="ag-card__patient">{{ cita.paciente_nombre }} {{ cita.paciente_apellido }}</h3>
+            <span class="ag-card__specialty">{{ cita.nombre_especialidad }}</span>
+            <div class="ag-card__details">
+              <p>
+                <span class="material-symbols-outlined">monitor_heart</span>
+                <strong>Modalidad:</strong> {{ cita.modalidad | titlecase }}
+              </p>
+              <p>
+                <span class="material-symbols-outlined">medical_information</span>
+                <strong>Motivo:</strong> {{ cita.motivo_consulta }}
+              </p>
+            </div>
+          </div>
+          
+          <div class="ag-card__footer">
+            <button class="ag-btn-secondary" type="button" (click)="verFichaPaciente($any(cita).id_paciente)">
+              <span class="material-symbols-outlined">person</span>
+              Ver ficha paciente
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Eliminado el botón suelto de refrescar a favor de algo más limpio o quitarlo; 
+         la recarga actual pasa en auto. Lo dejaremos por si acaso pero con estilo acorde. -->
+    <div class="ag-actions-bottom" *ngIf="citasFiltradas.length > 0 || terminoBusqueda !== ''">
+      <button class="ag-btn-outline" type="button" (click)="refrescarAgenda()">
+        <span class="material-symbols-outlined">sync</span>
+        Actualizar agenda
+      </button>
+    </div>
+  </div>
+
+  </ng-container> <!-- cierra *ngIf="!panelHorarioAbierto" -->
+
+  </main>
+</ion-content>
+
+<!-- Edu: menú inferior del módulo médico -->
+<app-medico-bottom-nav activeTab="agenda"></app-medico-bottom-nav>

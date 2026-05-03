@@ -89,7 +89,7 @@
           <span class="material-symbols-outlined">info</span>
           <p>
             Podrás realizar el seguimiento de esta cita y recibir notificaciones en la sección de 
-            <strong>Mis solicitudes</strong> una vez confirmada.
+            <strong>Mis citas</strong> una vez confirmada.
           </p>
         </div>
 
@@ -97,16 +97,17 @@
         <div class="mc-actions">
           <button
             class="mc-btn-primary"
+            type="button"
             [disabled]="!motivoValido || isSubmitting()"
             (click)="reservar()"
           >
             @if (isSubmitting()) {
               Reservando...
             } @else {
-              Reservar Cita
+              Reservar cita
             }
           </button>
-          <button class="mc-btn-secondary" (click)="cambiarHorario()">
+          <button class="mc-btn-secondary" type="button" (click)="cambiarHorario()">
             Cambiar horario
           </button>
         </div>
