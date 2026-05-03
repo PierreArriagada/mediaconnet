@@ -167,6 +167,9 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
             </button>
           </div>
 
+          <!-- Edu: tarjeta de acciones de agenda -->
+          <div class="ag-acciones-card">
+
           <!-- Repetir semanas -->
           <div class="ag-repetir-row">
             <label>
@@ -190,6 +193,7 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
             <button type="button" class="ag-btn-primary" (click)="guardarDisponibilidad()">
               Guardar configuración de agenda
             </button>
+          </div>
           </div>
 
           <p *ngIf="feedbackMessage" class="ag-feedback">{{ feedbackMessage }}</p>
@@ -299,9 +303,10 @@ y trae el nombre del medico a la vista principal con un diseño mejor by pierre-
       <div class="ag-cards-grid" *ngIf="citasFiltradas.length > 0">
         <div class="ag-card" *ngFor="let cita of citasFiltradas">
           <div class="ag-card__header">
+            <!-- Edu: fecha y hora visibles para que Próximas Citas no dependa del día seleccionado -->
             <div class="ag-card__time">
-              <span class="material-symbols-outlined">schedule</span>
-              {{ cita.hora_cita.substring(0, 5) }} <!-- format as HH:MM -->
+              <span class="material-symbols-outlined">event</span>
+              {{ formatFechaSlot(cita.fecha_cita) }} · {{ cita.hora_cita.substring(0, 5) }}
             </div>
             <!-- Usamos un badge para el estado -->
             <span class="ag-badge" [ngClass]="'ag-badge--' + normalizarEstado(cita.estado_cita)">

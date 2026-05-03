@@ -1,4 +1,103 @@
 /**
+ * GET /api/medico/notificaciones
+ * Devuelve las notificaciones del médico autenticado.
+ */
+async function getNotificacionesMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT
+         id_notificacion,
+         titulo,
+         mensaje,
+         tipo,
+         leida,
+         fecha_envio
+       FROM notificaciones
+       WHERE id_usuario = $1
+       ORDER BY fecha_envio DESC`,
+      [idUsuario]
+    );
+
+    return res.json({ notificaciones: result.rows });
+  } catch (err) {
+    console.error('Error en getNotificacionesMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * PATCH /api/medico/notificaciones/:id/leida
+ * Edu: marca una notificación del médico autenticado como leída o no leída.
+ * Body opcional: { leida: boolean }
+ */
+async function actualizarEstadoNotificacionMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idNotificacion = parseInt(req.params.id, 10);
+  const leida = typeof req.body?.leida === 'boolean' ? req.body.leida : true;
+
+  if (isNaN(idUsuario) || isNaN(idNotificacion) || idNotificacion < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE notificaciones
+       SET leida = $1
+       WHERE id_notificacion = $2
+         AND id_usuario = $3
+       RETURNING id_notificacion, titulo, mensaje, tipo, leida, fecha_envio`,
+      [leida, idNotificacion, idUsuario]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Notificación no encontrada.' });
+    }
+
+    return res.json({ notificacion: result.rows[0] });
+  } catch (err) {
+    console.error('Error en actualizarEstadoNotificacionMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * DELETE /api/medico/notificaciones/:id
+ * Edu: elimina una notificación perteneciente al médico autenticado.
+ */
+async function eliminarNotificacionMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idNotificacion = parseInt(req.params.id, 10);
+
+  if (isNaN(idUsuario) || isNaN(idNotificacion) || idNotificacion < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `DELETE FROM notificaciones
+       WHERE id_notificacion = $1
+         AND id_usuario = $2
+       RETURNING id_notificacion`,
+      [idNotificacion, idUsuario]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Notificación no encontrada.' });
+    }
+
+    return res.json({ message: 'Notificación eliminada correctamente.' });
+  } catch (err) {
+    console.error('Error en eliminarNotificacionMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+/**
  * Edu: obtiene el perfil del médico autenticado
  * GET /api/medico/perfil
  * Devuelve datos básicos del médico según el usuario del token
@@ -131,6 +230,7 @@ async function getCitasProximas(req, res) {
     const citasResult = await pool.query(
       `SELECT
          c.id_cita,
+         c.id_paciente,
          c.fecha_cita,
          c.hora_cita,
          c.estado_cita,
@@ -145,8 +245,9 @@ async function getCitasProximas(req, res) {
        JOIN   usuarios       up ON p.id_usuario     = up.id_usuario
        JOIN   especialidades e  ON c.id_especialidad = e.id_especialidad
        WHERE  c.id_medico   = $1
-         AND  c.estado_cita = 'confirmada'
-         AND  c.fecha_cita  > CURRENT_DATE
+         -- Edu: mostrar próximas solicitudes/citas pendientes o confirmadas desde hoy en adelante
+         AND  c.estado_cita IN ('pendiente', 'confirmada')
+         AND  c.fecha_cita  >= CURRENT_DATE
        ORDER  BY c.fecha_cita ASC, c.hora_cita ASC`,
       [idMedico]
     );
@@ -751,4 +852,7 @@ module.exports = {
   crearDisponibilidad,
   actualizarDisponibilidad,
   eliminarDisponibilidad,
+  getNotificacionesMedico,
+  actualizarEstadoNotificacionMedico,
+  eliminarNotificacionMedico,
 };

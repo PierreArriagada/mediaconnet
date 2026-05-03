@@ -6,13 +6,14 @@ import { IonContent } from '@ionic/angular/standalone';
 import { AuthService } from '../../../core/services/auth.service';
 import { FichaPacienteData, MedicoService } from '../../../core/services/medico.service';
 import { MedicoHeaderComponent } from '../../../shared/components/medico-header/medico-header.component';
+import { MedicoBottomNavComponent } from '../../../shared/components/medico-bottom-nav/medico-bottom-nav.component';
 
 @Component({
   selector: 'app-fichapacientes',
   templateUrl: './fichapacientes.page.html',
   styleUrls: ['./fichapacientes.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, FormsModule, MedicoHeaderComponent]
+  imports: [IonContent, CommonModule, FormsModule, MedicoHeaderComponent, MedicoBottomNavComponent]
 })
 export class FichapacientesPage implements OnInit {
   private readonly route = inject(ActivatedRoute);

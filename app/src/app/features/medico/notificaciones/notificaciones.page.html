@@ -1,4 +1,82 @@
 <app-medico-header [userName]="user?.name ?? ''"></app-medico-header>
 
 <ion-content [fullscreen]="true">
+  <!-- Edu: card superior para volver a la vista anterior sin romper el flujo del médico -->
+  <div class="nt-back-card">
+    <button class="nt-back-btn" type="button" (click)="volver()">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Volver
+    </button>
+  </div>
+
+  <!-- Edu: estado de carga de notificaciones reales -->
+  <div *ngIf="isLoading" class="nt-empty-state">
+    <span class="material-symbols-outlined">hourglass_top</span>
+    <h2>Cargando notificaciones...</h2>
+    <p>Estamos consultando las novedades del médico.</p>
+  </div>
+
+  <!-- Edu: mensaje de error al cargar notificaciones -->
+  <div *ngIf="!isLoading && errorMessage" class="nt-empty-state">
+    <span class="material-symbols-outlined">error</span>
+    <h2>No fue posible cargar</h2>
+    <p>{{ errorMessage }}</p>
+    <button class="nt-retry-btn" type="button" (click)="cargarNotificaciones()">
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Edu: listado real de notificaciones del médico -->
+  <section *ngIf="!isLoading && !errorMessage && notificaciones.length > 0" class="nt-list">
+    <article
+      *ngFor="let notificacion of notificaciones"
+      class="nt-card"
+      [class.nt-card--unread]="!notificacion.leida"
+    >
+      <div class="nt-card__icon">
+        <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+      </div>
+      <div class="nt-card__content">
+        <div class="nt-card__header">
+          <h2>{{ notificacion.titulo }}</h2>
+          <span *ngIf="!notificacion.leida" class="nt-card__badge">Nueva</span>
+        </div>
+        <p>{{ notificacion.mensaje }}</p>
+        <small>{{ notificacion.fecha_envio | date:'dd/MM/yyyy HH:mm' }}</small>
+        <!-- Edu: acciones rápidas de notificación -->
+        <div class="nt-card__actions">
+          <button
+            type="button"
+            class="nt-action-btn"
+            (click)="alternarLectura(notificacion)"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true">
+              {{ notificacion.leida ? 'mark_email_unread' : 'drafts' }}
+            </span>
+            {{ notificacion.leida ? 'Marcar no leída' : 'Marcar leída' }}
+          </button>
+
+          <button
+            type="button"
+            class="nt-action-btn nt-action-btn--danger"
+            (click)="eliminarNotificacion(notificacion)"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- Edu: estado vacío real cuando backend no entrega notificaciones -->
+  <div *ngIf="!isLoading && !errorMessage && notificaciones.length === 0" class="nt-empty-state">
+    <span class="material-symbols-outlined">notifications</span>
+    <h2>Sin notificaciones</h2>
+    <p>Aún no tienes notificaciones recientes.</p>
+  </div>
+
+  <!-- Edu: menú inferior del módulo médico -->
+  <app-medico-bottom-nav [activeTab]="null"></app-medico-bottom-nav>
+
 </ion-content>
