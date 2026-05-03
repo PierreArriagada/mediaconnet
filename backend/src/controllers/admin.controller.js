@@ -274,13 +274,13 @@ async function getMedicosGestion(req, res) {
          (
            SELECT COUNT(*) FROM citas_medicas c
            WHERE c.id_medico = m.id_medico
-             AND c.estado NOT IN ('cancelada_paciente','cancelada_admin')
+             AND c.estado_cita <> 'cancelada'
          ) AS total_citas,
          (
            SELECT COUNT(*) FROM citas_medicas c
            WHERE c.id_medico = m.id_medico
              AND c.fecha_cita >= CURRENT_DATE
-             AND c.estado NOT IN ('cancelada_paciente','cancelada_admin')
+             AND c.estado_cita <> 'cancelada'
          ) AS citas_futuras
        FROM medicos m
        JOIN usuarios u ON u.id_usuario = m.id_usuario
@@ -346,7 +346,7 @@ async function getMedicoDetalle(req, res) {
          c.id_cita,
          c.fecha_cita::text,
          c.hora_cita::text,
-         c.estado,
+         c.estado_cita AS estado,
          c.modalidad,
          c.motivo_consulta,
          p.nombre AS paciente_nombre,

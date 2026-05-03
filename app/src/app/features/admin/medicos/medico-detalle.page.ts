@@ -331,12 +331,11 @@ export class MedicoDetallePage implements OnInit {
 
   labelEstadoCita(estado: string): string {
     const mapa: Record<string, string> = {
-      confirmada:          'Confirmada',
-      pendiente:           'Pendiente',
-      completada:          'Completada',
-      cancelada_paciente:  'Cancelada por paciente',
-      cancelada_admin:     'Cancelada por admin',
-      no_asistio:          'No asistió',
+      confirmada:   'Confirmada',
+      pendiente:    'Pendiente',
+      completada:   'Completada',
+      cancelada:    'Cancelada',
+      reprogramada: 'Reprogramada',
     };
     return mapa[estado] ?? estado;
   }
@@ -345,7 +344,8 @@ export class MedicoDetallePage implements OnInit {
     if (estado === 'confirmada')   return 'cita-badge--confirmada';
     if (estado === 'completada')   return 'cita-badge--completada';
     if (estado === 'pendiente')    return 'cita-badge--pendiente';
-    if (estado.startsWith('cancelada') || estado === 'no_asistio') return 'cita-badge--cancelada';
+    if (estado === 'cancelada')    return 'cita-badge--cancelada';
+    if (estado === 'reprogramada') return 'cita-badge--pendiente';
     return '';
   }
 
