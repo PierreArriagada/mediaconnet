@@ -1,0 +1,135 @@
+<ion-content>
+
+  <app-admin-header
+    [userName]="user?.name ?? ''"
+    [noLeidas]="0"
+  ></app-admin-header>
+
+  <main class="hor-main">
+
+    <!-- Barra de navegación interna -->
+    <nav class="hor-breadcrumb" aria-label="Ruta de navegación">
+      <button class="hor-breadcrumb__back" type="button" (click)="volverOperacion()" aria-label="Volver a Operación">
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      </button>
+      <span class="hor-breadcrumb__path">
+        <span class="hor-breadcrumb__parent">Operación</span>
+        <span class="material-symbols-outlined hor-breadcrumb__sep" aria-hidden="true">chevron_right</span>
+        <span class="hor-breadcrumb__current">Horarios de médicos</span>
+      </span>
+    </nav>
+
+    <!-- Hero de sección -->
+    <section class="hor-hero">
+      <div class="hor-hero__badge">
+        <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+        Gestión global de horarios
+      </div>
+      <h1 class="hor-heading-display">Horarios</h1>
+      <p class="hor-subtitle">
+        Selecciona un médico para revisar y administrar su disponibilidad semanal.
+      </p>
+    </section>
+
+    <!-- Selector de médico -->
+    <section class="hor-section" aria-label="Selección de médico">
+      <h2 class="hor-section__title">Médico</h2>
+
+      <div class="hor-search-wrap">
+        <span class="material-symbols-outlined hor-search__icon" aria-hidden="true">search</span>
+        <input
+          class="hor-search__input"
+          type="text"
+          placeholder="Buscar por nombre o especialidad…"
+          [(ngModel)]="terminoBusqueda"
+          aria-label="Buscar médico"
+        />
+      </div>
+
+      <ul class="hor-medico-list" role="listbox" aria-label="Lista de médicos">
+        @for (m of medicosFiltrados; track m.id_medico) {
+          <li
+            class="hor-medico-item"
+            [class.hor-medico-item--active]="medicoSeleccionadoId === m.id_medico"
+            role="option"
+            [attr.aria-selected]="medicoSeleccionadoId === m.id_medico"
+            (click)="seleccionarMedico(m.id_medico)"
+          >
+            <div class="hor-medico-item__avatar" aria-hidden="true">
+              {{ m.nombre[0] }}{{ m.apellido[0] }}
+            </div>
+            <div class="hor-medico-item__info">
+              <p class="hor-medico-item__nombre">Dr/a. {{ m.nombre }} {{ m.apellido }}</p>
+              <p class="hor-medico-item__esp">{{ m.especialidad }}</p>
+            </div>
+            @if (medicoSeleccionadoId === m.id_medico) {
+              <span class="material-symbols-outlined hor-medico-item__check" aria-hidden="true">check_circle</span>
+            }
+          </li>
+        }
+        @empty {
+          <li class="hor-medico-empty">Sin resultados para "{{ terminoBusqueda }}"</li>
+        }
+      </ul>
+    </section>
+
+    <!-- Calendario semanal — solo visible cuando hay médico seleccionado -->
+    @if (medicoActual) {
+      <section class="hor-section" aria-label="Agenda semanal del médico seleccionado">
+
+        <div class="hor-cal-header">
+          <div>
+            <h2 class="hor-section__title">
+              Agenda — Dr/a. {{ medicoActual.nombre }} {{ medicoActual.apellido }}
+            </h2>
+            <p class="hor-cal-periodo">{{ semanaEtiqueta }}</p>
+          </div>
+          <div class="hor-cal-nav" role="group" aria-label="Navegar semana">
+            <button class="hor-cal-nav__btn" type="button" (click)="semanaAnterior()" aria-label="Semana anterior">
+              <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+            </button>
+            <button class="hor-cal-nav__btn" type="button" (click)="semanaSiguiente()" aria-label="Semana siguiente">
+              <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tira de días -->
+        <div class="hor-strip" role="list" aria-label="Días de la semana">
+          @for (dia of diasSemana; track dia.iso) {
+            <div
+              class="hor-strip__dia"
+              [class.hor-strip__dia--hoy]="dia.esHoy"
+              role="listitem"
+            >
+              <span class="hor-strip__etiqueta">{{ dia.etiqueta }}</span>
+              <span class="hor-strip__numero">{{ dia.numeroDia }}</span>
+
+              @if (bloquesDelDia(dia.iso).length === 0) {
+                <span class="hor-strip__vacio" aria-label="Sin bloques">—</span>
+              } @else {
+                <span class="hor-strip__badge" [attr.aria-label]="bloquesDelDia(dia.iso).length + ' bloques'">
+                  {{ bloquesDelDia(dia.iso).length }}
+                </span>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Mensaje informativo mientras no hay datos del backend -->
+        <div class="hor-empty-state" role="status" aria-live="polite">
+          <span class="material-symbols-outlined hor-empty-state__icon" aria-hidden="true">calendar_month</span>
+          <p class="hor-empty-state__title">Conexión con backend pendiente</p>
+          <p class="hor-empty-state__desc">
+            La disponibilidad real se cargará desde <code>/api/admin/medicos/:id/disponibilidad</code> cuando el endpoint esté disponible.
+          </p>
+        </div>
+
+      </section>
+    }
+
+  </main>
+
+  <app-admin-bottom-nav activeTab="operacion"></app-admin-bottom-nav>
+
+</ion-content>
