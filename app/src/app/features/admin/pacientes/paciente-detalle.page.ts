@@ -94,6 +94,18 @@ export class PacienteDetallePage implements OnInit {
     return formatHoraCorta(h);
   }
 
+  formatDia(fecha: string | null | undefined): string {
+    if (!fecha) { return '—'; }
+    const d = new Date(fecha + 'T12:00:00');
+    return d.getDate().toString().padStart(2, '0');
+  }
+
+  formatMes(fecha: string | null | undefined): string {
+    if (!fecha) { return ''; }
+    const d = new Date(fecha + 'T12:00:00');
+    return d.toLocaleString('es-CL', { month: 'short' }).replace('.', '');
+  }
+
   calcularEdad(fechaNacimiento: string | null | undefined): string {
     if (!fechaNacimiento) { return '—'; }
     const hoy = new Date();

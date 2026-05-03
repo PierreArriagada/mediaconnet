@@ -200,8 +200,8 @@
                       [attr.aria-label]="'Ver detalle de cita del ' + formatFecha(c.fecha_cita)"
                     >
                       <div class="pd-cita-card__fecha-col" aria-hidden="true">
-                        <span class="pd-cita-card__dia">{{ c.fecha_cita | date:'dd' }}</span>
-                        <span class="pd-cita-card__mes">{{ c.fecha_cita | date:'MMM' : '' : 'es-CL' }}</span>
+                        <span class="pd-cita-card__dia">{{ formatDia(c.fecha_cita) }}</span>
+                        <span class="pd-cita-card__mes">{{ formatMes(c.fecha_cita) }}</span>
                       </div>
                       <div class="pd-cita-card__body">
                         <div class="pd-cita-card__top">
@@ -260,8 +260,8 @@
                       [attr.aria-label]="'Ver detalle de cita del ' + formatFecha(c.fecha_cita)"
                     >
                       <div class="pd-cita-card__fecha-col" aria-hidden="true">
-                        <span class="pd-cita-card__dia">{{ c.fecha_cita | date:'dd' }}</span>
-                        <span class="pd-cita-card__mes">{{ c.fecha_cita | date:'MMM' : '' : 'es-CL' }}</span>
+                        <span class="pd-cita-card__dia">{{ formatDia(c.fecha_cita) }}</span>
+                        <span class="pd-cita-card__mes">{{ formatMes(c.fecha_cita) }}</span>
                       </div>
                       <div class="pd-cita-card__body">
                         <div class="pd-cita-card__top">

@@ -30,9 +30,9 @@
       <!-- Hero de la cita -->
       <div class="cd-hero">
         <div class="cd-hero__fecha-col" aria-hidden="true">
-          <span class="cd-hero__dia">{{ cita.fecha_cita | date:'dd' }}</span>
-          <span class="cd-hero__mes">{{ cita.fecha_cita | date:'MMM' : '' : 'es-CL' }}</span>
-          <span class="cd-hero__anio">{{ cita.fecha_cita | date:'yyyy' }}</span>
+          <span class="cd-hero__dia">{{ formatDia(cita.fecha_cita) }}</span>
+          <span class="cd-hero__mes">{{ formatMes(cita.fecha_cita) }}</span>
+          <span class="cd-hero__anio">{{ formatAnio(cita.fecha_cita) }}</span>
         </div>
         <div class="cd-hero__info">
           <div class="cd-hero__top">

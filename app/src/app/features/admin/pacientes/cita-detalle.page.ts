@@ -121,4 +121,22 @@ export class CitaDetallePage implements OnInit {
     if (valor === null) { return 'Sin confirmar'; }
     return valor ? 'Sí' : 'No';
   }
+
+  formatDia(fecha: string | null | undefined): string {
+    if (!fecha) { return '—'; }
+    const d = new Date(fecha + 'T12:00:00');
+    return d.getDate().toString().padStart(2, '0');
+  }
+
+  formatMes(fecha: string | null | undefined): string {
+    if (!fecha) { return ''; }
+    const d = new Date(fecha + 'T12:00:00');
+    return d.toLocaleString('es-CL', { month: 'short' }).replace('.', '');
+  }
+
+  formatAnio(fecha: string | null | undefined): string {
+    if (!fecha) { return ''; }
+    const d = new Date(fecha + 'T12:00:00');
+    return d.getFullYear().toString();
+  }
 }
