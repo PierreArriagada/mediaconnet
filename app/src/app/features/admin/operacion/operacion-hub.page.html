@@ -1,0 +1,95 @@
+<ion-content>
+
+  <app-admin-header
+    [userName]="user?.name ?? ''"
+    [noLeidas]="0"
+  ></app-admin-header>
+
+  <main class="opr-main">
+
+    <!-- Hero de sección -->
+    <section class="opr-hero">
+      <div class="opr-hero__badge">
+        <span class="material-symbols-outlined" aria-hidden="true">build_circle</span>
+        Centro Operativo
+      </div>
+      <h1 class="opr-heading-display">Operación</h1>
+      <p class="opr-subtitle">
+        Gestiona horarios de médicos, especialidades, solicitudes pendientes y citas globales.
+      </p>
+    </section>
+
+    <!-- Módulos operativos disponibles -->
+    <section class="opr-section" aria-label="Módulos de operación">
+      <h2 class="opr-section__title">Módulos disponibles</h2>
+
+      <div class="opr-grid">
+
+        <!-- Horarios -->
+        <button
+          class="opr-card opr-card--primary"
+          type="button"
+          (click)="irA('horarios')"
+          aria-label="Gestionar horarios de médicos"
+        >
+          <span class="opr-card__icon material-symbols-outlined" aria-hidden="true">calendar_month</span>
+          <div class="opr-card__body">
+            <p class="opr-card__title">Horarios</p>
+            <p class="opr-card__desc">Administra disponibilidad y bloques de agenda de cada médico.</p>
+          </div>
+          <span class="opr-card__arrow material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        </button>
+
+        <!-- Especialidades -->
+        <button
+          class="opr-card opr-card--secondary"
+          type="button"
+          (click)="irA('especialidades')"
+          aria-label="Gestionar especialidades clínicas"
+        >
+          <span class="opr-card__icon material-symbols-outlined" aria-hidden="true">biotech</span>
+          <div class="opr-card__body">
+            <p class="opr-card__title">Especialidades</p>
+            <p class="opr-card__desc">Crea, edita y activa el catálogo de especialidades clínicas.</p>
+          </div>
+          <span class="opr-card__arrow material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        </button>
+
+        <!-- Solicitudes pendientes — próximamente -->
+        <button
+          class="opr-card opr-card--ghost"
+          type="button"
+          disabled
+          aria-label="Solicitudes pendientes — próximamente"
+        >
+          <span class="opr-card__icon material-symbols-outlined" aria-hidden="true">pending_actions</span>
+          <div class="opr-card__body">
+            <p class="opr-card__title">Solicitudes<span class="opr-card__soon">Próximamente</span></p>
+            <p class="opr-card__desc">Cola de solicitudes del flujo invitado pendientes de revisión.</p>
+          </div>
+          <span class="opr-card__arrow material-symbols-outlined" aria-hidden="true">lock</span>
+        </button>
+
+        <!-- Citas globales — próximamente -->
+        <button
+          class="opr-card opr-card--ghost"
+          type="button"
+          disabled
+          aria-label="Citas globales — próximamente"
+        >
+          <span class="opr-card__icon material-symbols-outlined" aria-hidden="true">event_note</span>
+          <div class="opr-card__body">
+            <p class="opr-card__title">Citas globales<span class="opr-card__soon">Próximamente</span></p>
+            <p class="opr-card__desc">Visualiza, confirma, cancela y reagenda citas de todo el sistema.</p>
+          </div>
+          <span class="opr-card__arrow material-symbols-outlined" aria-hidden="true">lock</span>
+        </button>
+
+      </div>
+    </section>
+
+  </main>
+
+  <app-admin-bottom-nav activeTab="operacion"></app-admin-bottom-nav>
+
+</ion-content>

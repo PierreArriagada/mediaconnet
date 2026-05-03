@@ -1,0 +1,177 @@
+// Vista Hub del módulo Operación — Centro operativo del administrador.
+
+:host {
+  display: block;
+}
+
+ion-content {
+  --background: var(--mc-surface);
+}
+
+.opr-main {
+  padding: 1.25rem 1.25rem 7rem;
+  max-width: 72rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// Hero de la sección operativa
+.opr-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 92% -8%, color-mix(in srgb, var(--mc-tertiary) 18%, transparent) 0%, transparent 55%),
+    radial-gradient(circle at 4% 115%, color-mix(in srgb, var(--mc-primary) 15%, transparent) 0%, transparent 60%),
+    var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  padding: 1.5rem 1.25rem;
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--mc-tertiary-fixed);
+    color: var(--mc-on-tertiary-fixed);
+    border-radius: var(--mc-radius-sm);
+    padding: 0.35rem 0.65rem;
+    font-family: var(--mc-font-utility);
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 0.875rem;
+
+    .material-symbols-outlined { font-size: 1rem; }
+  }
+}
+
+.opr-heading-display {
+  font-family: var(--mc-font-authority);
+  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+  font-weight: 800;
+  color: var(--mc-on-surface);
+  letter-spacing: var(--mc-tracking-headline);
+  margin: 0 0 0.45rem;
+}
+
+.opr-subtitle {
+  font-family: var(--mc-font-utility);
+  font-size: 0.96rem;
+  color: var(--mc-on-surface-variant);
+  margin: 0;
+  line-height: var(--mc-leading-body);
+}
+
+// Sección de tarjetas
+.opr-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--mc-on-surface);
+    margin: 0;
+    padding-bottom: 0.25rem;
+  }
+}
+
+// Grid de tarjetas operativas
+.opr-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+// Tarjeta de módulo operativo
+.opr-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1.125rem 1.25rem;
+  border-radius: var(--mc-radius-lg);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+
+  &:not(:disabled):active {
+    transform: scale(0.98);
+  }
+
+  &:not(:disabled):hover {
+    box-shadow: 0 4px 24px rgba(26, 28, 28, 0.08);
+    transform: translateY(-1px);
+  }
+
+  &--primary {
+    background: var(--mc-surface-container-lowest);
+    border: 1px solid rgba(193, 199, 201, 0.25);
+
+    .opr-card__icon { color: var(--mc-primary); }
+  }
+
+  &--secondary {
+    background: var(--mc-surface-container-lowest);
+    border: 1px solid rgba(193, 199, 201, 0.25);
+
+    .opr-card__icon { color: var(--mc-secondary); }
+  }
+
+  &--ghost {
+    background: var(--mc-surface-container-low);
+    border: 1px solid rgba(193, 199, 201, 0.15);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  &__icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--mc-on-surface);
+    margin: 0 0 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__desc {
+    font-family: var(--mc-font-utility);
+    font-size: 0.82rem;
+    color: var(--mc-on-surface-variant);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  &__arrow {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    color: var(--mc-on-surface-variant);
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  }
+
+  &__soon {
+    font-family: var(--mc-font-utility);
+    font-size: 0.68rem;
+    font-weight: 700;
+    background: var(--mc-surface-container);
+    color: var(--mc-on-surface-variant);
+    border-radius: var(--mc-radius-sm);
+    padding: 0.15rem 0.45rem;
+  }
+}
