@@ -243,6 +243,21 @@ export interface FiltrosMedicosGestion {
   estado_laboral?: EstadoLaboral;
 }
 
+// ── Notificaciones ──────────────────────────────────────────────────────────
+
+export interface NotificacionAdmin {
+  id_notificacion: number;
+  titulo: string;
+  mensaje: string;
+  tipo: string;
+  leida: boolean;
+  fecha_envio: string;
+}
+
+export interface NotificacionesAdminResponse {
+  notificaciones: NotificacionAdmin[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly http = inject(HttpClient);
@@ -352,5 +367,23 @@ export class AdminService {
   getCitaDetalle(id: number): Observable<CitaAdminDetalleResponse> {
     return this.http.get<CitaAdminDetalleResponse>(`${this.API}/citas/${id}`);
   }
-}
 
+  // ── Notificaciones ────────────────────────────────────────────────────────
+
+  getNotificaciones(): Observable<NotificacionesAdminResponse> {
+    return this.http.get<NotificacionesAdminResponse>(`${this.API}/notificaciones`);
+  }
+
+  // Edu: marca una notificación admin como leída o no leída.
+  actualizarEstadoNotificacion(idNotificacion: number, leida: boolean): Observable<{ notificacion: NotificacionAdmin }> {
+    return this.http.patch<{ notificacion: NotificacionAdmin }>(
+      `${this.API}/notificaciones/${idNotificacion}/leida`,
+      { leida },
+    );
+  }
+
+  // Edu: elimina una notificación admin del usuario autenticado.
+  eliminarNotificacion(idNotificacion: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.API}/notificaciones/${idNotificacion}`);
+  }
+}

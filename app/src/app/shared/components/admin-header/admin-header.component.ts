@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NotificacionesAdminStateService } from '../../../core/services/notificaciones-admin-state.service';
+import { AdminService } from '../../../core/services/admin.service';
 
 @Component({
   selector: 'app-admin-header',
@@ -8,7 +9,7 @@ import { NotificacionesAdminStateService } from '../../../core/services/notifica
   styleUrls:   ['./admin-header.component.scss'],
   standalone: true,
 })
-export class AdminHeaderComponent {
+export class AdminHeaderComponent implements OnInit {
   /** Nombre completo del administrador */
   @Input() userName = '';
 
@@ -24,7 +25,24 @@ export class AdminHeaderComponent {
   constructor(
     private readonly router: Router,
     private readonly notificacionesState: NotificacionesAdminStateService,
+    private readonly adminService: AdminService,
   ) {}
+
+  ngOnInit(): void {
+    this.cargarContadorNotificaciones();
+  }
+
+  private cargarContadorNotificaciones(): void {
+    this.adminService.getNotificaciones().subscribe({
+      next: (resp) => {
+        const totalNoLeidas = resp.notificaciones.filter((item) => !item.leida).length;
+        this.notificacionesState.setNoLeidas(totalNoLeidas);
+      },
+      error: (err) => {
+        console.error('Error cargando contador de notificaciones admin:', err);
+      },
+    });
+  }
 
   /** Dos primeras iniciales del nombre completo en mayúsculas */
   get initials(): string {

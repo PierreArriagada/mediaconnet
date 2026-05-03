@@ -1,3 +1,102 @@
+/**
+ * GET /api/admin/notificaciones
+ * Devuelve las notificaciones del administrador autenticado.
+ */
+async function getNotificacionesAdmin(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT
+         id_notificacion,
+         titulo,
+         mensaje,
+         tipo,
+         leida,
+         fecha_envio
+       FROM notificaciones
+       WHERE id_usuario = $1
+       ORDER BY fecha_envio DESC`,
+      [idUsuario]
+    );
+
+    return res.json({ notificaciones: result.rows });
+  } catch (err) {
+    console.error('Error en getNotificacionesAdmin:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * PATCH /api/admin/notificaciones/:id/leida
+ * Edu: marca una notificación del administrador autenticado como leída o no leída.
+ * Body opcional: { leida: boolean }
+ */
+async function actualizarEstadoNotificacionAdmin(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idNotificacion = parseInt(req.params.id, 10);
+  const leida = typeof req.body?.leida === 'boolean' ? req.body.leida : true;
+
+  if (isNaN(idUsuario) || isNaN(idNotificacion) || idNotificacion < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE notificaciones
+       SET leida = $1
+       WHERE id_notificacion = $2
+         AND id_usuario = $3
+       RETURNING id_notificacion, titulo, mensaje, tipo, leida, fecha_envio`,
+      [leida, idNotificacion, idUsuario]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Notificación no encontrada.' });
+    }
+
+    return res.json({ notificacion: result.rows[0] });
+  } catch (err) {
+    console.error('Error en actualizarEstadoNotificacionAdmin:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * DELETE /api/admin/notificaciones/:id
+ * Edu: elimina una notificación perteneciente al administrador autenticado.
+ */
+async function eliminarNotificacionAdmin(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idNotificacion = parseInt(req.params.id, 10);
+
+  if (isNaN(idUsuario) || isNaN(idNotificacion) || idNotificacion < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `DELETE FROM notificaciones
+       WHERE id_notificacion = $1
+         AND id_usuario = $2
+       RETURNING id_notificacion`,
+      [idNotificacion, idUsuario]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Notificación no encontrada.' });
+    }
+
+    return res.json({ message: 'Notificación eliminada correctamente.' });
+  } catch (err) {
+    console.error('Error en eliminarNotificacionAdmin:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
 const pool = require('../db/pool');
 
 /**
@@ -923,4 +1022,9 @@ module.exports = {
   getPacientes,
   getPacienteDetalle,
   getCitaDetalle,
+
+  // notificaciones admin
+  getNotificacionesAdmin,
+  actualizarEstadoNotificacionAdmin,
+  eliminarNotificacionAdmin,
 };

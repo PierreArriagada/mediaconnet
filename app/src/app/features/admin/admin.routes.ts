@@ -27,7 +27,11 @@ export const ADMIN_ROUTES: Routes = [
       import('./pacientes/pacientes.routes').then((m) => m.PACIENTES_ADMIN_ROUTES),
   },
   // path: 'auditoria'      → pendiente
-  // path: 'notificaciones' → pendiente
+  {
+    path: 'notificaciones',
+    loadComponent: () =>
+      import('./notificaciones/notificaciones.page').then((m) => m.NotificacionesPage),
+  },
   // path: 'ajustes'        → pendiente
 ];
 
