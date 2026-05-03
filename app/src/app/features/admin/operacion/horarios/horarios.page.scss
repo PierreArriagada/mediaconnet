@@ -1,0 +1,372 @@
+// Vista Horarios — gestión global de disponibilidad de médicos (admin).
+
+:host {
+  display: block;
+}
+
+ion-content {
+  --background: var(--mc-surface);
+}
+
+.hor-main {
+  padding: 1.25rem 1.25rem 7rem;
+  max-width: 72rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// ── Breadcrumb ──────────────────────────────────────────────────────────────
+.hor-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: none;
+    background: var(--mc-surface-container-low);
+    border-radius: var(--mc-radius-sm);
+    cursor: pointer;
+    color: var(--mc-on-surface-variant);
+    transition: background 0.15s;
+
+    &:hover { background: var(--mc-surface-container); }
+
+    .material-symbols-outlined { font-size: 1.25rem; }
+  }
+
+  &__path {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-family: var(--mc-font-utility);
+    font-size: 0.82rem;
+  }
+
+  &__parent {
+    color: var(--mc-on-surface-variant);
+  }
+
+  &__sep {
+    font-size: 1rem;
+    color: var(--mc-outline);
+  }
+
+  &__current {
+    font-weight: 600;
+    color: var(--mc-on-surface);
+  }
+}
+
+// ── Hero ────────────────────────────────────────────────────────────────────
+.hor-hero {
+  background:
+    radial-gradient(circle at 90% -10%, color-mix(in srgb, var(--mc-primary) 18%, transparent) 0%, transparent 55%),
+    var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  padding: 1.5rem 1.25rem;
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--mc-primary-fixed);
+    color: var(--mc-on-primary-fixed);
+    border-radius: var(--mc-radius-sm);
+    padding: 0.35rem 0.65rem;
+    font-family: var(--mc-font-utility);
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 0.875rem;
+
+    .material-symbols-outlined { font-size: 1rem; }
+  }
+}
+
+.hor-heading-display {
+  font-family: var(--mc-font-authority);
+  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+  font-weight: 800;
+  color: var(--mc-on-surface);
+  letter-spacing: var(--mc-tracking-headline);
+  margin: 0 0 0.45rem;
+}
+
+.hor-subtitle {
+  font-family: var(--mc-font-utility);
+  font-size: 0.96rem;
+  color: var(--mc-on-surface-variant);
+  margin: 0;
+  line-height: var(--mc-leading-body);
+}
+
+// ── Sección genérica ────────────────────────────────────────────────────────
+.hor-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--mc-on-surface);
+    margin: 0;
+  }
+}
+
+// ── Buscador de médico ──────────────────────────────────────────────────────
+.hor-search-wrap {
+  position: relative;
+}
+
+.hor-search__icon {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  color: var(--mc-on-surface-variant);
+  pointer-events: none;
+}
+
+.hor-search__input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  background: var(--mc-surface-container-highest);
+  border: none;
+  border-radius: var(--mc-radius-md);
+  font-family: var(--mc-font-utility);
+  font-size: 0.9rem;
+  color: var(--mc-on-surface);
+  outline: none;
+  transition: box-shadow 0.15s;
+
+  &:focus {
+    box-shadow: 0 0 0 2px var(--mc-primary);
+  }
+
+  &::placeholder {
+    color: var(--mc-on-surface-variant);
+  }
+}
+
+// ── Lista de médicos ─────────────────────────────────────────────────────────
+.hor-medico-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hor-medico-item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  background: var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  border: 1px solid rgba(193, 199, 201, 0.2);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: var(--mc-surface-container-low);
+  }
+
+  &--active {
+    border-color: var(--mc-primary);
+    background: color-mix(in srgb, var(--mc-primary) 6%, var(--mc-surface-container-lowest));
+  }
+
+  &__avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--mc-secondary-container);
+    color: var(--mc-on-secondary-container);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mc-font-authority);
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    text-transform: uppercase;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__nombre {
+    font-family: var(--mc-font-authority);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--mc-on-surface);
+    margin: 0 0 0.15rem;
+  }
+
+  &__esp {
+    font-family: var(--mc-font-utility);
+    font-size: 0.78rem;
+    color: var(--mc-on-surface-variant);
+    margin: 0;
+  }
+
+  &__check {
+    font-size: 1.25rem;
+    color: var(--mc-primary);
+    flex-shrink: 0;
+  }
+}
+
+.hor-medico-empty {
+  padding: 1rem;
+  font-family: var(--mc-font-utility);
+  font-size: 0.85rem;
+  color: var(--mc-on-surface-variant);
+  text-align: center;
+}
+
+// ── Cabecera del calendario ──────────────────────────────────────────────────
+.hor-cal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.hor-cal-periodo {
+  font-family: var(--mc-font-utility);
+  font-size: 0.82rem;
+  color: var(--mc-on-surface-variant);
+  margin: 0.2rem 0 0;
+}
+
+.hor-cal-nav {
+  display: flex;
+  gap: 0.375rem;
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: none;
+    background: var(--mc-surface-container-low);
+    border-radius: var(--mc-radius-sm);
+    cursor: pointer;
+    color: var(--mc-on-surface-variant);
+    transition: background 0.15s;
+
+    &:hover { background: var(--mc-surface-container); }
+
+    .material-symbols-outlined { font-size: 1.25rem; }
+  }
+}
+
+// ── Tira semanal ────────────────────────────────────────────────────────────
+.hor-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.375rem;
+}
+
+.hor-strip__dia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.75rem 0.25rem;
+  background: var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  border: 1px solid rgba(193, 199, 201, 0.2);
+
+  &--hoy {
+    background: color-mix(in srgb, var(--mc-primary) 8%, var(--mc-surface-container-lowest));
+    border-color: var(--mc-primary);
+  }
+}
+
+.hor-strip__etiqueta {
+  font-family: var(--mc-font-utility);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--mc-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hor-strip__numero {
+  font-family: var(--mc-font-authority);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--mc-on-surface);
+}
+
+.hor-strip__vacio {
+  font-size: 0.75rem;
+  color: var(--mc-outline);
+}
+
+.hor-strip__badge {
+  font-family: var(--mc-font-utility);
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: var(--mc-primary-fixed);
+  color: var(--mc-on-primary-fixed);
+  border-radius: var(--mc-radius-sm);
+  padding: 0.1rem 0.4rem;
+}
+
+// ── Estado vacío ────────────────────────────────────────────────────────────
+.hor-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  background: var(--mc-surface-container-low);
+  border-radius: var(--mc-radius-lg);
+  text-align: center;
+
+  &__icon {
+    font-size: 2.5rem;
+    color: var(--mc-outline);
+    font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+  }
+
+  &__title {
+    font-family: var(--mc-font-authority);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--mc-on-surface);
+    margin: 0;
+  }
+
+  &__desc {
+    font-family: var(--mc-font-utility);
+    font-size: 0.8rem;
+    color: var(--mc-on-surface-variant);
+    margin: 0;
+    line-height: 1.5;
+
+    code {
+      background: var(--mc-surface-container);
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+  }
+}

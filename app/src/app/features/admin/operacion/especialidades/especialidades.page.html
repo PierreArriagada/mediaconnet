@@ -1,0 +1,141 @@
+<ion-content>
+
+  <app-admin-header
+    [userName]="user?.name ?? ''"
+    [noLeidas]="0"
+  ></app-admin-header>
+
+  <main class="esp-main">
+
+    <!-- Breadcrumb -->
+    <nav class="esp-breadcrumb" aria-label="Ruta de navegación">
+      <button class="esp-breadcrumb__back" type="button" (click)="volverOperacion()" aria-label="Volver a Operación">
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      </button>
+      <span class="esp-breadcrumb__path">
+        <span class="esp-breadcrumb__parent">Operación</span>
+        <span class="material-symbols-outlined esp-breadcrumb__sep" aria-hidden="true">chevron_right</span>
+        <span class="esp-breadcrumb__current">Especialidades</span>
+      </span>
+    </nav>
+
+    <!-- Hero -->
+    <section class="esp-hero">
+      <div class="esp-hero__badge">
+        <span class="material-symbols-outlined" aria-hidden="true">biotech</span>
+        Catálogo clínico
+      </div>
+      <h1 class="esp-heading-display">Especialidades</h1>
+      <p class="esp-subtitle">Gestión del catálogo de servicios clínicos activos e inactivos.</p>
+    </section>
+
+    <!-- Estadísticas + buscador -->
+    <section class="esp-toolbar" aria-label="Estadísticas y búsqueda">
+
+      <div class="esp-stats" role="list" aria-label="Indicadores">
+        <div class="esp-stat" role="listitem">
+          <span class="esp-stat__label esp-stat__label--primary">Total activas</span>
+          <span class="esp-stat__value">{{ totalActivas }}</span>
+        </div>
+        <div class="esp-stat" role="listitem">
+          <span class="esp-stat__label esp-stat__label--secondary">Profesionales</span>
+          <span class="esp-stat__value">{{ totalProfesionales }}</span>
+        </div>
+        <div class="esp-stat" role="listitem">
+          <span class="esp-stat__label esp-stat__label--tertiary">En catálogo</span>
+          <span class="esp-stat__value">{{ especialidades.length }}</span>
+        </div>
+      </div>
+
+      <div class="esp-search-wrap">
+        <span class="material-symbols-outlined esp-search__icon" aria-hidden="true">search</span>
+        <input
+          class="esp-search__input"
+          type="text"
+          placeholder="Buscar especialidad…"
+          [(ngModel)]="terminoBusqueda"
+          aria-label="Buscar especialidad"
+        />
+      </div>
+
+    </section>
+
+    <!-- Grid de tarjetas -->
+    <section class="esp-grid" aria-label="Lista de especialidades">
+
+      @for (esp of especialidadesFiltradas; track esp.id_especialidad) {
+        <article
+          class="esp-card"
+          [class.esp-card--inactiva]="esp.estado === 'inactiva'"
+          [attr.aria-label]="esp.nombre + ', ' + esp.totalMedicos + ' profesionales'"
+        >
+          <!-- Cabecera de tarjeta: icono + acciones -->
+          <div class="esp-card__top">
+            <div class="esp-card__icon-wrap esp-card__icon-wrap--{{ esp.colorVariant }}" aria-hidden="true">
+              <span class="material-symbols-outlined esp-card__icon">{{ esp.icono }}</span>
+            </div>
+
+            <div class="esp-card__actions" role="group" [attr.aria-label]="'Acciones para ' + esp.nombre">
+              <button
+                class="esp-card__action-btn"
+                type="button"
+                (click)="editarEspecialidad(esp.id_especialidad)"
+                [attr.aria-label]="'Editar ' + esp.nombre"
+              >
+                <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+              </button>
+              <button
+                class="esp-card__action-btn esp-card__action-btn--toggle"
+                type="button"
+                (click)="cambiarEstado(esp)"
+                [attr.aria-label]="(esp.estado === 'activa' ? 'Desactivar ' : 'Activar ') + esp.nombre"
+              >
+                <span class="material-symbols-outlined" aria-hidden="true">
+                  {{ esp.estado === 'activa' ? 'toggle_on' : 'toggle_off' }}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Nombre y estado -->
+          <h3 class="esp-card__nombre">{{ esp.nombre }}</h3>
+          <p class="esp-card__desc">{{ esp.descripcion }}</p>
+
+          <!-- Pie: conteo de médicos + estado -->
+          <div class="esp-card__footer">
+            <div class="esp-card__count">
+              <span class="esp-card__count-dot esp-card__count-dot--{{ esp.colorVariant }}" aria-hidden="true"></span>
+              <span class="esp-card__count-label">{{ esp.totalMedicos }} profesional{{ esp.totalMedicos !== 1 ? 'es' : '' }}</span>
+            </div>
+            @if (esp.estado === 'inactiva') {
+              <span class="esp-card__badge-inactiva" role="status">Inactiva</span>
+            }
+          </div>
+        </article>
+      }
+
+      @empty {
+        <div class="esp-empty" role="status" aria-live="polite">
+          <span class="material-symbols-outlined esp-empty__icon" aria-hidden="true">search_off</span>
+          <p class="esp-empty__text">Sin resultados para "{{ terminoBusqueda }}"</p>
+        </div>
+      }
+
+    </section>
+
+  </main>
+
+  <!-- FAB: agregar especialidad -->
+  <button
+    class="esp-fab"
+    type="button"
+    (click)="agregarEspecialidad()"
+    aria-label="Agregar nueva especialidad"
+  >
+    <span class="material-symbols-outlined esp-fab__icon" aria-hidden="true">add</span>
+    <span class="esp-fab__tooltip" aria-hidden="true">Agregar especialidad</span>
+  </button>
+
+  <app-admin-bottom-nav activeTab="operacion"></app-admin-bottom-nav>
+
+</ion-content>

@@ -1,0 +1,420 @@
+// Vista Especialidades — gestión del catálogo clínico (admin/operacion).
+
+:host {
+  display: block;
+}
+
+ion-content {
+  --background: var(--mc-surface);
+}
+
+.esp-main {
+  padding: 1.25rem 1.25rem 7rem;
+  max-width: 72rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// ── Breadcrumb ──────────────────────────────────────────────────────────────
+.esp-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: none;
+    background: var(--mc-surface-container-low);
+    border-radius: var(--mc-radius-sm);
+    cursor: pointer;
+    color: var(--mc-on-surface-variant);
+    transition: background 0.15s;
+
+    &:hover { background: var(--mc-surface-container); }
+
+    .material-symbols-outlined { font-size: 1.25rem; }
+  }
+
+  &__path {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-family: var(--mc-font-utility);
+    font-size: 0.82rem;
+  }
+
+  &__parent  { color: var(--mc-on-surface-variant); }
+  &__sep     { font-size: 1rem; color: var(--mc-outline); }
+  &__current { font-weight: 600; color: var(--mc-on-surface); }
+}
+
+// ── Hero ────────────────────────────────────────────────────────────────────
+.esp-hero {
+  background:
+    radial-gradient(circle at 90% -10%, color-mix(in srgb, var(--mc-secondary) 18%, transparent) 0%, transparent 55%),
+    var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  padding: 1.5rem 1.25rem;
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--mc-secondary-container);
+    color: var(--mc-on-secondary-container);
+    border-radius: var(--mc-radius-sm);
+    padding: 0.35rem 0.65rem;
+    font-family: var(--mc-font-utility);
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 0.875rem;
+
+    .material-symbols-outlined { font-size: 1rem; }
+  }
+}
+
+.esp-heading-display {
+  font-family: var(--mc-font-authority);
+  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+  font-weight: 800;
+  color: var(--mc-on-surface);
+  letter-spacing: var(--mc-tracking-headline);
+  margin: 0 0 0.45rem;
+}
+
+.esp-subtitle {
+  font-family: var(--mc-font-utility);
+  font-size: 0.96rem;
+  color: var(--mc-on-surface-variant);
+  margin: 0;
+  line-height: var(--mc-leading-body);
+}
+
+// ── Toolbar: stats + buscador ────────────────────────────────────────────────
+.esp-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.esp-stats {
+  display: flex;
+  gap: 1.5rem;
+  background: var(--mc-surface-container-low);
+  border-radius: var(--mc-radius-lg);
+  padding: 1rem 1.25rem;
+}
+
+.esp-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+
+  &__label {
+    font-family: var(--mc-font-utility);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+
+    &--primary   { color: var(--mc-primary);   }
+    &--secondary { color: var(--mc-secondary);  }
+    &--tertiary  { color: var(--mc-tertiary);   }
+  }
+
+  &__value {
+    font-family: var(--mc-font-authority);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--mc-on-surface);
+    line-height: 1;
+  }
+}
+
+.esp-search-wrap {
+  position: relative;
+  flex-shrink: 0;
+
+  @media (min-width: 640px) {
+    width: 16rem;
+  }
+}
+
+.esp-search__icon {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  color: var(--mc-on-surface-variant);
+  pointer-events: none;
+}
+
+.esp-search__input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  background: var(--mc-surface-container-highest);
+  border: none;
+  border-radius: var(--mc-radius-md);
+  font-family: var(--mc-font-utility);
+  font-size: 0.9rem;
+  color: var(--mc-on-surface);
+  outline: none;
+  transition: box-shadow 0.15s;
+
+  &:focus { box-shadow: 0 0 0 2px var(--mc-primary); }
+  &::placeholder { color: var(--mc-on-surface-variant); }
+}
+
+// ── Grid de tarjetas ─────────────────────────────────────────────────────────
+.esp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.875rem;
+}
+
+// ── Tarjeta de especialidad ──────────────────────────────────────────────────
+.esp-card {
+  background: var(--mc-surface-container-lowest);
+  border-radius: var(--mc-radius-lg);
+  border: 1px solid rgba(193, 199, 201, 0.2);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(26, 28, 28, 0.06);
+    border-color: rgba(193, 199, 201, 0.4);
+
+    .esp-card__actions { opacity: 1; }
+  }
+
+  &--inactiva {
+    opacity: 0.65;
+  }
+}
+
+// Cabecera: icono + botones
+.esp-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+// Wrapper del icono con variantes de color
+.esp-card__icon-wrap {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+
+  .esp-card:hover & {
+    transform: rotate(12deg);
+  }
+
+  &--primary   { background: color-mix(in srgb, var(--mc-primary) 12%, transparent);   }
+  &--secondary { background: color-mix(in srgb, var(--mc-secondary) 12%, transparent); }
+  &--tertiary  { background: var(--mc-tertiary-fixed);                                 }
+  &--error     { background: color-mix(in srgb, var(--mc-error) 12%, transparent);     }
+}
+
+.esp-card__icon {
+  font-size: 1.75rem;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+
+  .esp-card__icon-wrap--primary   & { color: var(--mc-primary);   }
+  .esp-card__icon-wrap--secondary & { color: var(--mc-secondary);  }
+  .esp-card__icon-wrap--tertiary  & { color: var(--mc-tertiary);   }
+  .esp-card__icon-wrap--error     & { color: var(--mc-error);      }
+}
+
+// Botones de acción
+.esp-card__actions {
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+
+.esp-card__action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s;
+  background: transparent;
+  color: var(--mc-on-surface-variant);
+
+  .material-symbols-outlined { font-size: 1.1rem; }
+
+  &:hover { background: var(--mc-surface-container-low); }
+
+  &--toggle {
+    color: var(--mc-primary);
+
+    &:hover { background: color-mix(in srgb, var(--mc-primary) 10%, transparent); }
+  }
+}
+
+// Nombre y descripción
+.esp-card__nombre {
+  font-family: var(--mc-font-authority);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--mc-on-surface);
+  margin: 0;
+}
+
+.esp-card__desc {
+  font-family: var(--mc-font-utility);
+  font-size: 0.78rem;
+  color: var(--mc-on-surface-variant);
+  margin: 0;
+  line-height: 1.45;
+  flex: 1;
+}
+
+// Pie de tarjeta
+.esp-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.esp-card__count {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.esp-card__count-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &--primary   { background: var(--mc-primary);   }
+  &--secondary { background: var(--mc-secondary);  }
+  &--tertiary  { background: var(--mc-tertiary);   }
+  &--error     { background: var(--mc-error);      }
+}
+
+.esp-card__count-label {
+  font-family: var(--mc-font-utility);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--mc-on-surface-variant);
+}
+
+.esp-card__badge-inactiva {
+  font-family: var(--mc-font-utility);
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: var(--mc-surface-container);
+  color: var(--mc-on-surface-variant);
+  border-radius: var(--mc-radius-sm);
+  padding: 0.15rem 0.45rem;
+}
+
+// ── Estado vacío ─────────────────────────────────────────────────────────────
+.esp-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+
+  &__icon {
+    font-size: 2.5rem;
+    color: var(--mc-outline);
+    font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+  }
+
+  &__text {
+    font-family: var(--mc-font-utility);
+    font-size: 0.875rem;
+    color: var(--mc-on-surface-variant);
+    margin: 0;
+  }
+}
+
+// ── FAB ──────────────────────────────────────────────────────────────────────
+.esp-fab {
+  position: fixed;
+  bottom: 5.5rem;
+  right: 1.25rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--mc-gradient-primary);
+  color: var(--mc-on-primary);
+  box-shadow: 0 8px 32px rgba(0, 94, 164, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 50;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: scale(1.06);
+    box-shadow: 0 12px 36px rgba(0, 94, 164, 0.38);
+
+    .esp-fab__tooltip { opacity: 1; }
+  }
+
+  &:active { transform: scale(0.96); }
+}
+
+.esp-fab__icon {
+  font-size: 1.75rem;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  transition: transform 0.2s;
+
+  .esp-fab:hover & { transform: rotate(90deg); }
+}
+
+.esp-fab__tooltip {
+  position: absolute;
+  right: calc(100% + 0.75rem);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--mc-inverse-surface);
+  color: var(--mc-inverse-on-surface);
+  font-family: var(--mc-font-utility);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--mc-radius-sm);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}

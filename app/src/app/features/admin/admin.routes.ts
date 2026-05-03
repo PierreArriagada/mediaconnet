@@ -11,11 +11,14 @@ export const ADMIN_ROUTES: Routes = [
     loadComponent: () =>
       import('./home/admin-home.page').then((m) => m.AdminHomePage),
   },
-  // Las siguientes rutas se habilitarán en fases posteriores del roadmap
-  // path: 'medicos'     → Fase 4
-  // path: 'pacientes'   → Fase 6
-  // path: 'operacion'   → Fases 3, 7, 8, 9
-  // path: 'auditoria'   → Fase 10
-  // path: 'notificaciones' → Fase 11
-  // path: 'ajustes'     → Fase 12
+  {
+    path: 'operacion',
+    loadChildren: () =>
+      import('./operacion/operacion.routes').then((m) => m.OPERACION_ROUTES),
+  },
+  // path: 'medicos'        → pendiente
+  // path: 'pacientes'      → pendiente
+  // path: 'auditoria'      → pendiente
+  // path: 'notificaciones' → pendiente
+  // path: 'ajustes'        → pendiente
 ];
