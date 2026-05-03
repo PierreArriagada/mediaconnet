@@ -1,135 +1,309 @@
-<ion-content>
+<app-admin-header
+  [userName]="user?.name ?? ''"
+  [noLeidas]="0"
+></app-admin-header>
 
-  <app-admin-header
-    [userName]="user?.name ?? ''"
-    [noLeidas]="0"
-  ></app-admin-header>
+<ion-content class="ag-content">
+  <main class="ag-main">
 
-  <main class="hor-main">
-
-    <!-- Barra de navegación interna -->
-    <nav class="hor-breadcrumb" aria-label="Ruta de navegación">
-      <button class="hor-breadcrumb__back" type="button" (click)="volverOperacion()" aria-label="Volver a Operación">
+    <!-- Breadcrumb -->
+    <nav class="ag-breadcrumb" aria-label="Ruta de navegación">
+      <button class="ag-breadcrumb__back" type="button" (click)="volverOperacion()" aria-label="Volver a Operación">
         <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
       </button>
-      <span class="hor-breadcrumb__path">
-        <span class="hor-breadcrumb__parent">Operación</span>
-        <span class="material-symbols-outlined hor-breadcrumb__sep" aria-hidden="true">chevron_right</span>
-        <span class="hor-breadcrumb__current">Horarios de médicos</span>
+      <span class="ag-breadcrumb__path">
+        <span class="ag-breadcrumb__parent">Operación</span>
+        <span class="material-symbols-outlined ag-breadcrumb__sep" aria-hidden="true">chevron_right</span>
+        <span class="ag-breadcrumb__current">Horarios de médicos</span>
       </span>
     </nav>
 
-    <!-- Hero de sección -->
-    <section class="hor-hero">
-      <div class="hor-hero__badge">
-        <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
-        Gestión global de horarios
+    <!-- Hero -->
+    <div class="ag-hero">
+      <div class="ag-hero__text">
+        <h2>Horarios</h2>
+        <p>Selecciona un médico para revisar y gestionar su disponibilidad clínica.</p>
       </div>
-      <h1 class="hor-heading-display">Horarios</h1>
-      <p class="hor-subtitle">
-        Selecciona un médico para revisar y administrar su disponibilidad semanal.
-      </p>
-    </section>
+    </div>
 
     <!-- Selector de médico -->
-    <section class="hor-section" aria-label="Selección de médico">
-      <h2 class="hor-section__title">Médico</h2>
-
-      <div class="hor-search-wrap">
-        <span class="material-symbols-outlined hor-search__icon" aria-hidden="true">search</span>
+    <section class="ag-selector" aria-label="Selección de médico">
+      <div class="ag-selector__search">
+        <span class="material-symbols-outlined ag-selector__icon" aria-hidden="true">search</span>
         <input
-          class="hor-search__input"
+          class="ag-selector__input"
           type="text"
-          placeholder="Buscar por nombre o especialidad…"
+          placeholder="Buscar médico por nombre o especialidad…"
           [(ngModel)]="terminoBusqueda"
           aria-label="Buscar médico"
         />
       </div>
 
-      <ul class="hor-medico-list" role="listbox" aria-label="Lista de médicos">
+      @if (cargandoMedicos) {
+        <p class="ag-selector__cargando">Cargando médicos…</p>
+      }
+
+      <ul class="ag-selector__list" role="listbox" aria-label="Lista de médicos">
         @for (m of medicosFiltrados; track m.id_medico) {
           <li
-            class="hor-medico-item"
-            [class.hor-medico-item--active]="medicoSeleccionadoId === m.id_medico"
+            class="ag-selector__item"
+            [class.ag-selector__item--active]="medicoSeleccionadoId === m.id_medico"
             role="option"
             [attr.aria-selected]="medicoSeleccionadoId === m.id_medico"
             (click)="seleccionarMedico(m.id_medico)"
           >
-            <div class="hor-medico-item__avatar" aria-hidden="true">
-              {{ m.nombre[0] }}{{ m.apellido[0] }}
-            </div>
-            <div class="hor-medico-item__info">
-              <p class="hor-medico-item__nombre">Dr/a. {{ m.nombre }} {{ m.apellido }}</p>
-              <p class="hor-medico-item__esp">{{ m.especialidad }}</p>
+            <div class="ag-selector__avatar" aria-hidden="true">{{ m.nombre[0] }}{{ m.apellido[0] }}</div>
+            <div class="ag-selector__info">
+              <p class="ag-selector__nombre">Dr/a. {{ m.nombre }} {{ m.apellido }}</p>
+              <p class="ag-selector__esp">{{ m.especialidad }}</p>
             </div>
             @if (medicoSeleccionadoId === m.id_medico) {
-              <span class="material-symbols-outlined hor-medico-item__check" aria-hidden="true">check_circle</span>
+              <span class="material-symbols-outlined ag-selector__check" aria-hidden="true">check_circle</span>
             }
           </li>
         }
         @empty {
-          <li class="hor-medico-empty">Sin resultados para "{{ terminoBusqueda }}"</li>
+          @if (!cargandoMedicos) {
+            <li class="ag-selector__empty">Sin resultados para "{{ terminoBusqueda }}"</li>
+          }
         }
       </ul>
     </section>
 
-    <!-- Calendario semanal — solo visible cuando hay médico seleccionado -->
+    <!-- Calendario — visible cuando hay médico seleccionado -->
     @if (medicoActual) {
-      <section class="hor-section" aria-label="Agenda semanal del médico seleccionado">
 
-        <div class="hor-cal-header">
-          <div>
-            <h2 class="hor-section__title">
-              Agenda — Dr/a. {{ medicoActual.nombre }} {{ medicoActual.apellido }}
-            </h2>
-            <p class="hor-cal-periodo">{{ semanaEtiqueta }}</p>
+      <section class="ag-cal" aria-label="Calendario semanal">
+        <div class="ag-cal__header">
+          <div class="ag-cal__nav">
+            <h3>{{ periodoTitulo }}</h3>
+            <button class="ag-cal__arrow" type="button" (click)="moverPeriodo(-1)" aria-label="Semana anterior">
+              <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <button class="ag-cal__arrow" type="button" (click)="moverPeriodo(1)" aria-label="Semana siguiente">
+              <span class="material-symbols-outlined">chevron_right</span>
+            </button>
           </div>
-          <div class="hor-cal-nav" role="group" aria-label="Navegar semana">
-            <button class="hor-cal-nav__btn" type="button" (click)="semanaAnterior()" aria-label="Semana anterior">
-              <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
-            </button>
-            <button class="hor-cal-nav__btn" type="button" (click)="semanaSiguiente()" aria-label="Semana siguiente">
-              <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-            </button>
+          <div class="ag-cal__views">
+            <button type="button" class="ag-view-pill" [class.ag-view-pill--active]="vistaActiva === 'semana'" (click)="cambiarVista('semana')">Semana</button>
+            <button type="button" class="ag-view-pill" [class.ag-view-pill--active]="vistaActiva === 'mes'" (click)="cambiarVista('mes')">Mes</button>
           </div>
         </div>
 
-        <!-- Tira de días -->
-        <div class="hor-strip" role="list" aria-label="Días de la semana">
-          @for (dia of diasSemana; track dia.iso) {
+        <div class="ag-week-strip" aria-label="Semana visible">
+          @for (dia of diasDelPeriodo; track dia.fecha) {
             <div
-              class="hor-strip__dia"
-              [class.hor-strip__dia--hoy]="dia.esHoy"
-              role="listitem"
+              class="ag-day"
+              [class.ag-day--today]="dia.esHoy"
+              [class.ag-day--active]="dia.esSeleccionado"
             >
-              <span class="hor-strip__etiqueta">{{ dia.etiqueta }}</span>
-              <span class="hor-strip__numero">{{ dia.numeroDia }}</span>
-
-              @if (bloquesDelDia(dia.iso).length === 0) {
-                <span class="hor-strip__vacio" aria-label="Sin bloques">—</span>
-              } @else {
-                <span class="hor-strip__badge" [attr.aria-label]="bloquesDelDia(dia.iso).length + ' bloques'">
-                  {{ bloquesDelDia(dia.iso).length }}
-                </span>
+              <span class="ag-day__label">{{ dia.etiquetaDia }}</span>
+              <button
+                type="button"
+                class="ag-day__btn"
+                (click)="seleccionarDia(dia.fecha)"
+                [attr.aria-pressed]="dia.esSeleccionado"
+                [attr.aria-label]="dia.etiquetaDia + ' ' + dia.numeroDia"
+              >{{ dia.numeroDia }}</button>
+              @if (dia.cantidadSlots > 0) {
+                <span class="ag-day__dot">{{ dia.cantidadSlots }}</span>
               }
             </div>
           }
         </div>
 
-        <!-- Mensaje informativo mientras no hay datos del backend -->
-        <div class="hor-empty-state" role="status" aria-live="polite">
-          <span class="material-symbols-outlined hor-empty-state__icon" aria-hidden="true">calendar_month</span>
-          <p class="hor-empty-state__title">Conexión con backend pendiente</p>
-          <p class="hor-empty-state__desc">
-            La disponibilidad real se cargará desde <code>/api/admin/medicos/:id/disponibilidad</code> cuando el endpoint esté disponible.
-          </p>
+        @if (cargandoDisponibilidad) {
+          <p class="ag-cal__cargando">Cargando disponibilidad…</p>
+        }
+      </section>
+
+      <!-- Panel de gestión — visible al seleccionar un día -->
+      <section class="ag-panel-horario" aria-label="Panel de gestión del día seleccionado">
+        <div class="ag-panel-horario__header">
+          <h3>
+            <span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>
+            {{ formatFechaSlot(fechaSeleccionada) }} — Dr/a. {{ medicoActual.nombre }} {{ medicoActual.apellido }}
+          </h3>
         </div>
 
+        <div class="ag-panel-horario__grid">
+
+          <!-- Columna izquierda -->
+          <div class="ag-panel-horario__col-left">
+
+            <div class="ag-dias-card">
+              <h4 class="ag-dias-card__title">Días Laborales</h4>
+              <div class="ag-dias-card__list">
+                @for (dia of diasConfigurables; track dia.value) {
+                  <label class="ag-dia-row" [class.ag-dia-row--activo]="diaActivo(dia.value)">
+                    <span>{{ dia.label }}</span>
+                    <input
+                      type="checkbox"
+                      [checked]="diaActivo(dia.value)"
+                      (change)="toggleDia(dia.value)"
+                    />
+                  </label>
+                }
+              </div>
+            </div>
+
+            <div class="ag-stats-card">
+              <span class="material-symbols-outlined">insights</span>
+              <p class="ag-stats-card__label">Bloques hoy</p>
+              <p class="ag-stats-card__value">{{ disponibilidadDelDia.length }}</p>
+            </div>
+
+          </div>
+
+          <!-- Columna derecha -->
+          <div class="ag-panel-horario__col-right">
+
+            <div class="ag-turnos-card">
+              <div class="ag-turno">
+                <div class="ag-turno__info">
+                  <span class="material-symbols-outlined">wb_sunny</span>
+                  <div>
+                    <h4>Jornada Mañana</h4>
+                    <p>{{ jornadaManana ? 'Bloques activos 08:00 – 13:00' : 'Desactivada' }}</p>
+                  </div>
+                </div>
+                <label class="ag-toggle">
+                  <input type="checkbox" [(ngModel)]="jornadaManana" name="jornadaManana" />
+                  <span class="ag-toggle__track"></span>
+                </label>
+              </div>
+              <div class="ag-turno ag-turno--separator">
+                <div class="ag-turno__info">
+                  <span class="material-symbols-outlined">dark_mode</span>
+                  <div>
+                    <h4>Jornada Tarde</h4>
+                    <p>{{ jornadaTarde ? 'Bloques activos 14:00 – 18:00' : 'Desactivada' }}</p>
+                  </div>
+                </div>
+                <label class="ag-toggle">
+                  <input type="checkbox" [(ngModel)]="jornadaTarde" name="jornadaTarde" />
+                  <span class="ag-toggle__track"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="ag-bloques-editor">
+              <h4 class="ag-bloques-editor__title">
+                @if (bloqueEditandoId) { Editar bloque } @else { Nuevo bloque horario }
+              </h4>
+              @for (bloque of bloquesForm; track $index) {
+                <div class="ag-bloque-row">
+                  <div class="ag-bloque-row__field">
+                    <label>Desde</label>
+                    <input type="time" [(ngModel)]="bloque.horaInicio" [name]="'horaInicio_' + $index" />
+                  </div>
+                  <span class="material-symbols-outlined ag-bloque-row__arrow">trending_flat</span>
+                  <div class="ag-bloque-row__field">
+                    <label>Hasta</label>
+                    <input type="time" [(ngModel)]="bloque.horaFin" [name]="'horaFin_' + $index" />
+                  </div>
+                  @if (!bloqueEditandoId) {
+                    <button
+                      type="button"
+                      class="ag-icon-btn ag-icon-btn--danger"
+                      (click)="eliminarBloqueForm($index)"
+                      aria-label="Eliminar rango"
+                    >
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                  }
+                </div>
+              }
+              @if (!bloqueEditandoId) {
+                <button type="button" class="ag-add-bloque" (click)="agregarBloqueForm()">
+                  <span class="material-symbols-outlined">add_circle</span>
+                  Agregar bloque horario
+                </button>
+              }
+            </div>
+
+            <div class="ag-acciones-card">
+              @if (!bloqueEditandoId) {
+                <div class="ag-repetir-row">
+                  <label>
+                    Repetir durante
+                    <input type="number" [(ngModel)]="repetirSemanas" name="repetirSemanas" min="1" max="12" />
+                    semana(s)
+                  </label>
+                </div>
+              }
+              <div class="ag-panel-acciones">
+                @if (bloqueEditandoId) {
+                  <button type="button" class="ag-btn-ghost" (click)="cancelarEdicion()">Cancelar edición</button>
+                }
+                <button type="button" class="ag-btn-primary" (click)="guardarDisponibilidad()">
+                  {{ bloqueEditandoId ? 'Actualizar bloque' : 'Guardar bloques' }}
+                </button>
+              </div>
+            </div>
+
+            @if (disponibilidadDelDia.length > 0) {
+              <div class="ag-slots-lista">
+                <h4>Bloques del día</h4>
+                @for (slot of disponibilidadDelDia; track slot.id_disponibilidad) {
+                  <div
+                    class="ag-slot"
+                    [class.ag-slot--disponible]="slot.estado === 'disponible'"
+                    [class.ag-slot--reservada]="slot.estado === 'reservada'"
+                    [class.ag-slot--bloqueada]="slot.estado === 'bloqueada'"
+                  >
+                    <div class="ag-slot__info">
+                      <span class="ag-slot__hora">{{ formatHora(slot.hora_inicio) }} – {{ formatHora(slot.hora_fin) }}</span>
+                      <span class="ag-slot__estado">{{ slot.estado }}</span>
+                    </div>
+                    <div class="ag-slot__acciones">
+                      <button type="button" class="ag-icon-btn" (click)="editarBloque(slot)" aria-label="Editar bloque">
+                        <span class="material-symbols-outlined">edit</span>
+                      </button>
+                      <button
+                        type="button"
+                        class="ag-icon-btn"
+                        (click)="alternarBloqueo(slot)"
+                        [disabled]="slot.estado === 'reservada'"
+                        aria-label="Alternar bloqueo"
+                      >
+                        <span class="material-symbols-outlined">{{ slot.estado === 'bloqueada' ? 'lock_open' : 'lock' }}</span>
+                      </button>
+                      <button
+                        type="button"
+                        class="ag-icon-btn ag-icon-btn--danger"
+                        (click)="eliminarBloque(slot)"
+                        [disabled]="slot.estado === 'reservada'"
+                        aria-label="Eliminar bloque"
+                      >
+                        <span class="material-symbols-outlined">delete</span>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else if (!cargandoDisponibilidad) {
+              <div class="ag-empty-state">
+                <span class="material-symbols-outlined" aria-hidden="true">event_busy</span>
+                <h3>Sin bloques este día</h3>
+                <p>Agrega un bloque horario usando el editor de arriba.</p>
+              </div>
+            }
+
+            @if (feedbackMessage) {
+              <p class="ag-feedback">{{ feedbackMessage }}</p>
+            }
+
+          </div>
+
+        </div>
       </section>
+
     }
 
   </main>
-
-  <app-admin-bottom-nav activeTab="operacion"></app-admin-bottom-nav>
-
 </ion-content>
+
+<app-admin-bottom-nav activeTab="operacion"></app-admin-bottom-nav>
+
+

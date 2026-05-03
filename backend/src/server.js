@@ -6,6 +6,7 @@ const authRoutes       = require('./routes/auth.routes');
 const pacienteRoutes   = require('./routes/paciente.routes');
 const citasRoutes      = require('./routes/citas.routes');
 const medicoRoutes     = require('./routes/medico.routes');
+const adminRoutes      = require('./routes/admin.routes');
 const errorHandler     = require('./middleware/error.middleware');
 
 const app  = express();
@@ -36,6 +37,7 @@ app.use('/api/auth',     authRoutes);
 app.use('/api/paciente', pacienteRoutes);
 app.use('/api/citas',    citasRoutes);
 app.use('/api/medico',   medicoRoutes);
+app.use('/api/admin',    adminRoutes);
 
 // Rutas no encontradas
 app.use((_req, res) => {
