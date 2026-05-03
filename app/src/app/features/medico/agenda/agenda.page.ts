@@ -2,7 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
 import { IonContent } from '@ionic/angular/standalone';
 import { MedicoBottomNavComponent } from '../../../shared/components/medico-bottom-nav/medico-bottom-nav.component';
 import { MedicoHeaderComponent } from '../../../shared/components/medico-header/medico-header.component';
@@ -60,7 +59,6 @@ interface BloqueForm {
   styleUrls: ['./agenda.page.scss'],
   standalone: true,
   imports: [
-    IonicModule,
     IonContent,
     CommonModule,
     FormsModule,
