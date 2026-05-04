@@ -17,6 +17,19 @@ export const AUTH_ROUTES: Routes = [
       import('./forgot-password/forgot-password.page').then((m) => m.ForgotPasswordPage),
   },
   {
+<<<<<<< Updated upstream
+=======
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./reset-password/reset-password.page').then((m) => m.ResetPasswordPage),
+  },
+  {
+    path: 'change-password',
+    loadComponent: () =>
+      import('./change-password/change-password.page').then((m) => m.ChangePasswordPage),
+  },
+  {
+>>>>>>> Stashed changes
     path: 'solicitar-hora',
     loadComponent: () =>
       import('./solicitar-hora/solicitar-hora.page').then((m) => m.SolicitarHoraPage),

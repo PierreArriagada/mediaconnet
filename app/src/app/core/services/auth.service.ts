@@ -22,6 +22,22 @@ export interface ForgotPasswordPayload {
   email: string;
 }
 
+<<<<<<< Updated upstream
+=======
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface ChangePasswordPayload {
+  userId: string;
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+>>>>>>> Stashed changes
 export interface AuthResponse {
   token: string;
   user: {
@@ -82,6 +98,18 @@ export class AuthService {
     return this.http.post<void>(`${this.API}/forgot-password`, payload);
   }
 
+<<<<<<< Updated upstream
+=======
+  /** Restablecer contraseña con token */
+  resetPassword(payload: ResetPasswordPayload): Observable<void> {
+    return this.http.post<void>(`${this.API}/reset-password`, payload);
+  }
+
+  changePassword(payload: ChangePasswordPayload): Observable<void> {
+    return this.http.post<void>(`${this.API}/change-password`, payload);
+  }
+
+>>>>>>> Stashed changes
   private hasToken(): boolean {
     return !!localStorage.getItem('token');
   }

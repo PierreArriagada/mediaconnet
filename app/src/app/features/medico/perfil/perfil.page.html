@@ -22,6 +22,22 @@
 
   <!-- Edu: contenedor de menú para igualar layout del perfil paciente -->
   <div class="pf-menu">
+    <button
+      class="pf-menu-item"
+      (click)="irCambiarContrasena()"
+      role="listitem"
+      aria-label="Cambiar contraseña"
+    >
+      <div class="pf-menu-item__icon-wrap pf-menu-item__icon-wrap--secondary">
+        <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+      </div>
+      <div class="pf-menu-item__content">
+        <span class="pf-menu-item__title">Cambiar contraseña</span>
+        <span class="pf-menu-item__sub">Actualiza tu contraseña segura</span>
+      </div>
+      <span class="material-symbols-outlined pf-menu-item__arrow" aria-hidden="true">chevron_right</span>
+    </button>
+
     <!-- Edu: botón para cerrar sesión usando la misma estructura visual del perfil paciente -->
     <button
       class="pf-menu-item pf-menu-item--danger"

@@ -55,4 +55,8 @@ export class PerfilPage implements OnInit {
     this.auth.logout();
     this.router.navigate(['/auth/login']);
   }
+
+  irCambiarContrasena(): void {
+    this.router.navigate(['/auth/change-password']);
+  }
 }

@@ -1,5 +1,10 @@
 const { validationResult } = require('express-validator');
 const jwt  = require('jsonwebtoken');
+<<<<<<< Updated upstream
+=======
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+>>>>>>> Stashed changes
 const pool = require('../db/pool');
 const { JWT_SECRET, JWT_EXPIRES } = require('../config/jwt.config');
 
@@ -156,4 +161,97 @@ async function forgotPassword(_req, res) {
   });
 }
 
+<<<<<<< Updated upstream
 module.exports = { login, register, forgotPassword };
+=======
+/** Restablecer contraseña: endpoint simulado sin actualizar BD */
+async function resetPassword(req, res) {
+  const { token, newPassword, confirmPassword } = req.body;
+
+  // Validaciones básicas
+  if (!token || typeof token !== 'string' || token.trim().length === 0) {
+    return res.status(400).json({ message: 'Token inválido o expirado' });
+  }
+
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
+    return res.status(400).json({ message: 'La contraseña debe tener al menos 8 caracteres' });
+  }
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ message: 'Las contraseñas no coinciden' });
+  }
+
+  try {
+    // Por ahora solo simulamos el cambio sin tocar la BD
+    console.log(`Simulando reseteo de contraseña para token: ${token.substring(0, 8)}...`);
+
+    return res.status(200).json({
+      message: 'Contraseña actualizada correctamente',
+    });
+  } catch (err) {
+    console.error('Error en resetPassword:', err);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+}
+
+async function changePassword(req, res) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ message: 'Datos inválidos', errors: errors.array() });
+  }
+
+  const { userId, currentPassword, newPassword, confirmPassword } = req.body;
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ message: 'Las contraseñas no coinciden' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT contrasena_hash FROM usuarios WHERE id_usuario = $1',
+      [userId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const storedHash = result.rows[0].contrasena_hash;
+    let currentPasswordValid = false;
+
+    if (typeof storedHash === 'string' && /^\$2[aby]\$/.test(storedHash)) {
+      currentPasswordValid = await bcrypt.compare(currentPassword, storedHash);
+    } else {
+      const verifyResult = await pool.query(
+        `SELECT (contrasena_hash = crypt($2, contrasena_hash)) AS valid
+         FROM usuarios
+         WHERE id_usuario = $1`,
+        [userId, currentPassword]
+      );
+      currentPasswordValid = verifyResult.rows[0]?.valid === true;
+
+      if (!currentPasswordValid && currentPassword === storedHash) {
+        currentPasswordValid = true;
+      }
+    }
+
+    if (!currentPasswordValid) {
+      return res.status(401).json({ message: 'La contraseña actual es incorrecta' });
+    }
+
+    await pool.query(
+      `UPDATE usuarios
+       SET contrasena_hash = crypt($2, gen_salt('bf', 12))
+       WHERE id_usuario = $1`,
+      [userId, newPassword]
+    );
+
+    return res.status(200).json({ message: 'Contraseña actualizada correctamente' });
+  } catch (err) {
+    console.error('Error en changePassword:', err);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+}
+
+module.exports = { login, register, forgotPassword, resetPassword, changePassword };
+>>>>>>> Stashed changes
