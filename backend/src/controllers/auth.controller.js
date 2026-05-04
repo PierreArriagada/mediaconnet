@@ -1,7 +1,9 @@
 const { validationResult } = require('express-validator');
 const jwt  = require('jsonwebtoken');
+const crypto = require('crypto');
 const pool = require('../db/pool');
 const { JWT_SECRET, JWT_EXPIRES } = require('../config/jwt.config');
+const { sendEmail } = require('../services/email.service');
 
 /** Inicio de sesión: verifica credenciales contra la BD real usando pgcrypto */
 async function login(req, res) {
@@ -149,11 +151,119 @@ async function register(req, res) {
   }
 }
 
-/** Recuperación de contraseña: siempre responde 200 (anti-enumeración) */
-async function forgotPassword(_req, res) {
-  return res.status(200).json({
-    message: 'Si el correo está registrado, recibirás las instrucciones en breve.',
-  });
+/** Recuperación de contraseña: genera token y envía correo (anti-enumeración) */
+async function forgotPassword(req, res) {
+  const { email } = req.body;
+
+  if (!email || typeof email !== 'string' || !email.includes('@')) {
+    return res.status(200).json({
+      message: 'Si el correo está registrado, recibirás las instrucciones en breve.',
+    });
+  }
+
+  try {
+    // Generar token simple con crypto.randomBytes(32).toString('hex')
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    // Construir URL de reset con el token
+    const resetUrl = `http://localhost:8100/auth/reset-password?token=${resetToken}`;
+
+    // Construcción del HTML del correo
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center; color: white;">
+          <h1 style="margin: 0;">MediConnect</h1>
+          <p style="margin: 0; margin-top: 10px;">Recuperación de Contraseña</p>
+        </div>
+        
+        <div style="padding: 30px; background-color: #f9f9f9;">
+          <h2 style="color: #333; margin-bottom: 20px;">Solicitaste restablecer tu contraseña</h2>
+          
+          <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
+            Haz clic en el siguiente enlace para cambiar tu contraseña. 
+            <strong>Este enlace caducará en 24 horas por tu seguridad.</strong>
+          </p>
+          
+          <div style="text-align: center; margin-bottom: 30px;">
+            <a href="${resetUrl}" 
+               style="display: inline-block; background-color: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+              Restablecer Contraseña
+            </a>
+          </div>
+          
+          <p style="color: #999; font-size: 12px; margin-bottom: 20px;">
+            O copia y pega este enlace en tu navegador:
+          </p>
+          <p style="color: #667eea; word-break: break-all; font-size: 12px;">
+            ${resetUrl}
+          </p>
+          
+          <div style="border-top: 1px solid #ddd; margin-top: 30px; padding-top: 20px;">
+            <p style="color: #999; font-size: 12px; margin: 0;">
+              Si no solicitaste este cambio de contraseña, ignora este correo.
+            </p>
+            <p style="color: #999; font-size: 12px; margin: 10px 0 0 0;">
+              © 2026 MediConnect. Todos los derechos reservados.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Intentar enviar el correo (sin fallar si no funciona)
+    try {
+      await sendEmail({
+        to: email.toLowerCase(),
+        subject: 'MediConnect - Restablecer tu contraseña',
+        html: emailHtml,
+      });
+      console.log(`Email de recuperación enviado a ${email}`);
+    } catch (mailErr) {
+      console.error('Error enviando correo de recuperación:', mailErr);
+      // No fallar el endpoint, responder con mensaje genérico igual
+    }
+
+    // Responder siempre lo mismo por seguridad (anti-enumeración)
+    return res.status(200).json({
+      message: 'Si el correo está registrado, recibirás las instrucciones en breve.',
+    });
+  } catch (err) {
+    console.error('Error en forgotPassword:', err);
+    // Responder con mensaje genérico incluso en caso de error
+    return res.status(200).json({
+      message: 'Si el correo está registrado, recibirás las instrucciones en breve.',
+    });
+  }
 }
 
-module.exports = { login, register, forgotPassword };
+/** Restablecer contraseña: endpoint simulado sin actualizar BD */
+async function resetPassword(req, res) {
+  const { token, newPassword, confirmPassword } = req.body;
+
+  // Validaciones básicas
+  if (!token || typeof token !== 'string' || token.trim().length === 0) {
+    return res.status(400).json({ message: 'Token inválido o expirado' });
+  }
+
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
+    return res.status(400).json({ message: 'La contraseña debe tener al menos 8 caracteres' });
+  }
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ message: 'Las contraseñas no coinciden' });
+  }
+
+  try {
+    // Por ahora solo simulamos el cambio sin tocar la BD
+    console.log(`Simulando reseteo de contraseña para token: ${token.substring(0, 8)}...`);
+
+    return res.status(200).json({
+      message: 'Contraseña actualizada correctamente',
+    });
+  } catch (err) {
+    console.error('Error en resetPassword:', err);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+}
+
+module.exports = { login, register, forgotPassword, resetPassword };

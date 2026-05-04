@@ -11,7 +11,7 @@ const citasRoutes      = require('./routes/citas.routes');
 const medicoRoutes     = require('./routes/medico.routes');
 const adminRoutes      = require('./routes/admin.routes');
 const errorHandler     = require('./middleware/error.middleware');
-const { sendEmail }    = require('./services/email.service.ts');
+const { sendEmail }    = require('./services/email.service');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;

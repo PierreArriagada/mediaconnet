@@ -22,6 +22,12 @@ export interface ForgotPasswordPayload {
   email: string;
 }
 
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 export interface AuthResponse {
   token: string;
   user: {
@@ -80,6 +86,11 @@ export class AuthService {
   /** Anti-enumeración: el backend siempre responde 200 independiente del correo */
   forgotPassword(payload: ForgotPasswordPayload): Observable<void> {
     return this.http.post<void>(`${this.API}/forgot-password`, payload);
+  }
+
+  /** Restablecer contraseña con token */
+  resetPassword(payload: ResetPasswordPayload): Observable<void> {
+    return this.http.post<void>(`${this.API}/reset-password`, payload);
   }
 
   private hasToken(): boolean {
