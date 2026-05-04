@@ -1,3 +1,6 @@
+require('dotenv').config();
+require('ts-node/register');
+
 const express          = require('express');
 const helmet           = require('helmet');
 const cors             = require('cors');
@@ -8,6 +11,7 @@ const citasRoutes      = require('./routes/citas.routes');
 const medicoRoutes     = require('./routes/medico.routes');
 const adminRoutes      = require('./routes/admin.routes');
 const errorHandler     = require('./middleware/error.middleware');
+const { sendEmail }    = require('./services/email.service.ts');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -38,6 +42,23 @@ app.use('/api/paciente', pacienteRoutes);
 app.use('/api/citas',    citasRoutes);
 app.use('/api/medico',   medicoRoutes);
 app.use('/api/admin',    adminRoutes);
+
+app.get('/api/test-email', async (req, res) => {
+  const to = String(req.query.to || process.env.MAIL_FROM || 'test@example.com');
+
+  try {
+    await sendEmail({
+      to,
+      subject: 'Correo de prueba MediConnect',
+      html: '<p>Este es un correo de prueba enviado desde el backend de MediConnect.</p>',
+    });
+
+    return res.json({ message: 'Correo de prueba enviado', to });
+  } catch (err) {
+    console.error('Error al enviar email de prueba:', err);
+    return res.status(500).json({ message: 'Error enviando email de prueba' });
+  }
+});
 
 // Rutas no encontradas
 app.use((_req, res) => {
