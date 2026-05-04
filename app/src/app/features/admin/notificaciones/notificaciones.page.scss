@@ -1,0 +1,200 @@
+/* Contenedor central tipo móvil */
+:host {
+  display: block;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* Botón volver (igual que médico) */
+.nt-back-card {
+  background: var(--mc-surface-container-lowest);
+  border: 1px solid var(--mc-outline-variant);
+  border-radius: var(--mc-radius-xl);
+  box-shadow: var(--mc-shadow-ambient);
+  padding: 0.75rem 0.9rem;
+  margin: 0.75rem 0.75rem 1rem;
+  width: fit-content;
+  max-width: calc(100% - 1.5rem);
+  box-sizing: border-box;
+}
+
+.nt-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.45rem;
+  width: auto;
+  background: transparent;
+  border: none;
+  color: var(--mc-primary);
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+}
+
+.nt-back-btn span {
+  font-size: 1.2rem;
+}
+
+/* Estado vacío centrado */
+.nt-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: 2rem;
+  gap: 0.5rem;
+  color: var(--mc-on-surface-variant);
+}
+
+.nt-empty-state span {
+  font-size: 2.5rem;
+}
+
+/* Evitar que el contenido quede tapado por menú inferior si existe */
+ion-content {
+  --padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+}
+
+/* Listado */
+.nt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Card */
+.nt-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  background: var(--mc-surface-container-lowest);
+  border: 1px solid var(--mc-outline-variant);
+  border-radius: var(--mc-radius-xl);
+  padding: 0.9rem;
+  box-shadow: var(--mc-shadow-ambient);
+}
+
+/* Destacar no leídas */
+.nt-card--unread {
+  border-color: var(--mc-primary);
+}
+
+/* Icono */
+.nt-card__icon {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  color: var(--mc-primary);
+}
+
+.nt-card__icon span {
+  font-size: 1.6rem;
+}
+
+/* Contenido */
+.nt-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Header */
+.nt-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.nt-card__header h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.nt-card__badge {
+  background: var(--mc-primary);
+  color: var(--mc-on-primary);
+  font-size: 0.65rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+/* Texto */
+.nt-card p {
+  font-size: 0.85rem;
+  margin: 0.2rem 0;
+  color: var(--mc-on-surface);
+}
+
+.nt-card small {
+  font-size: 0.7rem;
+  color: var(--mc-on-surface-variant);
+}
+
+/* Botón reintentar */
+.nt-retry-btn {
+  margin-top: 0.5rem;
+  background: var(--mc-primary);
+  color: var(--mc-on-primary);
+  border: none;
+  border-radius: var(--mc-radius-lg);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Acciones */
+.nt-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.nt-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px solid var(--mc-outline-variant);
+  border-radius: 999px;
+  background: var(--mc-surface-container-low);
+  color: var(--mc-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.4rem 0.65rem;
+  cursor: pointer;
+}
+
+.nt-action-btn span {
+  font-size: 1rem;
+}
+
+.nt-action-btn--danger {
+  color: var(--mc-error);
+  background: rgba(186, 26, 26, 0.06);
+  border-color: rgba(186, 26, 26, 0.18);
+}
+
+.nt-action-btn:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 420px) {
+  .nt-card__actions {
+    flex-direction: column;
+  }
+
+  .nt-action-btn {
+    width: 100%;
+  }
+}

@@ -15,6 +15,9 @@ const {
   getPacientes,
   getPacienteDetalle,
   getCitaDetalle,
+  getNotificacionesAdmin,
+  actualizarEstadoNotificacionAdmin,
+  eliminarNotificacionAdmin,
 } = require('../controllers/admin.controller');
 
 const router = Router();
@@ -46,5 +49,10 @@ router.get('/pacientes/:id', getPacienteDetalle);
 
 // ── Citas (detalle individual) ──────────────────────────────────────────────
 router.get('/citas/:id', getCitaDetalle);
+
+// ── Notificaciones ─────────────────────────────────────────────────────────
+router.get('/notificaciones', getNotificacionesAdmin);
+router.patch('/notificaciones/:id/leida', actualizarEstadoNotificacionAdmin);
+router.delete('/notificaciones/:id', eliminarNotificacionAdmin);
 
 module.exports = router;

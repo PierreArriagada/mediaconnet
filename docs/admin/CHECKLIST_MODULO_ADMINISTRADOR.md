@@ -58,7 +58,9 @@
 * **Fase 7 - Solicitudes, pacientes, citas y auditoria**
 * [ ] Crear cola administrativa para solicitudes pendientes del flujo invitado.
 * [ ] Crear operacion global de citas con filtros y acciones administrativas controladas.
-* [ ] Crear vistas de pacientes del backoffice con ficha administrativa.
+* [x] Crear vistas de pacientes del backoffice con ficha administrativa.
+* [x] Crear detalle individual de cita dentro del flujo de pacientes del backoffice.
+* [x] Documentar la gestion de pacientes del administrador en `docs/admin`.
 * [ ] Crear vistas y persistencia de auditoria administrativa.
 * [ ] Crear notificaciones y ajustes del administrador.
 * **Fase 8 - Seguridad, accesos y cierre**
