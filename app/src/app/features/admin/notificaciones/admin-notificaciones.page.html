@@ -1,0 +1,108 @@
+<ion-content>
+
+  <app-admin-header
+    [userName]="user?.name ?? ''"
+    [noLeidas]="0"
+  ></app-admin-header>
+
+  <main class="anot-main">
+
+    <!-- Cabecera -->
+    <section class="anot-hero">
+      <button class="anot-hero__back" type="button" (click)="volver()" aria-label="Volver al inicio">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <div class="anot-hero__body">
+        <div class="anot-hero__badge">
+          <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+          Centro de actividad
+        </div>
+        <h1 class="anot-hero__title">Notificaciones</h1>
+        <p class="anot-hero__sub">
+          Eventos del sistema que requieren tu atención como administrador.
+        </p>
+      </div>
+    </section>
+
+    <!-- Cargando -->
+    @if (cargando()) {
+      <div class="anot-loading" aria-busy="true" aria-label="Cargando notificaciones">
+        <ion-spinner name="crescent"></ion-spinner>
+        <span>Cargando notificaciones...</span>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (!cargando() && errorCarga()) {
+      <div class="anot-empty">
+        <span class="material-symbols-outlined anot-empty__icon">error</span>
+        <p class="anot-empty__msg">No se pudieron cargar las notificaciones.</p>
+        <button class="anot-btn anot-btn--ghost" type="button" (click)="cargar()">
+          Reintentar
+        </button>
+      </div>
+    }
+
+    <!-- Sin notificaciones -->
+    @if (!cargando() && !errorCarga() && notificaciones().length === 0) {
+      <div class="anot-empty">
+        <span class="material-symbols-outlined anot-empty__icon">notifications_off</span>
+        <p class="anot-empty__msg">Sin notificaciones</p>
+        <p class="anot-empty__sub">No tienes notificaciones por ahora.</p>
+      </div>
+    }
+
+    <!-- Lista -->
+    @if (!cargando() && !errorCarga() && notificaciones().length > 0) {
+      <section class="anot-list" aria-label="Lista de notificaciones">
+        @for (notif of notificaciones(); track notif.id_notificacion) {
+          <article
+            class="anot-item"
+            [class.anot-item--no-leida]="!notif.leida"
+            [class.anot-item--accionable]="esSolicitud(notif)"
+            (click)="accionarNotificacion(notif)"
+            [attr.role]="esSolicitud(notif) ? 'button' : 'article'"
+            [attr.tabindex]="esSolicitud(notif) ? 0 : undefined"
+            [attr.aria-label]="esSolicitud(notif) ? 'Ver solicitud: ' + notif.titulo : notif.titulo"
+            (keydown.enter)="esSolicitud(notif) && accionarNotificacion(notif)"
+          >
+            <!-- Icono izquierdo -->
+            <div
+              class="anot-item__icon-wrap"
+              [class.anot-item__icon-wrap--solicitud]="esSolicitud(notif)"
+              aria-hidden="true"
+            >
+              <span class="material-symbols-outlined anot-item__icon">
+                {{ esSolicitud(notif) ? 'pending_actions' : 'notifications' }}
+              </span>
+            </div>
+
+            <!-- Contenido -->
+            <div class="anot-item__body">
+              <p class="anot-item__titulo">{{ notif.titulo }}</p>
+              <p class="anot-item__mensaje">{{ notif.mensaje }}</p>
+              <p class="anot-item__fecha">{{ formatFecha(notif.fecha_envio) }}</p>
+            </div>
+
+            <!-- Indicador de acción -->
+            @if (esSolicitud(notif)) {
+              <div class="anot-item__cta" aria-hidden="true">
+                <span class="anot-item__cta-label">Revisar</span>
+                <span class="material-symbols-outlined anot-item__cta-arrow">chevron_right</span>
+              </div>
+            }
+
+            <!-- Punto de no leída -->
+            @if (!notif.leida) {
+              <span class="anot-item__dot" aria-label="No leída"></span>
+            }
+          </article>
+        }
+      </section>
+    }
+
+  </main>
+
+  <app-admin-bottom-nav activeTab="home"></app-admin-bottom-nav>
+
+</ion-content>

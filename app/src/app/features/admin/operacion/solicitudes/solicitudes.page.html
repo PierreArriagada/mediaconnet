@@ -1,0 +1,200 @@
+<ion-content>
+
+  <app-admin-header
+    [userName]="user?.name ?? ''"
+    [noLeidas]="0"
+  ></app-admin-header>
+
+  <main class="sol-main">
+
+    <!-- Cabecera de sección -->
+    <section class="sol-hero">
+      <button class="sol-hero__back" type="button" (click)="volver()" aria-label="Volver a Operación">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <div class="sol-hero__body">
+        <div class="sol-hero__badge">
+          <span class="material-symbols-outlined" aria-hidden="true">pending_actions</span>
+          Cola de revisión
+        </div>
+        <h1 class="sol-hero__title">Solicitudes pendientes</h1>
+        <p class="sol-hero__sub">
+          Revisa cada solicitud. Si no actúas en el plazo indicado, el sistema confirma la asignación automáticamente.
+        </p>
+      </div>
+    </section>
+
+    <!-- Skeleton de carga -->
+    @if (cargando()) {
+      <section class="sol-list" aria-busy="true" aria-label="Cargando solicitudes">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="sol-card sol-card--skeleton">
+            <div class="sol-sk sol-sk--title"></div>
+            <div class="sol-sk sol-sk--sub"></div>
+            <div class="sol-sk sol-sk--meta"></div>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Error -->
+    @if (!cargando() && errorCarga()) {
+      <div class="sol-empty">
+        <span class="material-symbols-outlined sol-empty__icon">error</span>
+        <p class="sol-empty__msg">No se pudieron cargar las solicitudes.</p>
+        <button class="sol-btn sol-btn--ghost" type="button" (click)="cargar()">Reintentar</button>
+      </div>
+    }
+
+    <!-- Sin pendientes -->
+    @if (!cargando() && !errorCarga() && solicitudes().length === 0) {
+      <div class="sol-empty">
+        <span class="material-symbols-outlined sol-empty__icon">check_circle</span>
+        <p class="sol-empty__msg">No hay solicitudes pendientes.</p>
+        <p class="sol-empty__sub">Todas las solicitudes han sido procesadas.</p>
+      </div>
+    }
+
+    <!-- Lista de solicitudes -->
+    @if (!cargando() && !errorCarga() && solicitudes().length > 0) {
+      <section class="sol-list" aria-label="Solicitudes pendientes de revisión">
+        @for (s of solicitudes(); track s.id_cita) {
+          <article
+            class="sol-card"
+            [class.sol-card--urgente]="urgente(s.tiempo_restante_seg)"
+          >
+            <!-- Fila superior: nombre + countdown -->
+            <div class="sol-card__top">
+              <div class="sol-card__patient">
+                <span class="sol-card__avatar" aria-hidden="true">
+                  {{ s.nombre_invitado.charAt(0) }}{{ s.apellido_invitado.charAt(0) }}
+                </span>
+                <div>
+                  <p class="sol-card__name">{{ s.nombre_invitado }} {{ s.apellido_invitado }}</p>
+                  <p class="sol-card__contact">{{ s.correo_invitado }} · {{ s.telefono_invitado }}</p>
+                </div>
+              </div>
+              <div
+                class="sol-card__timer"
+                [class.sol-card__timer--urgente]="urgente(s.tiempo_restante_seg)"
+                [class.sol-card__timer--vencido]="s.tiempo_restante_seg <= 0"
+                [attr.aria-label]="'Tiempo restante: ' + countdown(s.tiempo_restante_seg)"
+              >
+                <span class="material-symbols-outlined sol-card__timer-icon" aria-hidden="true">timer</span>
+                <span class="sol-card__timer-text">{{ countdown(s.tiempo_restante_seg) }}</span>
+              </div>
+            </div>
+
+            <!-- Info clínica y asignación sugerida -->
+            <div class="sol-card__body">
+              <div class="sol-card__row">
+                <span class="sol-card__label">Especialidad</span>
+                <span class="sol-card__val">{{ s.especialidad }}</span>
+              </div>
+              <div class="sol-card__row">
+                <span class="sol-card__label">Motivo</span>
+                <span class="sol-card__val sol-card__val--motivo">{{ s.motivo_consulta }}</span>
+              </div>
+              <div class="sol-card__row sol-card__row--highlight">
+                <span class="sol-card__label">Asignación sugerida</span>
+                <span class="sol-card__val">
+                  Dr. {{ s.medico_nombre }} {{ s.medico_apellido }} —
+                  {{ formatFechaCorta(s.fecha_cita) }}, {{ formatHora(s.hora_cita) }}
+                </span>
+              </div>
+              <div class="sol-card__row">
+                <span class="sol-card__label">Recibida</span>
+                <span class="sol-card__val">{{ formatFechaRegistro(s.fecha_creacion) }}</span>
+              </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="sol-card__actions">
+              <button
+                class="sol-btn sol-btn--primary"
+                type="button"
+                [disabled]="accionEnCurso() === s.id_cita"
+                (click)="confirmar(s)"
+                [attr.aria-label]="'Confirmar asignación de ' + s.nombre_invitado"
+              >
+                @if (accionEnCurso() === s.id_cita) {
+                  <ion-spinner name="crescent" class="sol-btn__spinner"></ion-spinner>
+                } @else {
+                  <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+                  Confirmar asignación
+                }
+              </button>
+              <button
+                class="sol-btn sol-btn--outline"
+                type="button"
+                [disabled]="accionEnCurso() === s.id_cita"
+                (click)="abrirReasignar(s.id_cita)"
+                [attr.aria-label]="'Reasignar cita de ' + s.nombre_invitado"
+              >
+                <span class="material-symbols-outlined" aria-hidden="true">swap_horiz</span>
+                {{ reasignandoId() === s.id_cita ? 'Cerrar' : 'Reasignar' }}
+              </button>
+            </div>
+
+            <!-- Panel de reasignación (expandible) -->
+            @if (reasignandoId() === s.id_cita) {
+              <div class="sol-reasignar" role="region" [attr.aria-label]="'Opciones de reasignación para ' + s.nombre_invitado">
+                <p class="sol-reasignar__title">Elige un médico y horario alternativos</p>
+
+                @if (cargandoAlts()) {
+                  <div class="sol-reasignar__loading">
+                    <ion-spinner name="crescent"></ion-spinner>
+                    <span>Cargando disponibilidad...</span>
+                  </div>
+                }
+
+                @if (!cargandoAlts() && alternativas().length === 0) {
+                  <p class="sol-reasignar__empty">No hay médicos con disponibilidad para esta especialidad.</p>
+                }
+
+                @for (medico of alternativas(); track medico.id_medico) {
+                  <div class="sol-medico">
+                    <div class="sol-medico__header">
+                      <span class="sol-medico__avatar" aria-hidden="true">
+                        {{ medico.nombre.charAt(0) }}{{ medico.apellido.charAt(0) }}
+                      </span>
+                      <div>
+                        <p class="sol-medico__name">Dr. {{ medico.nombre }} {{ medico.apellido }}</p>
+                        <p class="sol-medico__exp">{{ medico.anios_experiencia }} años de experiencia</p>
+                      </div>
+                    </div>
+
+                    @if (medico.slots.length === 0) {
+                      <p class="sol-medico__no-slots">Sin disponibilidad próxima</p>
+                    } @else {
+                      <div class="sol-slots" role="list">
+                        @for (slot of medico.slots; track slot.id_disponibilidad) {
+                          <button
+                            class="sol-slot"
+                            type="button"
+                            [disabled]="accionEnCurso() === s.id_cita"
+                            (click)="elegirSlot(s, slot)"
+                            role="listitem"
+                            [attr.aria-label]="'Asignar ' + formatFechaCorta(slot.fecha) + ' a las ' + slot.hora_inicio"
+                          >
+                            <span class="sol-slot__date">{{ formatFechaCorta(slot.fecha) }}</span>
+                            <span class="sol-slot__time">{{ formatHora(slot.hora_inicio) }}</span>
+                          </button>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+          </article>
+        }
+      </section>
+    }
+
+  </main>
+
+  <app-admin-bottom-nav activeTab="operacion"></app-admin-bottom-nav>
+
+</ion-content>
