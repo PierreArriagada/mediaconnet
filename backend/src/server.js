@@ -8,6 +8,7 @@ const citasRoutes      = require('./routes/citas.routes');
 const medicoRoutes     = require('./routes/medico.routes');
 const adminRoutes      = require('./routes/admin.routes');
 const errorHandler     = require('./middleware/error.middleware');
+const { iniciarJobAutoAsignacion } = require('./jobs/auto-asignacion.job');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -49,4 +50,6 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`API MediConnect corriendo en puerto ${PORT}`);
+  // Iniciar job de auto-asignación de solicitudes de invitado
+  iniciarJobAutoAsignacion();
 });

@@ -16,6 +16,10 @@ export const OPERACION_ROUTES: Routes = [
     loadComponent: () =>
       import('./especialidades/especialidades.page').then((m) => m.EspecialidadesPage),
   },
-  // path: 'solicitudes'   → pendiente
+  {
+    path: 'solicitudes',
+    loadComponent: () =>
+      import('./solicitudes/solicitudes.page').then((m) => m.SolicitudesPage),
+  },
   // path: 'citas'         → pendiente
 ];

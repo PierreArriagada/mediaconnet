@@ -26,12 +26,20 @@ export const ADMIN_ROUTES: Routes = [
     loadChildren: () =>
       import('./pacientes/pacientes.routes').then((m) => m.PACIENTES_ADMIN_ROUTES),
   },
+  {
+    path: 'notificaciones',
+    loadComponent: () =>
+      import('./notificaciones/admin-notificaciones.page').then((m) => m.AdminNotificacionesPage),
+  },
   // path: 'auditoria'      → pendiente
+<<<<<<< Updated upstream
   {
     path: 'notificaciones',
     loadComponent: () =>
       import('./notificaciones/notificaciones.page').then((m) => m.NotificacionesPage),
   },
+=======
+>>>>>>> Stashed changes
   // path: 'ajustes'        → pendiente
 ];
 

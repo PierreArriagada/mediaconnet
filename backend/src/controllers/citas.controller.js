@@ -23,9 +23,14 @@ async function getEspecialidades(req, res) {
 /**
  * POST /api/citas/invitado
  * Crea una solicitud de cita para un usuario no registrado (invitado).
- * - Busca o crea el registro en pacientes por RUT (id_usuario = NULL).
- * - Auto-asigna el primer médico activo de la especialidad.
- * - hora_cita se fija según franja: mañana = 09:00, tarde = 14:00.
+ * Nuevo flujo (2026-05):
+ *   - El invitado elige solo la especialidad (no fecha ni médico).
+ *   - El sistema busca el slot disponible más próximo entre todos los
+ *     médicos activos de esa especialidad y lo reserva de inmediato.
+ *   - Se registra fecha_limite_asignacion = NOW() + 2 horas.
+ *   - Si el admin no actúa en ese plazo, el job de auto-asignación
+ *     confirma la cita automáticamente.
+ *   - Se notifica a todos los usuarios con rol Administrador.
  * Ruta pública — no requiere JWT.
  */
 async function crearCitaInvitado(req, res) {
@@ -43,18 +48,13 @@ async function crearCitaInvitado(req, res) {
     fecha_nacimiento,
     id_especialidad,
     motivo_consulta,
-    fecha_preferente,
-    franja_horaria,
   } = req.body;
-
-  // Hora preferida según franja seleccionada
-  const hora_cita = franja_horaria === 'tarde' ? '14:00:00' : '09:00:00';
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    // Buscar paciente existente por RUT para reutilizar el registro
+    // ── 1. Buscar o crear paciente invitado por RUT ──────────────────
     let idPaciente;
     const existingPaciente = await client.query(
       'SELECT id_paciente FROM pacientes WHERE rut = $1',
@@ -64,7 +64,6 @@ async function crearCitaInvitado(req, res) {
     if (existingPaciente.rowCount > 0) {
       idPaciente = existingPaciente.rows[0].id_paciente;
     } else {
-      // Crear nuevo paciente invitado sin cuenta de usuario asociada
       const nuevoPaciente = await client.query(
         `INSERT INTO pacientes (id_usuario, rut, fecha_nacimiento)
          VALUES (NULL, $1, $2)
@@ -74,57 +73,81 @@ async function crearCitaInvitado(req, res) {
       idPaciente = nuevoPaciente.rows[0].id_paciente;
     }
 
-    // Obtener primer médico activo de la especialidad para asignación automática
-    const medicoResult = await client.query(
-      `SELECT id_medico, id_usuario FROM medicos
-       WHERE  id_especialidad = $1 AND estado = 'activo'
-       ORDER  BY id_medico ASC
-       LIMIT  1`,
+    // ── 2. Encontrar el slot disponible más cercano de la especialidad ─
+    // Se usa FOR UPDATE para bloquear la fila y evitar doble reserva.
+    const slotResult = await client.query(
+      `SELECT d.id_disponibilidad, d.id_medico, d.fecha::text, d.hora_inicio::text, d.hora_fin::text
+       FROM disponibilidad_medica d
+       JOIN medicos m ON m.id_medico = d.id_medico
+       WHERE m.id_especialidad = $1
+         AND m.estado = 'activo'
+         AND m.estado_laboral = 'activo'
+         AND d.estado = 'disponible'
+         AND (
+           d.fecha > CURRENT_DATE
+           OR (d.fecha = CURRENT_DATE AND d.hora_inicio > CURRENT_TIME)
+         )
+       ORDER BY d.fecha ASC, d.hora_inicio ASC
+       LIMIT 1
+       FOR UPDATE OF d`,
       [id_especialidad]
     );
 
-    if (medicoResult.rowCount === 0) {
+    if (slotResult.rowCount === 0) {
       await client.query('ROLLBACK');
       return res.status(422).json({
-        message: 'No hay médicos disponibles para la especialidad seleccionada.',
+        message: 'No hay disponibilidad para la especialidad seleccionada en este momento.',
       });
     }
 
-    const idMedico = medicoResult.rows[0].id_medico;
-    const idUsuarioMedico = medicoResult.rows[0].id_usuario; // Edu: usuario del médico para notificación
+    const slot = slotResult.rows[0];
 
-    // Insertar cita con estado pendiente y campos de invitado
+    // ── 3. Reservar el slot encontrado ───────────────────────────────
+    await client.query(
+      `UPDATE disponibilidad_medica SET estado = 'reservada' WHERE id_disponibilidad = $1`,
+      [slot.id_disponibilidad]
+    );
+
+    // ── 4. Crear la cita con plazo de 2 horas para revisión admin ────
     const citaResult = await client.query(
       `INSERT INTO citas_medicas (
-         id_paciente, id_medico, id_especialidad,
+         id_paciente, id_medico, id_especialidad, id_disponibilidad,
          modalidad, fecha_cita, hora_cita, estado_cita, motivo_consulta,
          es_invitado, nombre_invitado, apellido_invitado,
-         correo_invitado, telefono_invitado
-       ) VALUES ($1, $2, $3, 'presencial', $4, $5, 'pendiente', $6,
-                 TRUE, $7, $8, $9, $10)
+         correo_invitado, telefono_invitado, fecha_limite_asignacion
+       ) VALUES ($1, $2, $3, $4, 'presencial', $5, $6, 'pendiente', $7,
+                 TRUE, $8, $9, $10, $11, NOW() + INTERVAL '2 hours')
        RETURNING id_cita`,
       [
-        idPaciente, idMedico, id_especialidad,
-        fecha_preferente, hora_cita, motivo_consulta,
+        idPaciente, slot.id_medico, id_especialidad, slot.id_disponibilidad,
+        slot.fecha, slot.hora_inicio, motivo_consulta,
         nombre, apellido, correo, telefono,
       ]
     );
 
-    // Edu: notificación al médico por nueva solicitud de cita
-    await client.query(
-      `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
-       VALUES ($1, $2, $3, 'general', FALSE)`,
-      [
-        idUsuarioMedico,
-        'Nueva solicitud de cita',
-        'Tienes una nueva solicitud de cita médica pendiente de revisión.'
-      ]
+    // ── 5. Notificar a todos los administradores ─────────────────────
+    const adminsResult = await client.query(
+      `SELECT u.id_usuario FROM usuarios u
+       JOIN roles r ON r.id_rol = u.id_rol
+       WHERE r.nombre_rol = 'Administrador' AND u.estado = 'activo'`
     );
+
+    for (const admin of adminsResult.rows) {
+      await client.query(
+        `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+         VALUES ($1, $2, $3, 'general', FALSE)`,
+        [
+          admin.id_usuario,
+          'Nueva solicitud de cita invitado',
+          `Solicitud #${citaResult.rows[0].id_cita} — ${nombre} ${apellido} necesita revisión. Se confirmará automáticamente en 2 horas si no se actúa.`,
+        ]
+      );
+    }
 
     await client.query('COMMIT');
 
     return res.status(201).json({
-      message: 'Solicitud registrada correctamente. Nos contactaremos a la brevedad.',
+      message: 'Solicitud registrada. Un médico fue pre-asignado y el equipo la revisará a la brevedad.',
       id_cita: citaResult.rows[0].id_cita,
     });
   } catch (err) {

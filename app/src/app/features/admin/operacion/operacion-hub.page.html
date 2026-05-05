@@ -55,19 +55,19 @@
           <span class="opr-card__arrow material-symbols-outlined" aria-hidden="true">arrow_forward</span>
         </button>
 
-        <!-- Solicitudes pendientes — próximamente -->
+        <!-- Solicitudes pendientes -->
         <button
-          class="opr-card opr-card--ghost"
+          class="opr-card opr-card--warning"
           type="button"
-          disabled
-          aria-label="Solicitudes pendientes — próximamente"
+          (click)="irA('solicitudes')"
+          aria-label="Ir a Solicitudes pendientes"
         >
           <span class="opr-card__icon material-symbols-outlined" aria-hidden="true">pending_actions</span>
           <div class="opr-card__body">
-            <p class="opr-card__title">Solicitudes<span class="opr-card__soon">Próximamente</span></p>
+            <p class="opr-card__title">Solicitudes</p>
             <p class="opr-card__desc">Cola de solicitudes del flujo invitado pendientes de revisión.</p>
           </div>
-          <span class="opr-card__arrow material-symbols-outlined" aria-hidden="true">lock</span>
+          <span class="opr-card__arrow material-symbols-outlined" aria-hidden="true">arrow_forward</span>
         </button>
 
         <!-- Citas globales — próximamente -->

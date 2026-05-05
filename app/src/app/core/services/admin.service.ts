@@ -243,9 +243,51 @@ export interface FiltrosMedicosGestion {
   estado_laboral?: EstadoLaboral;
 }
 
+<<<<<<< Updated upstream
 // ── Notificaciones ──────────────────────────────────────────────────────────
 
 export interface NotificacionAdmin {
+=======
+// ── Solicitudes de invitado ──────────────────────────────────────────────────
+
+export interface SolicitudAdminItem {
+  id_cita: number;
+  nombre_invitado: string;
+  apellido_invitado: string;
+  correo_invitado: string;
+  telefono_invitado: string;
+  motivo_consulta: string;
+  fecha_creacion: string;
+  fecha_limite_asignacion: string;
+  tiempo_restante_seg: number;
+  fecha_cita: string;
+  hora_cita: string;
+  id_disponibilidad: number;
+  especialidad: string;
+  medico_nombre: string;
+  medico_apellido: string;
+  id_medico: number;
+}
+
+export interface SlotAlternativa {
+  id_disponibilidad: number;
+  fecha: string;
+  hora_inicio: string;
+  hora_fin: string;
+}
+
+export interface MedicoAlternativa {
+  id_medico: number;
+  nombre: string;
+  apellido: string;
+  anios_experiencia: number;
+  slots: SlotAlternativa[];
+}
+
+// ── Notificaciones del administrador ────────────────────────────────────────
+
+export interface AdminNotificacion {
+>>>>>>> Stashed changes
   id_notificacion: number;
   titulo: string;
   mensaje: string;
@@ -254,8 +296,14 @@ export interface NotificacionAdmin {
   fecha_envio: string;
 }
 
+<<<<<<< Updated upstream
 export interface NotificacionesAdminResponse {
   notificaciones: NotificacionAdmin[];
+=======
+export interface AdminNotificacionesResponse {
+  notificaciones: AdminNotificacion[];
+  noLeidas: number;
+>>>>>>> Stashed changes
 }
 
 @Injectable({ providedIn: 'root' })
@@ -367,6 +415,48 @@ export class AdminService {
   getCitaDetalle(id: number): Observable<CitaAdminDetalleResponse> {
     return this.http.get<CitaAdminDetalleResponse>(`${this.API}/citas/${id}`);
   }
+<<<<<<< Updated upstream
+=======
+
+  // ── Solicitudes de invitado ────────────────────────────────────────────────
+
+  getSolicitudes(): Observable<SolicitudAdminItem[]> {
+    return this.http
+      .get<{ solicitudes: SolicitudAdminItem[] }>(`${this.API}/solicitudes`)
+      .pipe(map((r) => r.solicitudes));
+  }
+
+  getSolicitudAlternativas(idCita: number): Observable<MedicoAlternativa[]> {
+    return this.http
+      .get<{ medicos: MedicoAlternativa[] }>(`${this.API}/solicitudes/${idCita}/alternativas`)
+      .pipe(map((r) => r.medicos));
+  }
+
+  confirmarSolicitud(idCita: number): Observable<{ message: string }> {
+    return this.http.patch<{ message: string }>(
+      `${this.API}/solicitudes/${idCita}/confirmar`,
+      {}
+    );
+  }
+
+  reasignarSolicitud(idCita: number, idDisponibilidad: number): Observable<{ message: string }> {
+    return this.http.patch<{ message: string }>(
+      `${this.API}/solicitudes/${idCita}/reasignar`,
+      { id_disponibilidad: idDisponibilidad }
+    );
+  }
+
+  // ── Notificaciones del administrador ──────────────────────────────────────
+
+  getNotificacionesAdmin(): Observable<AdminNotificacionesResponse> {
+    return this.http.get<AdminNotificacionesResponse>(`${this.API}/notificaciones`);
+  }
+
+  marcarNotificacionesLeidasAdmin(): Observable<{ message: string }> {
+    return this.http.patch<{ message: string }>(`${this.API}/notificaciones/marcar-leidas`, {});
+  }
+}
+>>>>>>> Stashed changes
 
   // ── Notificaciones ────────────────────────────────────────────────────────
 

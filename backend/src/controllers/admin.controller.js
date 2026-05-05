@@ -1005,6 +1005,342 @@ async function getCitaDetalle(req, res) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// GESTIÓN DE SOLICITUDES DE INVITADO — backoffice administrador
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/admin/solicitudes
+ * Lista todas las solicitudes de invitado con estado 'pendiente' y plazo activo.
+ * Incluye tiempo_restante_seg para que el frontend muestre la cuenta regresiva.
+ */
+async function getSolicitudes(req, res) {
+  try {
+    const result = await pool.query(
+      `SELECT
+         c.id_cita,
+         c.nombre_invitado,
+         c.apellido_invitado,
+         c.correo_invitado,
+         c.telefono_invitado,
+         c.motivo_consulta,
+         c.fecha_creacion,
+         c.fecha_limite_asignacion,
+         EXTRACT(EPOCH FROM (c.fecha_limite_asignacion - NOW()))::int AS tiempo_restante_seg,
+         c.fecha_cita::text,
+         c.hora_cita::text,
+         c.id_disponibilidad,
+         e.nombre_especialidad AS especialidad,
+         u.nombre              AS medico_nombre,
+         u.apellido            AS medico_apellido,
+         m.id_medico
+       FROM citas_medicas c
+       JOIN especialidades e ON e.id_especialidad = c.id_especialidad
+       JOIN medicos m         ON m.id_medico = c.id_medico
+       JOIN usuarios u        ON u.id_usuario = m.id_usuario
+       WHERE c.es_invitado = TRUE
+         AND c.estado_cita = 'pendiente'
+         AND c.fecha_limite_asignacion IS NOT NULL
+       ORDER BY c.fecha_limite_asignacion ASC`
+    );
+    return res.json({ solicitudes: result.rows });
+  } catch (err) {
+    console.error('Error en getSolicitudes (admin):', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * GET /api/admin/solicitudes/:id/alternativas
+ * Devuelve médicos activos de la misma especialidad con su próximo slot disponible.
+ * El frontend lo usa para el selector de reasignación.
+ */
+async function getSolicitudAlternativas(req, res) {
+  const idCita = parseInt(req.params.id, 10);
+  if (isNaN(idCita) || idCita < 1) {
+    return res.status(400).json({ message: 'ID de solicitud inválido.' });
+  }
+
+  try {
+    // Obtener especialidad de la solicitud
+    const citaRes = await pool.query(
+      `SELECT id_especialidad FROM citas_medicas
+       WHERE id_cita = $1 AND es_invitado = TRUE AND estado_cita = 'pendiente'`,
+      [idCita]
+    );
+    if (citaRes.rowCount === 0) {
+      return res.status(404).json({ message: 'Solicitud no encontrada o ya procesada.' });
+    }
+
+    const { id_especialidad } = citaRes.rows[0];
+
+    // Para cada médico activo de la especialidad, devolver sus próximos 5 slots disponibles
+    const medicosRes = await pool.query(
+      `SELECT
+         m.id_medico,
+         u.nombre,
+         u.apellido,
+         m.anios_experiencia,
+         COALESCE(
+           json_agg(
+             json_build_object(
+               'id_disponibilidad', d.id_disponibilidad,
+               'fecha', d.fecha::text,
+               'hora_inicio', d.hora_inicio::text,
+               'hora_fin', d.hora_fin::text
+             ) ORDER BY d.fecha, d.hora_inicio
+           ) FILTER (WHERE d.id_disponibilidad IS NOT NULL),
+           '[]'
+         ) AS slots
+       FROM medicos m
+       JOIN usuarios u ON u.id_usuario = m.id_usuario
+       LEFT JOIN LATERAL (
+         SELECT id_disponibilidad, fecha, hora_inicio, hora_fin
+         FROM disponibilidad_medica
+         WHERE id_medico = m.id_medico
+           AND estado = 'disponible'
+           AND (fecha > CURRENT_DATE OR (fecha = CURRENT_DATE AND hora_inicio > CURRENT_TIME))
+         ORDER BY fecha ASC, hora_inicio ASC
+         LIMIT 5
+       ) d ON TRUE
+       WHERE m.id_especialidad = $1
+         AND m.estado = 'activo'
+         AND m.estado_laboral = 'activo'
+       GROUP BY m.id_medico, u.nombre, u.apellido, m.anios_experiencia
+       ORDER BY u.apellido, u.nombre`,
+      [id_especialidad]
+    );
+
+    return res.json({ medicos: medicosRes.rows });
+  } catch (err) {
+    console.error('Error en getSolicitudAlternativas (admin):', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * PATCH /api/admin/solicitudes/:id/confirmar
+ * El admin confirma la asignación sugerida por el sistema.
+ * Cambia estado_cita → 'confirmada' y limpia fecha_limite_asignacion.
+ * Usa FOR UPDATE para evitar condición de carrera con el job.
+ */
+async function confirmarSolicitud(req, res) {
+  const idCita = parseInt(req.params.id, 10);
+  if (isNaN(idCita) || idCita < 1) {
+    return res.status(400).json({ message: 'ID de solicitud inválido.' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const citaRes = await client.query(
+      `SELECT id_cita, id_disponibilidad
+       FROM citas_medicas
+       WHERE id_cita = $1
+         AND es_invitado = TRUE
+         AND estado_cita = 'pendiente'
+         AND fecha_limite_asignacion IS NOT NULL
+       FOR UPDATE`,
+      [idCita]
+    );
+
+    if (citaRes.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ message: 'Solicitud no encontrada o ya procesada.' });
+    }
+
+    await client.query(
+      `UPDATE citas_medicas
+       SET estado_cita = 'confirmada',
+           fecha_limite_asignacion = NULL
+       WHERE id_cita = $1`,
+      [idCita]
+    );
+
+    await client.query('COMMIT');
+    return res.json({ message: 'Solicitud confirmada correctamente.' });
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) { /* ignorar */ }
+    console.error('Error en confirmarSolicitud (admin):', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * PATCH /api/admin/solicitudes/:id/reasignar
+ * El admin elige un slot diferente al sugerido.
+ * Body: { id_disponibilidad: number }
+ * - Libera el slot anterior (→ 'disponible')
+ * - Reserva el nuevo slot (→ 'reservada') con FOR UPDATE
+ * - Actualiza la cita y la confirma en un solo commit
+ */
+async function reasignarSolicitud(req, res) {
+  const idCita = parseInt(req.params.id, 10);
+  const idNuevoSlot = parseInt(req.body?.id_disponibilidad, 10);
+
+  if (isNaN(idCita) || idCita < 1) {
+    return res.status(400).json({ message: 'ID de solicitud inválido.' });
+  }
+  if (isNaN(idNuevoSlot) || idNuevoSlot < 1) {
+    return res.status(400).json({ message: 'ID de disponibilidad inválido.' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Bloquear la cita y leer el slot actual
+    const citaRes = await client.query(
+      `SELECT id_cita, id_disponibilidad AS id_slot_actual
+       FROM citas_medicas
+       WHERE id_cita = $1
+         AND es_invitado = TRUE
+         AND estado_cita = 'pendiente'
+         AND fecha_limite_asignacion IS NOT NULL
+       FOR UPDATE`,
+      [idCita]
+    );
+    if (citaRes.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ message: 'Solicitud no encontrada o ya procesada.' });
+    }
+
+    const idSlotActual = citaRes.rows[0].id_slot_actual;
+
+    // Bloquear y verificar el nuevo slot
+    const nuevoSlotRes = await client.query(
+      `SELECT id_disponibilidad, id_medico, fecha::text, hora_inicio::text, hora_fin::text, estado
+       FROM disponibilidad_medica
+       WHERE id_disponibilidad = $1
+       FOR UPDATE`,
+      [idNuevoSlot]
+    );
+    if (nuevoSlotRes.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ message: 'Slot de disponibilidad no encontrado.' });
+    }
+    if (nuevoSlotRes.rows[0].estado !== 'disponible') {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ message: 'El slot seleccionado ya no está disponible.' });
+    }
+
+    const nuevoSlot = nuevoSlotRes.rows[0];
+
+    // Liberar slot anterior si existía
+    if (idSlotActual && idSlotActual !== idNuevoSlot) {
+      await client.query(
+        `UPDATE disponibilidad_medica SET estado = 'disponible' WHERE id_disponibilidad = $1`,
+        [idSlotActual]
+      );
+    }
+
+    // Reservar nuevo slot
+    await client.query(
+      `UPDATE disponibilidad_medica SET estado = 'reservada' WHERE id_disponibilidad = $1`,
+      [idNuevoSlot]
+    );
+
+    // Actualizar la cita y confirmarla
+    await client.query(
+      `UPDATE citas_medicas
+       SET id_disponibilidad = $1,
+           id_medico = $2,
+           fecha_cita = $3,
+           hora_cita = $4,
+           estado_cita = 'confirmada',
+           fecha_limite_asignacion = NULL
+       WHERE id_cita = $5`,
+      [idNuevoSlot, nuevoSlot.id_medico, nuevoSlot.fecha, nuevoSlot.hora_inicio, idCita]
+    );
+
+    await client.query('COMMIT');
+    return res.json({ message: 'Solicitud reasignada y confirmada correctamente.' });
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) { /* ignorar */ }
+    console.error('Error en reasignarSolicitud (admin):', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  } finally {
+    client.release();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NOTIFICACIONES DEL ADMINISTRADOR
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/admin/notificaciones
+ * Retorna todas las notificaciones del administrador autenticado ordenadas por fecha.
+ * Incluye el conteo de no leídas para el badge del header.
+ */
+async function getAdminNotificaciones(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    const [notifsResult, unreadResult] = await Promise.all([
+      pool.query(
+        `SELECT
+           id_notificacion,
+           titulo,
+           mensaje,
+           tipo,
+           leida,
+           fecha_envio
+         FROM notificaciones
+         WHERE id_usuario = $1
+         ORDER BY fecha_envio DESC
+         LIMIT 100`,
+        [idUsuario]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS total
+         FROM notificaciones
+         WHERE id_usuario = $1 AND leida = FALSE`,
+        [idUsuario]
+      ),
+    ]);
+
+    return res.json({
+      notificaciones: notifsResult.rows,
+      noLeidas: parseInt(unreadResult.rows[0].total, 10),
+    });
+  } catch (err) {
+    console.error('Error en getAdminNotificaciones:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * PATCH /api/admin/notificaciones/marcar-leidas
+ * Marca todas las notificaciones del admin autenticado como leídas.
+ */
+async function marcarAdminNotificacionesLeidas(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    await pool.query(
+      `UPDATE notificaciones
+       SET leida = TRUE
+       WHERE id_usuario = $1 AND leida = FALSE`,
+      [idUsuario]
+    );
+
+    return res.json({ message: 'Notificaciones marcadas como leídas.' });
+  } catch (err) {
+    console.error('Error en marcarAdminNotificacionesLeidas:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
 module.exports = {
   getMedicos,
   getDisponibilidadMedico,
@@ -1022,9 +1358,22 @@ module.exports = {
   getPacientes,
   getPacienteDetalle,
   getCitaDetalle,
+<<<<<<< Updated upstream
 
   // notificaciones admin
   getNotificacionesAdmin,
   actualizarEstadoNotificacionAdmin,
   eliminarNotificacionAdmin,
+=======
+  // gestión de solicitudes de invitado
+  getSolicitudes,
+  getSolicitudAlternativas,
+  confirmarSolicitud,
+  reasignarSolicitud,
+  // notificaciones
+  getAdminNotificaciones,
+  marcarAdminNotificacionesLeidas,
+>>>>>>> Stashed changes
 };
+
+

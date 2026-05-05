@@ -5,6 +5,7 @@ const { getEspecialidades, crearCitaInvitado } = require('../controllers/citas.c
 const router = Router();
 
 // Validaciones de entrada para solicitud de cita invitado (OWASP A03)
+// Nuevo flujo: sin fecha_preferente ni franja_horaria; el sistema asigna el slot más cercano.
 const validarCitaInvitado = [
   body('nombre')
     .trim().notEmpty().withMessage('Nombre requerido.')
@@ -36,10 +37,6 @@ const validarCitaInvitado = [
     .trim().notEmpty().withMessage('Motivo requerido.')
     .isLength({ max: 255 })
     .escape(),
-  body('fecha_preferente')
-    .isDate().withMessage('Fecha preferente inválida.'),
-  body('franja_horaria')
-    .isIn(['manana', 'tarde']).withMessage('Franja horaria inválida.'),
 ];
 
 // Ruta pública: no requiere autenticación

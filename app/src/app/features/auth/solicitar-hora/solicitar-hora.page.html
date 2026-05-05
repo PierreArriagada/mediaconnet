@@ -255,66 +255,6 @@
               </div>
             </div>
 
-            <!-- ── Tarjeta 3: Preferencia de Agenda ───────────────── -->
-            <div class="sh-card">
-              <h2 class="sh-card__title">
-                <span class="material-symbols-outlined sh-card__title-icon">event_available</span>
-                Preferencia de Agenda
-              </h2>
-
-              <div class="sh-card__grid">
-
-                <!-- Fecha preferente -->
-                <div class="sh-field">
-                  <label class="sh-field__label" for="sh-fecha">Fecha preferente</label>
-                  <input
-                    class="sh-field__input"
-                    id="sh-fecha"
-                    type="date"
-                    formControlName="fecha_preferente"
-                    [min]="minFecha"
-                    [class.sh-field__input--error]="hasError('fecha_preferente')"
-                  />
-                  @if (hasError('fecha_preferente')) {
-                    <span class="sh-field__error">
-                      <span class="material-symbols-outlined sh-field__error-icon">error</span>
-                      Fecha requerida
-                    </span>
-                  }
-                </div>
-
-                <!-- Franja horaria -->
-                <div class="sh-field">
-                  <label class="sh-field__label">Horario preferido</label>
-                  <div class="sh-franja-grid">
-                    <label
-                      class="sh-franja"
-                      [class.sh-franja--active]="form.get('franja_horaria')?.value === 'manana'"
-                    >
-                      <input type="radio" formControlName="franja_horaria" value="manana" class="sh-franja__radio" />
-                      <span class="material-symbols-outlined sh-franja__icon">light_mode</span>
-                      <span class="sh-franja__label">Mañana</span>
-                    </label>
-                    <label
-                      class="sh-franja"
-                      [class.sh-franja--active]="form.get('franja_horaria')?.value === 'tarde'"
-                    >
-                      <input type="radio" formControlName="franja_horaria" value="tarde" class="sh-franja__radio" />
-                      <span class="material-symbols-outlined sh-franja__icon">dark_mode</span>
-                      <span class="sh-franja__label">Tarde</span>
-                    </label>
-                  </div>
-                  @if (hasError('franja_horaria')) {
-                    <span class="sh-field__error">
-                      <span class="material-symbols-outlined sh-field__error-icon">error</span>
-                      Seleccione un horario
-                    </span>
-                  }
-                </div>
-
-              </div>
-            </div>
-
             <!-- ── Acción principal ────────────────────────────────── -->
             <div class="sh-form__footer">
               <button class="sh-btn-primary" type="submit" [disabled]="isLoading">
@@ -326,8 +266,8 @@
               </button>
               <p class="sh-form__disclaimer">
                 <span class="material-symbols-outlined sh-form__disclaimer-icon">info</span>
-                Esta solicitud será revisada por nuestro equipo. Recibirá un correo
-                electrónico o llamado de confirmación con la hora definitiva.
+                Tu solicitud será procesada automáticamente. Se te asignará el médico con disponibilidad más próxima.
+                Recibirás confirmación por correo o llamado.
               </p>
             </div>
 

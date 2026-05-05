@@ -128,6 +128,13 @@ ion-content {
     opacity: 0.6;
   }
 
+  &--warning {
+    background: var(--mc-surface-container-lowest);
+    border: 1px solid rgba(255, 196, 9, 0.35);
+
+    .opr-card__icon { color: var(--ion-color-warning-shade, #e0a000); }
+  }
+
   &__icon {
     font-size: 2rem;
     flex-shrink: 0;

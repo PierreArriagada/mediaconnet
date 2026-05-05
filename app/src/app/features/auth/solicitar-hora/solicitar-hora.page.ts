@@ -55,8 +55,6 @@ export class SolicitarHoraPage implements OnInit {
   especialidades = signal<Especialidad[]>([]);
   exito          = signal(false);
 
-  // Fecha mínima = hoy para prevenir reservas en el pasado
-  readonly minFecha = new Date().toISOString().split('T')[0];
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -77,8 +75,6 @@ export class SolicitarHoraPage implements OnInit {
       fecha_nacimiento: ['', [Validators.required]],
       id_especialidad:  [null, [Validators.required]],
       motivo_consulta:  ['', [Validators.required, Validators.maxLength(255)]],
-      fecha_preferente: ['', [Validators.required]],
-      franja_horaria:   ['', [Validators.required]],
     });
 
     // Cargar especialidades desde la BD real
@@ -135,8 +131,6 @@ export class SolicitarHoraPage implements OnInit {
       fecha_nacimiento: raw.fecha_nacimiento,
       id_especialidad:  Number(raw.id_especialidad),
       motivo_consulta:  raw.motivo_consulta.trim(),
-      fecha_preferente: raw.fecha_preferente,
-      franja_horaria:   raw.franja_horaria,
     }).subscribe({
       next: () => {
         this.isLoading = false;

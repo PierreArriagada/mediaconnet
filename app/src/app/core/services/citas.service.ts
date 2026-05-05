@@ -10,16 +10,14 @@ export interface Especialidad {
 }
 
 export interface SolicitudCitaInvitado {
-  nombre:            string;
-  apellido:          string;
-  rut:               string;
-  telefono:          string;
-  correo:            string;
-  fecha_nacimiento:  string;
-  id_especialidad:   number;
-  motivo_consulta:   string;
-  fecha_preferente:  string;
-  franja_horaria:    'manana' | 'tarde';
+  nombre:           string;
+  apellido:         string;
+  rut:              string;
+  telefono:         string;
+  correo:           string;
+  fecha_nacimiento: string;
+  id_especialidad:  number;
+  motivo_consulta:  string;
 }
 
 export interface RespuestaCitaInvitado {
