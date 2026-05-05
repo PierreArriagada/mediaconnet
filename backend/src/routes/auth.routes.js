@@ -1,11 +1,7 @@
 const { Router } = require('express');
 const { body }   = require('express-validator');
 const rateLimit  = require('express-rate-limit');
-<<<<<<< Updated upstream
-const { login, register, forgotPassword } = require('../controllers/auth.controller');
-=======
 const { login, register, forgotPassword, resetPassword, changePassword } = require('../controllers/auth.controller');
->>>>>>> Stashed changes
 
 const router = Router();
 
@@ -45,10 +41,7 @@ const changePasswordValidators = [
 router.post('/login',           authLimiter, loginValidators,    login);
 router.post('/register',        authLimiter, registerValidators, register);
 router.post('/forgot-password', authLimiter,                     forgotPassword);
-<<<<<<< Updated upstream
-=======
 router.post('/reset-password',  authLimiter,                     resetPassword);
 router.post('/change-password', authLimiter, changePasswordValidators, changePassword);
->>>>>>> Stashed changes
 
 module.exports = router;

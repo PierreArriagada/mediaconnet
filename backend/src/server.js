@@ -11,10 +11,16 @@ const citasRoutes      = require('./routes/citas.routes');
 const medicoRoutes     = require('./routes/medico.routes');
 const adminRoutes      = require('./routes/admin.routes');
 const errorHandler     = require('./middleware/error.middleware');
-const { sendEmail }    = require('./services/email.service.ts');
+const { sendEmail }    = require('./services/email.service');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+
+// Debug: mostrar variables de entorno de email
+console.log('MAIL_HOST:', process.env.MAIL_HOST);
+console.log('MAIL_PORT:', process.env.MAIL_PORT);
+console.log('MAIL_USER:', process.env.MAIL_USER ? 'SET' : 'NOT SET');
+console.log('MAIL_PASS:', process.env.MAIL_PASS ? 'SET' : 'NOT SET');
 
 // Cabeceras de seguridad HTTP (OWASP: Security Misconfiguration)
 app.use(helmet());
