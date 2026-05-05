@@ -32,14 +32,6 @@ export const ADMIN_ROUTES: Routes = [
       import('./notificaciones/admin-notificaciones.page').then((m) => m.AdminNotificacionesPage),
   },
   // path: 'auditoria'      → pendiente
-<<<<<<< Updated upstream
-  {
-    path: 'notificaciones',
-    loadComponent: () =>
-      import('./notificaciones/notificaciones.page').then((m) => m.NotificacionesPage),
-  },
-=======
->>>>>>> Stashed changes
   // path: 'ajustes'        → pendiente
 ];
 

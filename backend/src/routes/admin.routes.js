@@ -15,18 +15,13 @@ const {
   getPacientes,
   getPacienteDetalle,
   getCitaDetalle,
-<<<<<<< Updated upstream
-  getNotificacionesAdmin,
-  actualizarEstadoNotificacionAdmin,
-  eliminarNotificacionAdmin,
-=======
   getSolicitudes,
   getSolicitudAlternativas,
   confirmarSolicitud,
   reasignarSolicitud,
-  getAdminNotificaciones,
-  marcarAdminNotificacionesLeidas,
->>>>>>> Stashed changes
+  getNotificacionesAdmin,
+  actualizarEstadoNotificacionAdmin,
+  eliminarNotificacionAdmin,
 } = require('../controllers/admin.controller');
 
 const router = Router();
@@ -59,21 +54,15 @@ router.get('/pacientes/:id', getPacienteDetalle);
 // ── Citas (detalle individual) ──────────────────────────────────────────────
 router.get('/citas/:id', getCitaDetalle);
 
-<<<<<<< Updated upstream
-// ── Notificaciones ─────────────────────────────────────────────────────────
-router.get('/notificaciones', getNotificacionesAdmin);
-router.patch('/notificaciones/:id/leida', actualizarEstadoNotificacionAdmin);
-router.delete('/notificaciones/:id', eliminarNotificacionAdmin);
-=======
 // ── Solicitudes de invitado ─────────────────────────────────────────────────
 router.get('/solicitudes',                         getSolicitudes);
 router.get('/solicitudes/:id/alternativas',        getSolicitudAlternativas);
 router.patch('/solicitudes/:id/confirmar',         confirmarSolicitud);
 router.patch('/solicitudes/:id/reasignar',         reasignarSolicitud);
 
-// ── Notificaciones del administrador ────────────────────────────────────────
-router.get('/notificaciones',                       getAdminNotificaciones);
-router.patch('/notificaciones/marcar-leidas',       marcarAdminNotificacionesLeidas);
->>>>>>> Stashed changes
+// ── Notificaciones ─────────────────────────────────────────────────────────
+router.get('/notificaciones',                      getNotificacionesAdmin);
+router.patch('/notificaciones/:id/leida',          actualizarEstadoNotificacionAdmin);
+router.delete('/notificaciones/:id',               eliminarNotificacionAdmin);
 
 module.exports = router;

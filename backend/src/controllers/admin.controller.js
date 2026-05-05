@@ -1358,22 +1358,15 @@ module.exports = {
   getPacientes,
   getPacienteDetalle,
   getCitaDetalle,
-<<<<<<< Updated upstream
-
-  // notificaciones admin
-  getNotificacionesAdmin,
-  actualizarEstadoNotificacionAdmin,
-  eliminarNotificacionAdmin,
-=======
   // gestión de solicitudes de invitado
   getSolicitudes,
   getSolicitudAlternativas,
   confirmarSolicitud,
   reasignarSolicitud,
-  // notificaciones
-  getAdminNotificaciones,
-  marcarAdminNotificacionesLeidas,
->>>>>>> Stashed changes
+  // notificaciones admin
+  getNotificacionesAdmin,
+  actualizarEstadoNotificacionAdmin,
+  eliminarNotificacionAdmin,
 };
 
 
