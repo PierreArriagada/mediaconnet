@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { IonContent, IonSpinner, ToastController } from '@ionic/angular/standalone';
+import { IonContent, ToastController } from '@ionic/angular/standalone';
 
 import {
   AdminService,
@@ -20,7 +20,6 @@ import { AdminBottomNavComponent } from '../../../shared/components/admin-bottom
   imports: [
     CommonModule,
     IonContent,
-    IonSpinner,
     AdminHeaderComponent,
     AdminBottomNavComponent,
   ],
@@ -113,5 +112,30 @@ export class AdminNotificacionesPage implements OnInit {
 
   volver(): void {
     this.router.navigate(['/admin/home']);
+  }
+
+  eliminarItem(n: AdminNotificacion): void {
+    if (this.esSolicitud(n)) {
+      this.router.navigate(['/admin/operacion/solicitudes']);
+    }
+    this.adminSvc.eliminarNotificacion(n.id_notificacion).subscribe({
+      next: () => {
+        this.notificaciones.update(list =>
+          list.filter(item => item.id_notificacion !== n.id_notificacion)
+        );
+        this.state.setNoLeidas(
+          this.notificaciones().filter(item => !item.leida).length
+        );
+      },
+    });
+  }
+
+  limpiarTodo(): void {
+    this.adminSvc.limpiarNotificaciones().subscribe({
+      next: () => {
+        this.notificaciones.set([]);
+        this.state.setNoLeidas(0);
+      },
+    });
   }
 }

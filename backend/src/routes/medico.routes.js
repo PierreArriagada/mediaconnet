@@ -16,6 +16,7 @@ const {
   eliminarDisponibilidad,
   getNotificacionesMedico,
   actualizarEstadoNotificacionMedico,
+  limpiarNotificacionesMedico,
   eliminarNotificacionMedico,
 } = require('../controllers/medico.controller');
 
@@ -31,6 +32,7 @@ router.put('/perfil', actualizarPerfilMedico);
 router.patch('/perfil/password', cambiarPasswordMedico);
 router.get('/notificaciones', getNotificacionesMedico);
 router.patch('/notificaciones/:id/leida', actualizarEstadoNotificacionMedico);
+router.delete('/notificaciones', limpiarNotificacionesMedico);
 router.delete('/notificaciones/:id', eliminarNotificacionMedico);
 router.get('/citas-hoy', getCitasParaMarcar);
 router.get('/citas-proximas', getCitasProximas);

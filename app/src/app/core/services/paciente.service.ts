@@ -305,4 +305,8 @@ export class PacienteService {
   limpiarNotificaciones(): Observable<MensajeResponse> {
     return this.http.delete<MensajeResponse>(`${this.API}/notificaciones`);
   }
+
+  eliminarNotificacion(id: number): Observable<MensajeResponse> {
+    return this.http.delete<MensajeResponse>(`${this.API}/notificaciones/${id}`);
+  }
 }

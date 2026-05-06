@@ -1,104 +1,147 @@
-<ion-content>
+<ion-content [scrollEvents]="true">
 
   <app-admin-header
     [userName]="user?.name ?? ''"
     [noLeidas]="0"
   ></app-admin-header>
 
-  <main class="anot-main">
+  <main class="nf-main">
 
-    <!-- Cabecera -->
-    <section class="anot-hero">
-      <button class="anot-hero__back" type="button" (click)="volver()" aria-label="Volver al inicio">
-        <span class="material-symbols-outlined">arrow_back</span>
-      </button>
-      <div class="anot-hero__body">
-        <div class="anot-hero__badge">
-          <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
-          Centro de actividad
-        </div>
-        <h1 class="anot-hero__title">Notificaciones</h1>
-        <p class="anot-hero__sub">
-          Eventos del sistema que requieren tu atención como administrador.
+    <section class="nf-hero">
+      <div class="nf-hero__content">
+        <p class="nf-eyebrow">Centro de actividad</p>
+        <h1 class="nf-title">
+          Tus <span class="nf-title__accent">notificaciones</span>
+        </h1>
+        <p class="nf-subtitle">
+          Eventos del sistema y solicitudes que requieren tu atención como administrador.
         </p>
+      </div>
+
+      <div class="nf-status-card" aria-label="Resumen de estado de notificaciones">
+        <div class="nf-status-card__icon" aria-hidden="true">
+          <span class="material-symbols-outlined">notifications_active</span>
+        </div>
+        <div class="nf-status-card__body">
+          <span class="nf-status-card__label">Estado actual</span>
+          <strong class="nf-status-card__value">
+            {{ notificaciones().length === 0 ? 'Sin notificaciones' : notificaciones().length + ' en total' }}
+          </strong>
+        </div>
       </div>
     </section>
 
-    <!-- Cargando -->
     @if (cargando()) {
-      <div class="anot-loading" aria-busy="true" aria-label="Cargando notificaciones">
-        <ion-spinner name="crescent"></ion-spinner>
-        <span>Cargando notificaciones...</span>
-      </div>
-    }
-
-    <!-- Error -->
-    @if (!cargando() && errorCarga()) {
-      <div class="anot-empty">
-        <span class="material-symbols-outlined anot-empty__icon">error</span>
-        <p class="anot-empty__msg">No se pudieron cargar las notificaciones.</p>
-        <button class="anot-btn anot-btn--ghost" type="button" (click)="cargar()">
-          Reintentar
-        </button>
-      </div>
-    }
-
-    <!-- Sin notificaciones -->
-    @if (!cargando() && !errorCarga() && notificaciones().length === 0) {
-      <div class="anot-empty">
-        <span class="material-symbols-outlined anot-empty__icon">notifications_off</span>
-        <p class="anot-empty__msg">Sin notificaciones</p>
-        <p class="anot-empty__sub">No tienes notificaciones por ahora.</p>
-      </div>
-    }
-
-    <!-- Lista -->
-    @if (!cargando() && !errorCarga() && notificaciones().length > 0) {
-      <section class="anot-list" aria-label="Lista de notificaciones">
-        @for (notif of notificaciones(); track notif.id_notificacion) {
-          <article
-            class="anot-item"
-            [class.anot-item--no-leida]="!notif.leida"
-            [class.anot-item--accionable]="esSolicitud(notif)"
-            (click)="accionarNotificacion(notif)"
-            [attr.role]="esSolicitud(notif) ? 'button' : 'article'"
-            [attr.tabindex]="esSolicitud(notif) ? 0 : undefined"
-            [attr.aria-label]="esSolicitud(notif) ? 'Ver solicitud: ' + notif.titulo : notif.titulo"
-            (keydown.enter)="esSolicitud(notif) && accionarNotificacion(notif)"
-          >
-            <!-- Icono izquierdo -->
-            <div
-              class="anot-item__icon-wrap"
-              [class.anot-item__icon-wrap--solicitud]="esSolicitud(notif)"
-              aria-hidden="true"
-            >
-              <span class="material-symbols-outlined anot-item__icon">
-                {{ esSolicitud(notif) ? 'pending_actions' : 'notifications' }}
-              </span>
-            </div>
-
-            <!-- Contenido -->
-            <div class="anot-item__body">
-              <p class="anot-item__titulo">{{ notif.titulo }}</p>
-              <p class="anot-item__mensaje">{{ notif.mensaje }}</p>
-              <p class="anot-item__fecha">{{ formatFecha(notif.fecha_envio) }}</p>
-            </div>
-
-            <!-- Indicador de acción -->
-            @if (esSolicitud(notif)) {
-              <div class="anot-item__cta" aria-hidden="true">
-                <span class="anot-item__cta-label">Revisar</span>
-                <span class="material-symbols-outlined anot-item__cta-arrow">chevron_right</span>
-              </div>
-            }
-
-            <!-- Punto de no leída -->
-            @if (!notif.leida) {
-              <span class="anot-item__dot" aria-label="No leída"></span>
-            }
-          </article>
-        }
+      <section class="nf-skeleton-list" aria-hidden="true">
+        <div class="nf-skeleton nf-skeleton--toolbar"></div>
+        <div class="nf-skeleton nf-skeleton--item"></div>
+        <div class="nf-skeleton nf-skeleton--item"></div>
+        <div class="nf-skeleton nf-skeleton--item"></div>
       </section>
+    }
+
+    @if (!cargando()) {
+
+      @if (errorCarga()) {
+        <div class="nf-empty">
+          <div class="nf-empty__icon" aria-hidden="true">
+            <span class="material-symbols-outlined">error</span>
+          </div>
+          <h3 class="nf-empty__title">No fue posible cargar</h3>
+          <p class="nf-empty__text">No se pudieron cargar las notificaciones.</p>
+          <button class="nf-clear-btn" type="button" (click)="cargar()">
+            <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+            <span>Reintentar</span>
+          </button>
+        </div>
+      }
+
+      @if (!errorCarga()) {
+        <section class="nf-panel">
+          <div class="nf-toolbar">
+            <div>
+              <h2 class="nf-toolbar__title">Historial reciente</h2>
+              <p class="nf-toolbar__meta">
+                {{ notificaciones().length }} {{ notificaciones().length === 1 ? 'aviso disponible' : 'avisos disponibles' }}
+              </p>
+            </div>
+
+            <button
+              class="nf-clear-btn"
+              type="button"
+              (click)="limpiarTodo()"
+              [disabled]="!notificaciones().length"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">delete_sweep</span>
+              <span>Limpiar todo</span>
+            </button>
+          </div>
+
+          @if (!notificaciones().length) {
+            <div class="nf-empty">
+              <div class="nf-empty__icon" aria-hidden="true">
+                <span class="material-symbols-outlined">notifications_off</span>
+              </div>
+              <h3 class="nf-empty__title">No tienes notificaciones activas</h3>
+              <p class="nf-empty__text">
+                Cuando llegue una solicitud o aviso del sistema, aparecerá aquí.
+              </p>
+            </div>
+          }
+
+          @if (notificaciones().length) {
+            <div class="nf-list" role="list" aria-label="Listado de notificaciones del administrador">
+              @for (n of notificaciones(); track n.id_notificacion) {
+                <article
+                  class="nf-item"
+                  [class.nf-item--unread]="!n.leida"
+                  [class.nf-item--accionable]="esSolicitud(n)"
+                  (click)="eliminarItem(n)"
+                  style="cursor:pointer"
+                  [attr.aria-label]="esSolicitud(n) ? ('Ver solicitud: ' + n.titulo) : ('Eliminar: ' + n.titulo)"
+                  (keydown.enter)="eliminarItem(n)"
+                  tabindex="0"
+                  role="listitem"
+                >
+                  <div
+                    class="nf-item__icon"
+                    [class.nf-item__icon--solicitud]="esSolicitud(n)"
+                    aria-hidden="true"
+                  >
+                    <span class="material-symbols-outlined">
+                      {{ esSolicitud(n) ? 'pending_actions' : 'notifications' }}
+                    </span>
+                  </div>
+
+                  <div class="nf-item__body">
+                    <div class="nf-item__top">
+                      <p class="nf-item__title">{{ n.titulo }}</p>
+                      <span class="nf-item__time">{{ formatFecha(n.fecha_envio) }}</span>
+                    </div>
+
+                    <p class="nf-item__message">{{ n.mensaje }}</p>
+
+                    <div class="nf-item__bottom">
+                      <span class="nf-item__chip" [class.nf-item__chip--read]="n.leida">
+                        {{ n.leida ? 'Vista' : 'Nueva' }}
+                      </span>
+
+                      @if (esSolicitud(n)) {
+                        <span class="nf-item__cta">
+                          <span class="nf-item__cta-label">Revisar</span>
+                          <span class="material-symbols-outlined nf-item__cta-arrow">chevron_right</span>
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+
+        </section>
+      }
+
     }
 
   </main>

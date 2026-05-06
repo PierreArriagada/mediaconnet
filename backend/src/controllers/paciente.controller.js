@@ -1020,6 +1020,38 @@ async function marcarNotificacionesLeidas(req, res) {
 }
 
 /**
+ * DELETE /api/paciente/notificaciones/:id
+ * Elimina una notificación individual del paciente autenticado.
+ */
+async function eliminarNotificacionPaciente(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idNotificacion = parseInt(req.params.id, 10);
+
+  if (isNaN(idUsuario) || isNaN(idNotificacion) || idNotificacion < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `DELETE FROM notificaciones
+       WHERE id_notificacion = $1
+         AND id_usuario = $2
+       RETURNING id_notificacion`,
+      [idNotificacion, idUsuario]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Notificación no encontrada.' });
+    }
+
+    return res.json({ message: 'Notificación eliminada correctamente.' });
+  } catch (err) {
+    console.error('Error en eliminarNotificacionPaciente:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
  * DELETE /api/paciente/notificaciones
  * Elimina las notificaciones del paciente autenticado.
  */
@@ -1217,5 +1249,6 @@ module.exports = {
   cambiarPasswordPaciente,
   getNotificacionesPaciente,
   marcarNotificacionesLeidas,
+  eliminarNotificacionPaciente,
   limpiarNotificacionesPaciente,
 };

@@ -67,6 +67,28 @@ async function actualizarEstadoNotificacionMedico(req, res) {
 }
 
 /**
+ * DELETE /api/medico/notificaciones
+ * Elimina todas las notificaciones del médico autenticado.
+ */
+async function limpiarNotificacionesMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    await pool.query(
+      `DELETE FROM notificaciones WHERE id_usuario = $1`,
+      [idUsuario]
+    );
+    return res.json({ message: 'Notificaciones eliminadas correctamente.' });
+  } catch (err) {
+    console.error('Error en limpiarNotificacionesMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
  * DELETE /api/medico/notificaciones/:id
  * Edu: elimina una notificación perteneciente al médico autenticado.
  */
@@ -964,5 +986,6 @@ module.exports = {
   eliminarDisponibilidad,
   getNotificacionesMedico,
   actualizarEstadoNotificacionMedico,
+  limpiarNotificacionesMedico,
   eliminarNotificacionMedico,
 };

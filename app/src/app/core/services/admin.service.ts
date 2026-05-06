@@ -509,4 +509,8 @@ export class AdminService {
   eliminarNotificacion(idNotificacion: number): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.API}/notificaciones/${idNotificacion}`);
   }
+
+  limpiarNotificaciones(): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.API}/notificaciones`);
+  }
 }

@@ -225,6 +225,10 @@ export class MedicoService {
     );
   }
 
+  limpiarNotificaciones(): Observable<MensajeResponse> {
+    return this.http.delete<MensajeResponse>(`${this.API}/notificaciones`);
+  }
+
   // Edu: elimina una notificación del médico autenticado.
   eliminarNotificacion(idNotificacion: number): Observable<MensajeResponse> {
     return this.http.delete<MensajeResponse>(`${this.API}/notificaciones/${idNotificacion}`);

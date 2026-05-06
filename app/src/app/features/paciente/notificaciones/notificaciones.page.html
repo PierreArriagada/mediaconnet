@@ -79,7 +79,13 @@
         @if (notificaciones.length) {
           <div class="nf-list" role="list" aria-label="Listado de notificaciones del paciente">
             @for (n of notificaciones; track n.id_notificacion) {
-              <article class="nf-item" [class.nf-item--unread]="!n.leida" role="listitem">
+              <article
+                class="nf-item"
+                [class.nf-item--unread]="!n.leida"
+                role="listitem"
+                (click)="eliminarItem(n)"
+                style="cursor:pointer"
+              >
                 <div class="nf-item__icon" aria-hidden="true">
                   <span class="material-symbols-outlined">{{ iconoNotificacion(n.tipo) }}</span>
                 </div>

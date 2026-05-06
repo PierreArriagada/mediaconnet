@@ -99,4 +99,17 @@ export class NotificacionesPage implements OnInit {
     });
   }
 
+  limpiarTodo(): void {
+    this.medicoService.limpiarNotificaciones().subscribe({
+      next: () => {
+        this.notificaciones = [];
+        this.notificacionesState.setNoLeidas(0);
+      },
+      error: (err) => {
+        console.error('Error limpiando notificaciones:', err);
+        this.errorMessage = 'No fue posible limpiar las notificaciones.';
+      }
+    });
+  }
+
 }

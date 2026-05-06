@@ -132,6 +132,23 @@ export class NotificacionesPage implements OnInit {
     });
   }
 
+  eliminarItem(n: Notificacion): void {
+    this.svc.eliminarNotificacion(n.id_notificacion).subscribe({
+      next: () => {
+        this.notificaciones = this.notificaciones.filter(
+          (item) => item.id_notificacion !== n.id_notificacion
+        );
+        if (!n.leida) {
+          this.noLeidas = Math.max(0, this.noLeidas - 1);
+          this.notificacionesState.setNoLeidas(this.noLeidas);
+        }
+      },
+      error: async (err) => {
+        await this.mostrarToast(err?.error?.message ?? 'No se pudo eliminar la notificación.', 'danger');
+      },
+    });
+  }
+
   private limpiarNotificaciones(): void {
     this.limpiando = true;
     this.svc.limpiarNotificaciones().subscribe({

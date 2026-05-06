@@ -17,6 +17,7 @@ const {
   cambiarPasswordPaciente,
   getNotificacionesPaciente,
   marcarNotificacionesLeidas,
+  eliminarNotificacionPaciente,
   limpiarNotificacionesPaciente,
 } = require('../controllers/paciente.controller');
 
@@ -42,6 +43,7 @@ router.put('/perfil', actualizarPerfilPaciente);
 router.patch('/perfil/password', cambiarPasswordPaciente);
 router.get('/notificaciones', getNotificacionesPaciente);
 router.patch('/notificaciones/marcar-leidas', marcarNotificacionesLeidas);
+router.delete('/notificaciones/:id', eliminarNotificacionPaciente);
 router.delete('/notificaciones', limpiarNotificacionesPaciente);
 
 module.exports = router;

@@ -1498,6 +1498,54 @@ async function cambiarPasswordAdmin(req, res) {
   }
 }
 
+/**
+ * DELETE /api/admin/notificaciones
+ * Elimina todas las notificaciones del administrador autenticado.
+ */
+async function limpiarNotificacionesAdmin(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    await pool.query(
+      `DELETE FROM notificaciones WHERE id_usuario = $1`,
+      [idUsuario]
+    );
+    return res.json({ message: 'Notificaciones eliminadas correctamente.' });
+  } catch (err) {
+    console.error('Error en limpiarNotificacionesAdmin:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * PATCH /api/admin/notificaciones/marcar-leidas
+ * Marca todas las notificaciones no leídas del administrador autenticado como leídas.
+ */
+async function marcarNotificacionesLeidasAdmin(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    await pool.query(
+      `UPDATE notificaciones
+       SET    leida = TRUE
+       WHERE  id_usuario = $1
+         AND  leida = FALSE`,
+      [idUsuario]
+    );
+
+    return res.json({ message: 'Notificaciones marcadas como leídas.' });
+  } catch (err) {
+    console.error('Error en marcarNotificacionesLeidasAdmin:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
 module.exports = {
   getMedicos,
   getDisponibilidadMedico,
@@ -1524,6 +1572,8 @@ module.exports = {
   getNotificacionesAdmin,
   actualizarEstadoNotificacionAdmin,
   eliminarNotificacionAdmin,
+  limpiarNotificacionesAdmin,
+  marcarNotificacionesLeidasAdmin,
   // perfil admin
   getPerfilAdmin,
   actualizarPerfilAdmin,
