@@ -1,7 +1,46 @@
 const { validationResult } = require('express-validator');
 const jwt  = require('jsonwebtoken');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const pool = require('../db/pool');
 const { JWT_SECRET, JWT_EXPIRES } = require('../config/jwt.config');
+
+async function sendRecoveryEmailSandbox(to, resetLink) {
+  const testAccount = await nodemailer.createTestAccount();
+
+  const transporter = nodemailer.createTransport({
+    host: testAccount.smtp.host,
+    port: testAccount.smtp.port,
+    secure: testAccount.smtp.secure,
+    auth: {
+      user: testAccount.user,
+      pass: testAccount.pass,
+    },
+  });
+
+  const info = await transporter.sendMail({
+    from: 'MediConnect <no-reply@mediconnect.local>',
+    to,
+    subject: 'Recuperación de contraseña - MediConnect',
+    text: `Hola,\n\nRecibimos una solicitud para restablecer tu contraseña en MediConnect.\n\nIngresa al siguiente enlace para crear una nueva contraseña:\n${resetLink}\n\nEste enlace caducará en 24 horas.\n\nSi no solicitaste este cambio, puedes ignorar este mensaje.`,
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #143047; line-height: 1.5;">
+        <h2 style="color: #0f6fae;">Recuperación de contraseña - MediConnect</h2>
+        <p>Hola,</p>
+        <p>Recibimos una solicitud para restablecer tu contraseña en MediConnect.</p>
+        <p>
+          <a href="${resetLink}" style="display: inline-block; padding: 12px 18px; background: #0f6fae; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold;">
+            Restablecer contraseña
+          </a>
+        </p>
+        <p>Este enlace caducará en <strong>24 horas</strong>.</p>
+        <p>Si no solicitaste este cambio, puedes ignorar este mensaje.</p>
+      </div>
+    `,
+  });
+
+  return nodemailer.getTestMessageUrl(info);
+}
 
 /** Inicio de sesión: verifica credenciales contra la BD real usando pgcrypto */
 async function login(req, res) {
@@ -149,11 +188,142 @@ async function register(req, res) {
   }
 }
 
-/** Recuperación de contraseña: siempre responde 200 (anti-enumeración) */
-async function forgotPassword(_req, res) {
-  return res.status(200).json({
-    message: 'Si el correo está registrado, recibirás las instrucciones en breve.',
-  });
+/** Recuperación de contraseña (modo sandbox/desarrollo) */
+async function forgotPassword(req, res) {
+  const { email } = req.body;
+
+  try {
+    const userResult = await pool.query(
+      `SELECT id_usuario, correo
+       FROM usuarios
+       WHERE correo = $1
+         AND estado = 'activo'`,
+      [email]
+    );
+
+    // Anti-enumeración: siempre responder lo mismo
+    if (userResult.rowCount === 0) {
+      return res.status(200).json({
+        message: 'Si el correo está registrado, recibirás las instrucciones en breve.',
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    // Token aleatorio seguro
+    const token = crypto.randomBytes(32).toString('hex');
+
+    // Expiración: 24 horas
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    // Limpiar tokens anteriores del usuario
+    await pool.query(
+      'DELETE FROM password_reset_tokens WHERE id_usuario = $1',
+      [user.id_usuario]
+    );
+
+    // Guardar nuevo token
+    await pool.query(
+      `INSERT INTO password_reset_tokens (id_usuario, token, expires_at)
+       VALUES ($1, $2, $3)`,
+      [user.id_usuario, token, expiresAt]
+    );
+
+    const resetLink = `http://localhost:8100/auth/reset-password?token=${token}`;
+
+    let etherealPreviewUrl = null;
+
+    try {
+      etherealPreviewUrl = await sendRecoveryEmailSandbox(user.correo, resetLink);
+    } catch (mailErr) {
+      console.error('Error enviando correo sandbox con Ethereal:', mailErr);
+    }
+
+    // Sandbox/desarrollo: mantener trazabilidad visible para demo
+    console.log('\n[RECOVERY SANDBOX] ==============================');
+    console.log(`Usuario: ${user.correo}`);
+    console.log(`Link recuperación: ${resetLink}`);
+    if (etherealPreviewUrl) {
+      console.log(`Vista previa Ethereal: ${etherealPreviewUrl}`);
+    }
+    console.log('================================================\n');
+
+    return res.status(200).json({
+      message: 'Si el correo está registrado, recibirás las instrucciones en breve.',
+      sandbox_reset_link: resetLink,
+      ethereal_preview_url: etherealPreviewUrl,
+    });
+  } catch (err) {
+    console.error('Error en forgotPassword:', err);
+
+    // Mantener respuesta genérica por seguridad
+    return res.status(200).json({
+      message: 'Si el correo está registrado, recibirás las instrucciones en breve.',
+    });
+  }
 }
 
-module.exports = { login, register, forgotPassword };
+/** Restablecimiento de contraseña mediante token */
+async function resetPassword(req, res) {
+  const { token, password } = req.body;
+
+  if (!token || !password || password.length < 6) {
+    return res.status(400).json({
+      message: 'Datos inválidos para restablecer la contraseña.',
+    });
+  }
+
+  try {
+    const tokenResult = await pool.query(
+      `SELECT id, id_usuario, expires_at
+       FROM password_reset_tokens
+       WHERE token = $1`,
+      [token]
+    );
+
+    if (tokenResult.rowCount === 0) {
+      return res.status(400).json({
+        message: 'El enlace de recuperación no es válido.',
+      });
+    }
+
+    const resetToken = tokenResult.rows[0];
+
+    // Validar expiración
+    if (new Date(resetToken.expires_at) < new Date()) {
+      await pool.query(
+        'DELETE FROM password_reset_tokens WHERE id = $1',
+        [resetToken.id]
+      );
+
+      return res.status(400).json({
+        message: 'El enlace de recuperación ha expirado.',
+      });
+    }
+
+    // Actualizar contraseña usando pgcrypto
+    await pool.query(
+      `UPDATE usuarios
+       SET contrasena_hash = crypt($1, gen_salt('bf', 12))
+       WHERE id_usuario = $2`,
+      [password, resetToken.id_usuario]
+    );
+
+    // Invalidar token después del uso
+    await pool.query(
+      'DELETE FROM password_reset_tokens WHERE id = $1',
+      [resetToken.id]
+    );
+
+    return res.status(200).json({
+      message: 'Contraseña actualizada correctamente.',
+    });
+  } catch (err) {
+    console.error('Error en resetPassword:', err);
+    return res.status(500).json({
+      message: 'Error interno del servidor.',
+    });
+  }
+}
+
+module.exports = { login, register, forgotPassword, resetPassword };
