@@ -243,11 +243,6 @@ export interface FiltrosMedicosGestion {
   estado_laboral?: EstadoLaboral;
 }
 
-<<<<<<< Updated upstream
-// ── Notificaciones ──────────────────────────────────────────────────────────
-
-export interface NotificacionAdmin {
-=======
 // ── Solicitudes de invitado ──────────────────────────────────────────────────
 
 export interface SolicitudAdminItem {
@@ -287,7 +282,6 @@ export interface MedicoAlternativa {
 // ── Notificaciones del administrador ────────────────────────────────────────
 
 export interface AdminNotificacion {
->>>>>>> Stashed changes
   id_notificacion: number;
   titulo: string;
   mensaje: string;
@@ -296,15 +290,14 @@ export interface AdminNotificacion {
   fecha_envio: string;
 }
 
-<<<<<<< Updated upstream
-export interface NotificacionesAdminResponse {
-  notificaciones: NotificacionAdmin[];
-=======
+export type NotificacionAdmin = AdminNotificacion;
+
 export interface AdminNotificacionesResponse {
   notificaciones: AdminNotificacion[];
   noLeidas: number;
->>>>>>> Stashed changes
 }
+
+export type NotificacionesAdminResponse = AdminNotificacionesResponse;
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -415,8 +408,6 @@ export class AdminService {
   getCitaDetalle(id: number): Observable<CitaAdminDetalleResponse> {
     return this.http.get<CitaAdminDetalleResponse>(`${this.API}/citas/${id}`);
   }
-<<<<<<< Updated upstream
-=======
 
   // ── Solicitudes de invitado ────────────────────────────────────────────────
 
@@ -435,14 +426,14 @@ export class AdminService {
   confirmarSolicitud(idCita: number): Observable<{ message: string }> {
     return this.http.patch<{ message: string }>(
       `${this.API}/solicitudes/${idCita}/confirmar`,
-      {}
+      {},
     );
   }
 
   reasignarSolicitud(idCita: number, idDisponibilidad: number): Observable<{ message: string }> {
     return this.http.patch<{ message: string }>(
       `${this.API}/solicitudes/${idCita}/reasignar`,
-      { id_disponibilidad: idDisponibilidad }
+      { id_disponibilidad: idDisponibilidad },
     );
   }
 
@@ -455,8 +446,6 @@ export class AdminService {
   marcarNotificacionesLeidasAdmin(): Observable<{ message: string }> {
     return this.http.patch<{ message: string }>(`${this.API}/notificaciones/marcar-leidas`, {});
   }
-}
->>>>>>> Stashed changes
 
   // ── Notificaciones ────────────────────────────────────────────────────────
 
