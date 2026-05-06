@@ -1,0 +1,98 @@
+<ion-content>
+
+  <app-paciente-header [userName]="'Preferencias'" [noLeidas]="0"></app-paciente-header>
+
+  <main class="sp-main">
+
+    <button class="sp-back" (click)="volver()" aria-label="Volver al perfil">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Perfil
+    </button>
+
+    <h1 class="sp-title">Preferencias</h1>
+    <p class="sp-subtitle">Personaliza cómo MediConnect se comunica contigo.</p>
+
+    @if (guardado) {
+      <div class="sp-saved-banner" role="status">
+        <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+        Preferencia guardada
+      </div>
+    }
+
+    <!-- Notificaciones -->
+    <section class="sp-section">
+      <h2 class="sp-section-title">
+        <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+        Notificaciones
+      </h2>
+
+      <div class="sp-toggle-row" role="group" aria-label="Notificaciones de citas">
+        <div class="sp-toggle-info">
+          <span class="sp-toggle-label">Confirmación de citas</span>
+          <span class="sp-toggle-sub">Recibe avisos cuando una cita sea confirmada o cancelada</span>
+        </div>
+        <button
+          class="sp-toggle"
+          [class.sp-toggle--on]="prefs.notifCitas"
+          (click)="toggle('notifCitas')"
+          role="switch"
+          [attr.aria-checked]="prefs.notifCitas"
+          aria-label="Notificaciones de citas"
+        >
+          <span class="sp-toggle__knob"></span>
+        </button>
+      </div>
+
+      <div class="sp-divider"></div>
+
+      <div class="sp-toggle-row" role="group" aria-label="Recordatorios">
+        <div class="sp-toggle-info">
+          <span class="sp-toggle-label">Recordatorios</span>
+          <span class="sp-toggle-sub">Recibe recordatorios antes de tus citas médicas</span>
+        </div>
+        <button
+          class="sp-toggle"
+          [class.sp-toggle--on]="prefs.notifRecordatorio"
+          (click)="toggle('notifRecordatorio')"
+          role="switch"
+          [attr.aria-checked]="prefs.notifRecordatorio"
+          aria-label="Recordatorios"
+        >
+          <span class="sp-toggle__knob"></span>
+        </button>
+      </div>
+
+      <div class="sp-divider"></div>
+
+      <div class="sp-toggle-row" role="group" aria-label="Información y novedades">
+        <div class="sp-toggle-info">
+          <span class="sp-toggle-label">Información y novedades</span>
+          <span class="sp-toggle-sub">Recibe noticias y campañas de salud preventiva</span>
+        </div>
+        <button
+          class="sp-toggle"
+          [class.sp-toggle--on]="prefs.notifPromos"
+          (click)="toggle('notifPromos')"
+          role="switch"
+          [attr.aria-checked]="prefs.notifPromos"
+          aria-label="Información y novedades"
+        >
+          <span class="sp-toggle__knob"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Nota informativa -->
+    <div class="sp-info-box">
+      <span class="material-symbols-outlined" aria-hidden="true">info</span>
+      <p>
+        Las preferencias se guardan automáticamente en este dispositivo.
+        Para configurar notificaciones push del sistema, visita la configuración de tu dispositivo.
+      </p>
+    </div>
+
+  </main>
+
+  <app-paciente-bottom-nav [activeTab]="'perfil'"></app-paciente-bottom-nav>
+
+</ion-content>

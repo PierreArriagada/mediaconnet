@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 
@@ -100,6 +101,30 @@ export interface MensajeResponse {
   message: string;
 }
 
+export interface PerfilMedicoData {
+  id_medico:           number;
+  nombre:              string;
+  apellido:            string;
+  correo:              string;
+  telefono:            string | null;
+  estado:              string;
+  numero_registro:     string;
+  anios_experiencia:   number;
+  nombre_especialidad: string;
+}
+
+export interface ActualizarPerfilMedicoPayload {
+  nombre:    string;
+  apellido:  string;
+  correo:    string;
+  telefono?: string | null;
+}
+
+export interface CambiarPasswordPayload {
+  contrasena_actual: string;
+  contrasena_nueva:  string;
+}
+
 export interface NotificacionMedico {
   id_notificacion: number;
   titulo: string;
@@ -129,6 +154,20 @@ export class MedicoService {
 
   getDashboard(): Observable<DashboardMedicoData> {
     return this.http.get<DashboardMedicoData>(`${this.API}/dashboard`);
+  }
+
+  getPerfil(): Observable<PerfilMedicoData> {
+    return this.http
+      .get<{ perfil: PerfilMedicoData }>(`${this.API}/perfil`)
+      .pipe(map((r) => r.perfil));
+  }
+
+  actualizarPerfil(payload: ActualizarPerfilMedicoPayload): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.API}/perfil`, payload);
+  }
+
+  cambiarPassword(payload: CambiarPasswordPayload): Observable<{ message: string }> {
+    return this.http.patch<{ message: string }>(`${this.API}/perfil/password`, payload);
   }
 
   getCitasParaMarcar(): Observable<CitasMedicoData> {

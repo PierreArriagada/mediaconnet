@@ -1,0 +1,221 @@
+<ion-content>
+
+  <app-paciente-header [userName]="'Mis Datos'" [noLeidas]="0"></app-paciente-header>
+
+  <main class="sp-main">
+
+    <!-- Back -->
+    <button class="sp-back" (click)="volver()" aria-label="Volver al perfil">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Perfil
+    </button>
+
+    <h1 class="sp-title">Mis datos personales</h1>
+    <p class="sp-subtitle">Actualiza tu información de contacto. El RUT no puede modificarse.</p>
+
+    <!-- Skeleton -->
+    @if (isLoading) {
+      <div class="sp-skeleton-wrap">
+        @for (i of [1,2,3,4,5,6,7,8]; track i) {
+          <div class="sp-skeleton sp-skeleton--field"></div>
+        }
+      </div>
+    }
+
+    @if (!isLoading) {
+      <form class="sp-form" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+
+        <!-- Sección: Datos de cuenta -->
+        <section class="sp-section">
+          <h2 class="sp-section-title">
+            <span class="material-symbols-outlined" aria-hidden="true">manage_accounts</span>
+            Datos de cuenta
+          </h2>
+
+          <div class="sp-field-group">
+            <div class="sp-field">
+              <label class="sp-label" for="nombre">Nombre <span class="sp-required">*</span></label>
+              <input
+                id="nombre"
+                class="sp-input"
+                type="text"
+                formControlName="nombre"
+                autocomplete="given-name"
+                placeholder="Tu nombre"
+              />
+              @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('required')) {
+                <span class="sp-error">El nombre es requerido.</span>
+              }
+              @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('minlength')) {
+                <span class="sp-error">Mínimo 2 caracteres.</span>
+              }
+            </div>
+
+            <div class="sp-field">
+              <label class="sp-label" for="apellido">Apellido <span class="sp-required">*</span></label>
+              <input
+                id="apellido"
+                class="sp-input"
+                type="text"
+                formControlName="apellido"
+                autocomplete="family-name"
+                placeholder="Tu apellido"
+              />
+              @if (form.get('apellido')?.touched && form.get('apellido')?.hasError('required')) {
+                <span class="sp-error">El apellido es requerido.</span>
+              }
+            </div>
+          </div>
+
+          <div class="sp-field">
+            <label class="sp-label" for="correo">Correo electrónico <span class="sp-required">*</span></label>
+            <input
+              id="correo"
+              class="sp-input"
+              type="email"
+              formControlName="correo"
+              autocomplete="email"
+              placeholder="tu@correo.cl"
+            />
+            @if (form.get('correo')?.touched && form.get('correo')?.hasError('required')) {
+              <span class="sp-error">El correo es requerido.</span>
+            }
+            @if (form.get('correo')?.touched && form.get('correo')?.hasError('email')) {
+              <span class="sp-error">Ingresa un correo válido.</span>
+            }
+          </div>
+
+          <div class="sp-field">
+            <label class="sp-label" for="telefono">Teléfono</label>
+            <input
+              id="telefono"
+              class="sp-input"
+              type="tel"
+              formControlName="telefono"
+              autocomplete="tel"
+              placeholder="+56 9 1234 5678"
+            />
+          </div>
+
+          <div class="sp-field">
+            <label class="sp-label" for="rut">RUT</label>
+            <input
+              id="rut"
+              class="sp-input sp-input--readonly"
+              type="text"
+              formControlName="rut"
+              readonly
+              aria-readonly="true"
+            />
+            <span class="sp-hint">El RUT no puede modificarse.</span>
+          </div>
+        </section>
+
+        <!-- Sección: Datos del paciente -->
+        <section class="sp-section">
+          <h2 class="sp-section-title">
+            <span class="material-symbols-outlined" aria-hidden="true">medical_information</span>
+            Información de salud
+          </h2>
+
+          <div class="sp-field">
+            <label class="sp-label" for="fecha_nacimiento">Fecha de nacimiento</label>
+            <input
+              id="fecha_nacimiento"
+              class="sp-input"
+              type="date"
+              formControlName="fecha_nacimiento"
+            />
+          </div>
+
+          <div class="sp-field">
+            <label class="sp-label" for="direccion">Dirección</label>
+            <input
+              id="direccion"
+              class="sp-input"
+              type="text"
+              formControlName="direccion"
+              autocomplete="street-address"
+              placeholder="Calle, número"
+            />
+          </div>
+
+          <div class="sp-field-group">
+            <div class="sp-field">
+              <label class="sp-label" for="comuna">Comuna</label>
+              <input
+                id="comuna"
+                class="sp-input"
+                type="text"
+                formControlName="comuna"
+                placeholder="Ej: Providencia"
+              />
+            </div>
+
+            <div class="sp-field">
+              <label class="sp-label" for="ciudad">Ciudad</label>
+              <input
+                id="ciudad"
+                class="sp-input"
+                type="text"
+                formControlName="ciudad"
+                placeholder="Ej: Santiago"
+              />
+            </div>
+          </div>
+        </section>
+
+        <!-- Sección: Contacto de emergencia -->
+        <section class="sp-section">
+          <h2 class="sp-section-title">
+            <span class="material-symbols-outlined" aria-hidden="true">emergency</span>
+            Contacto de emergencia
+          </h2>
+
+          <div class="sp-field">
+            <label class="sp-label" for="contacto_emergencia">Nombre del contacto</label>
+            <input
+              id="contacto_emergencia"
+              class="sp-input"
+              type="text"
+              formControlName="contacto_emergencia"
+              placeholder="Nombre completo"
+            />
+          </div>
+
+          <div class="sp-field">
+            <label class="sp-label" for="telefono_emergencia">Teléfono de emergencia</label>
+            <input
+              id="telefono_emergencia"
+              class="sp-input"
+              type="tel"
+              formControlName="telefono_emergencia"
+              placeholder="+56 9 1234 5678"
+            />
+          </div>
+        </section>
+
+        <!-- Botón guardar -->
+        <button
+          type="submit"
+          class="sp-btn sp-btn--primary"
+          [disabled]="isSaving || form.invalid"
+          aria-label="Guardar cambios"
+        >
+          @if (isSaving) {
+            <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+            Guardando...
+          } @else {
+            <span class="material-symbols-outlined" aria-hidden="true">save</span>
+            Guardar cambios
+          }
+        </button>
+
+      </form>
+    }
+
+  </main>
+
+  <app-paciente-bottom-nav [activeTab]="'perfil'"></app-paciente-bottom-nav>
+
+</ion-content>

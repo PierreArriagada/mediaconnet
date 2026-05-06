@@ -1,0 +1,109 @@
+<ion-content>
+
+  <app-medico-header [userName]="'Mis Datos'" [noLeidas]="0"></app-medico-header>
+
+  <main class="sp-main">
+
+    <button class="sp-back" (click)="volver()" aria-label="Volver al perfil">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Perfil
+    </button>
+
+    <h1 class="sp-title">Mis datos personales</h1>
+    <p class="sp-subtitle">Actualiza tu información de contacto. La especialidad y número de registro son gestionados por administración.</p>
+
+    @if (isLoading) {
+      <div class="sp-skeleton-wrap">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="sp-skeleton sp-skeleton--field"></div>
+        }
+      </div>
+    }
+
+    @if (!isLoading) {
+      <form class="sp-form" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+
+        <section class="sp-section">
+          <h2 class="sp-section-title">
+            <span class="material-symbols-outlined" aria-hidden="true">manage_accounts</span>
+            Datos de cuenta
+          </h2>
+
+          <div class="sp-field-group">
+            <div class="sp-field">
+              <label class="sp-label" for="nombre">Nombre <span class="sp-required">*</span></label>
+              <input id="nombre" class="sp-input" type="text" formControlName="nombre" autocomplete="given-name" placeholder="Tu nombre" />
+              @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('required')) {
+                <span class="sp-error">El nombre es requerido.</span>
+              }
+            </div>
+            <div class="sp-field">
+              <label class="sp-label" for="apellido">Apellido <span class="sp-required">*</span></label>
+              <input id="apellido" class="sp-input" type="text" formControlName="apellido" autocomplete="family-name" placeholder="Tu apellido" />
+              @if (form.get('apellido')?.touched && form.get('apellido')?.hasError('required')) {
+                <span class="sp-error">El apellido es requerido.</span>
+              }
+            </div>
+          </div>
+
+          <div class="sp-field">
+            <label class="sp-label" for="correo">Correo electrónico <span class="sp-required">*</span></label>
+            <input id="correo" class="sp-input" type="email" formControlName="correo" autocomplete="email" placeholder="tu@correo.cl" />
+            @if (form.get('correo')?.touched && form.get('correo')?.hasError('email')) {
+              <span class="sp-error">Ingresa un correo válido.</span>
+            }
+          </div>
+
+          <div class="sp-field">
+            <label class="sp-label" for="telefono">Teléfono</label>
+            <input id="telefono" class="sp-input" type="tel" formControlName="telefono" autocomplete="tel" placeholder="+56 9 1234 5678" />
+          </div>
+        </section>
+
+        <!-- Datos profesionales (solo lectura) -->
+        @if (perfil) {
+          <section class="sp-section sp-section--readonly">
+            <h2 class="sp-section-title">
+              <span class="material-symbols-outlined" aria-hidden="true">medical_services</span>
+              Datos profesionales
+            </h2>
+
+            <div class="sp-readonly-row">
+              <span class="sp-readonly-label">Especialidad</span>
+              <span class="sp-readonly-value">{{ perfil.nombre_especialidad }}</span>
+            </div>
+            <div class="sp-readonly-row">
+              <span class="sp-readonly-label">N° Registro</span>
+              <span class="sp-readonly-value">{{ perfil.numero_registro }}</span>
+            </div>
+            <div class="sp-readonly-row">
+              <span class="sp-readonly-label">Años de experiencia</span>
+              <span class="sp-readonly-value">{{ perfil.anios_experiencia }}</span>
+            </div>
+            <p class="sp-hint">Para modificar datos profesionales, contacta a administración.</p>
+          </section>
+        }
+
+        <button
+          type="submit"
+          class="sp-btn sp-btn--primary"
+          [disabled]="isSaving || form.invalid"
+          aria-label="Guardar cambios"
+        >
+          @if (isSaving) {
+            <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+            Guardando...
+          } @else {
+            <span class="material-symbols-outlined" aria-hidden="true">save</span>
+            Guardar cambios
+          }
+        </button>
+
+      </form>
+    }
+
+  </main>
+
+  <app-medico-bottom-nav [activeTab]="'perfil'"></app-medico-bottom-nav>
+
+</ion-content>

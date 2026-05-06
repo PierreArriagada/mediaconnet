@@ -1043,6 +1043,163 @@ async function limpiarNotificacionesPaciente(req, res) {
   }
 }
 
+/**
+ * PUT /api/paciente/perfil
+ * Actualiza los datos personales del paciente autenticado.
+ * Campos editables: nombre, apellido, correo, telefono (en usuarios)
+ *                   fecha_nacimiento, direccion, comuna, ciudad,
+ *                   contacto_emergencia, telefono_emergencia (en pacientes)
+ * El RUT nunca se modifica — es identificador único permanente.
+ * Anti-IDOR: id_usuario siempre del JWT, nunca del body.
+ */
+async function actualizarPerfilPaciente(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  const {
+    nombre, apellido, correo, telefono,
+    fecha_nacimiento, direccion, comuna, ciudad,
+    contacto_emergencia, telefono_emergencia,
+  } = req.body;
+
+  // Validaciones básicas de campos obligatorios
+  if (!nombre || typeof nombre !== 'string' || nombre.trim().length < 2 || nombre.trim().length > 100) {
+    return res.status(400).json({ message: 'Nombre inválido (2–100 caracteres).' });
+  }
+  if (!apellido || typeof apellido !== 'string' || apellido.trim().length < 2 || apellido.trim().length > 100) {
+    return res.status(400).json({ message: 'Apellido inválido (2–100 caracteres).' });
+  }
+  if (!correo || typeof correo !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim()) || correo.trim().length > 150) {
+    return res.status(400).json({ message: 'Correo electrónico inválido.' });
+  }
+  if (telefono !== undefined && telefono !== null && telefono !== '' && (typeof telefono !== 'string' || telefono.trim().length > 20)) {
+    return res.status(400).json({ message: 'Teléfono inválido.' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Verificar que el correo no esté tomado por otro usuario
+    const correoNorm = correo.trim().toLowerCase();
+    const correoExistente = await client.query(
+      'SELECT 1 FROM usuarios WHERE correo = $1 AND id_usuario <> $2',
+      [correoNorm, idUsuario]
+    );
+    if (correoExistente.rowCount > 0) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ message: 'El correo ya está registrado por otro usuario.' });
+    }
+
+    // Actualizar tabla usuarios
+    await client.query(
+      `UPDATE usuarios
+       SET nombre = $1, apellido = $2, correo = $3, telefono = $4,
+           fecha_actualizacion = NOW()
+       WHERE id_usuario = $5`,
+      [
+        nombre.trim(),
+        apellido.trim(),
+        correoNorm,
+        telefono ? telefono.trim() : null,
+        idUsuario,
+      ]
+    );
+
+    // Obtener id_paciente del usuario
+    const pacResult = await client.query(
+      'SELECT id_paciente FROM pacientes WHERE id_usuario = $1',
+      [idUsuario]
+    );
+
+    if (pacResult.rowCount > 0) {
+      const idPaciente = pacResult.rows[0].id_paciente;
+      await client.query(
+        `UPDATE pacientes
+         SET fecha_nacimiento  = $1,
+             direccion         = $2,
+             comuna            = $3,
+             ciudad            = $4,
+             contacto_emergencia  = $5,
+             telefono_emergencia  = $6,
+             fecha_actualizacion  = NOW()
+         WHERE id_paciente = $7`,
+        [
+          fecha_nacimiento  || null,
+          direccion         ? direccion.trim()         : null,
+          comuna            ? comuna.trim()            : null,
+          ciudad            ? ciudad.trim()            : null,
+          contacto_emergencia ? contacto_emergencia.trim() : null,
+          telefono_emergencia ? telefono_emergencia.trim() : null,
+          idPaciente,
+        ]
+      );
+    }
+
+    await client.query('COMMIT');
+    return res.json({ message: 'Datos actualizados correctamente.' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error en actualizarPerfilPaciente:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * PATCH /api/paciente/perfil/password
+ * Cambia la contraseña del paciente autenticado.
+ * Requiere body: { contrasena_actual, contrasena_nueva }
+ * Verifica la contraseña actual antes de actualizar.
+ * Usa pgcrypto (bcrypt/blowfish) para el hash.
+ * Anti-IDOR: id_usuario siempre del JWT.
+ */
+async function cambiarPasswordPaciente(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  const { contrasena_actual, contrasena_nueva } = req.body;
+
+  if (!contrasena_actual || typeof contrasena_actual !== 'string') {
+    return res.status(400).json({ message: 'Contraseña actual requerida.' });
+  }
+  if (!contrasena_nueva || typeof contrasena_nueva !== 'string' || contrasena_nueva.length < 8 || contrasena_nueva.length > 128) {
+    return res.status(400).json({ message: 'La nueva contraseña debe tener entre 8 y 128 caracteres.' });
+  }
+
+  try {
+    // Verificar contraseña actual usando pgcrypto
+    const verificacion = await pool.query(
+      `SELECT (contrasena_hash = crypt($1, contrasena_hash)) AS valid
+       FROM usuarios WHERE id_usuario = $2`,
+      [contrasena_actual, idUsuario]
+    );
+
+    if (verificacion.rowCount === 0 || !verificacion.rows[0].valid) {
+      return res.status(401).json({ message: 'La contraseña actual es incorrecta.' });
+    }
+
+    // Actualizar con nuevo hash bcrypt
+    await pool.query(
+      `UPDATE usuarios
+       SET contrasena_hash = crypt($1, gen_salt('bf', 12)),
+           fecha_actualizacion = NOW()
+       WHERE id_usuario = $2`,
+      [contrasena_nueva, idUsuario]
+    );
+
+    return res.json({ message: 'Contraseña actualizada correctamente.' });
+  } catch (err) {
+    console.error('Error en cambiarPasswordPaciente:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
 module.exports = {
   getDashboard,
   getEspecialidadesConBadge,
@@ -1056,6 +1213,8 @@ module.exports = {
   confirmarAsistencia,
   getHistorialCitas,
   getPerfil,
+  actualizarPerfilPaciente,
+  cambiarPasswordPaciente,
   getNotificacionesPaciente,
   marcarNotificacionesLeidas,
   limpiarNotificacionesPaciente,

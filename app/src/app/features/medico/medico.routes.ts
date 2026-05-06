@@ -37,6 +37,26 @@ export const MEDICO_ROUTES: Routes = [
       import('./perfil/perfil.page').then(m => m.PerfilPage),
   },
   {
+    path: 'perfil/mis-datos',
+    loadComponent: () =>
+      import('./perfil/mis-datos/mis-datos.page').then(m => m.MisDatosMedicoPage),
+  },
+  {
+    path: 'perfil/seguridad',
+    loadComponent: () =>
+      import('./perfil/seguridad/seguridad.page').then(m => m.SeguridadMedicoPage),
+  },
+  {
+    path: 'perfil/preferencias',
+    loadComponent: () =>
+      import('./perfil/preferencias/preferencias.page').then(m => m.PreferenciasMedicoPage),
+  },
+  {
+    path: 'perfil/soporte',
+    loadComponent: () =>
+      import('./perfil/soporte/soporte.page').then(m => m.SoporteMedicoPage),
+  },
+  {
     path: 'notificaciones',
     loadComponent: () =>
       import('./notificaciones/notificaciones.page').then(m => m.NotificacionesPage),

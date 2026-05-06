@@ -209,6 +209,24 @@ export interface PerfilData {
   alertas:              number;
 }
 
+export interface ActualizarPerfilPacientePayload {
+  nombre:               string;
+  apellido:             string;
+  correo:               string;
+  telefono?:            string | null;
+  fecha_nacimiento?:    string | null;
+  direccion?:           string | null;
+  comuna?:              string | null;
+  ciudad?:              string | null;
+  contacto_emergencia?: string | null;
+  telefono_emergencia?: string | null;
+}
+
+export interface CambiarPasswordPayload {
+  contrasena_actual: string;
+  contrasena_nueva:  string;
+}
+
 export interface NotificacionesPacienteData {
   notificaciones: Notificacion[];
   noLeidas:       number;
@@ -266,6 +284,14 @@ export class PacienteService {
 
   getPerfil(): Observable<PerfilData> {
     return this.http.get<PerfilData>(`${this.API}/perfil`);
+  }
+
+  actualizarPerfil(payload: ActualizarPerfilPacientePayload): Observable<MensajeResponse> {
+    return this.http.put<MensajeResponse>(`${this.API}/perfil`, payload);
+  }
+
+  cambiarPassword(payload: CambiarPasswordPayload): Observable<MensajeResponse> {
+    return this.http.patch<MensajeResponse>(`${this.API}/perfil/password`, payload);
   }
 
   getNotificaciones(): Observable<NotificacionesPacienteData> {

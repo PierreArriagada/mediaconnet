@@ -6,10 +6,10 @@
   </ion-refresher>
 
   <!-- Header reutilizable -->
-  <app-medico-header
+  <app-admin-header
     [userName]="nombreCompleto"
     [noLeidas]="noLeidas"
-  ></app-medico-header>
+  ></app-admin-header>
 
   <main class="pf-main">
 
@@ -34,7 +34,7 @@
       <!-- ── Layout asimétrico: perfil + menú ──────────── -->
       <div class="pf-layout">
 
-        <!-- ══ Columna izquierda: datos del médico ══ -->
+        <!-- ══ Columna izquierda: datos del administrador ══ -->
         <section class="pf-profile-col" aria-labelledby="pf-user-name">
 
           <!-- Tarjeta de identidad -->
@@ -53,29 +53,29 @@
             <!-- Chips de estado -->
             <div class="pf-chips" role="list" aria-label="Estado de la cuenta">
               <span class="pf-chip pf-chip--primary" role="listitem">
-                Médico {{ perfil.estado | titlecase }}
+                Administrador {{ perfil.estado | titlecase }}
               </span>
               <span class="pf-chip pf-chip--secondary" role="listitem">
-                Reg. {{ perfil.numero_registro }}
+                Desde {{ formatFecha(perfil.fecha_registro) }}
               </span>
             </div>
           </div>
 
-          <!-- Bento de estadísticas profesionales -->
+          <!-- Bento de estadísticas del sistema -->
           <div class="pf-bento-grid" role="list">
             <div class="pf-bento-card" role="listitem">
-              <span class="pf-bento-label">Especialidad</span>
+              <span class="pf-bento-label">Médicos activos</span>
               <p class="pf-bento-value pf-bento-value--primary">
-                {{ perfil.nombre_especialidad }}
+                {{ perfil.medicos_activos }}
               </p>
-              <p class="pf-bento-sub">Área de práctica</p>
+              <p class="pf-bento-sub">En el sistema</p>
             </div>
-            <div class="pf-bento-card pf-bento-card--accent" role="listitem">
-              <span class="pf-bento-label">Experiencia</span>
+            <div class="pf-bento-card pf-bento-card--alert" role="listitem">
+              <span class="pf-bento-label">Alertas</span>
               <p class="pf-bento-value pf-bento-value--tertiary">
-                {{ perfil.anios_experiencia }} {{ perfil.anios_experiencia === 1 ? 'año' : 'años' }}
+                {{ perfil.alertas }} {{ perfil.alertas === 1 ? 'Activa' : 'Activas' }}
               </p>
-              <p class="pf-bento-sub">Trayectoria profesional</p>
+              <p class="pf-bento-sub">Notificaciones</p>
             </div>
           </div>
 
@@ -180,6 +180,6 @@
   </main>
 
   <!-- Bottom nav fijo -->
-  <app-medico-bottom-nav [activeTab]="'perfil'"></app-medico-bottom-nav>
+  <app-admin-bottom-nav [activeTab]="null"></app-admin-bottom-nav>
 
 </ion-content>

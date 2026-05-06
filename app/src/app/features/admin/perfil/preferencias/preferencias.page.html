@@ -1,0 +1,47 @@
+<ion-content>
+  <app-admin-header [userName]="'Preferencias'" [noLeidas]="0"></app-admin-header>
+  <main class="sp-main">
+    <button class="sp-back" (click)="volver()" aria-label="Volver al perfil">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Perfil
+    </button>
+    <h1 class="sp-title">Preferencias</h1>
+    <p class="sp-subtitle">Personaliza cómo MediConnect te notifica.</p>
+    @if (guardado) {
+      <div class="sp-saved-banner" role="status">
+        <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+        Preferencia guardada
+      </div>
+    }
+    <section class="sp-section">
+      <h2 class="sp-section-title">
+        <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+        Notificaciones
+      </h2>
+      <div class="sp-toggle-row">
+        <div class="sp-toggle-info">
+          <span class="sp-toggle-label">Solicitudes de invitados</span>
+          <span class="sp-toggle-sub">Notificación cuando llegue una nueva solicitud</span>
+        </div>
+        <button class="sp-toggle" [class.sp-toggle--on]="prefs.notifSolicitudes" (click)="toggle('notifSolicitudes')" role="switch" [attr.aria-checked]="prefs.notifSolicitudes" aria-label="Solicitudes de invitados">
+          <span class="sp-toggle__knob"></span>
+        </button>
+      </div>
+      <div class="sp-divider"></div>
+      <div class="sp-toggle-row">
+        <div class="sp-toggle-info">
+          <span class="sp-toggle-label">Alertas del sistema</span>
+          <span class="sp-toggle-sub">Avisos sobre incidencias o eventos críticos</span>
+        </div>
+        <button class="sp-toggle" [class.sp-toggle--on]="prefs.notifAlertas" (click)="toggle('notifAlertas')" role="switch" [attr.aria-checked]="prefs.notifAlertas" aria-label="Alertas del sistema">
+          <span class="sp-toggle__knob"></span>
+        </button>
+      </div>
+    </section>
+    <div class="sp-info-box">
+      <span class="material-symbols-outlined" aria-hidden="true">info</span>
+      <p>Las preferencias se guardan en este dispositivo.</p>
+    </div>
+  </main>
+  <app-admin-bottom-nav [activeTab]="null"></app-admin-bottom-nav>
+</ion-content>

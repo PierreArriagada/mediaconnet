@@ -1,0 +1,50 @@
+<ion-content>
+  <app-medico-header [userName]="'Preferencias'" [noLeidas]="0"></app-medico-header>
+  <main class="sp-main">
+    <button class="sp-back" (click)="volver()" aria-label="Volver al perfil">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Perfil
+    </button>
+    <h1 class="sp-title">Preferencias</h1>
+    <p class="sp-subtitle">Personaliza cómo MediConnect te notifica.</p>
+
+    @if (guardado) {
+      <div class="sp-saved-banner" role="status">
+        <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+        Preferencia guardada
+      </div>
+    }
+
+    <section class="sp-section">
+      <h2 class="sp-section-title">
+        <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+        Notificaciones
+      </h2>
+      <div class="sp-toggle-row">
+        <div class="sp-toggle-info">
+          <span class="sp-toggle-label">Avisos de citas</span>
+          <span class="sp-toggle-sub">Recibe notificaciones cuando un paciente reserve o cancele</span>
+        </div>
+        <button class="sp-toggle" [class.sp-toggle--on]="prefs.notifCitas" (click)="toggle('notifCitas')" role="switch" [attr.aria-checked]="prefs.notifCitas" aria-label="Avisos de citas">
+          <span class="sp-toggle__knob"></span>
+        </button>
+      </div>
+      <div class="sp-divider"></div>
+      <div class="sp-toggle-row">
+        <div class="sp-toggle-info">
+          <span class="sp-toggle-label">Recordatorio diario</span>
+          <span class="sp-toggle-sub">Recibe un resumen de tu agenda cada mañana</span>
+        </div>
+        <button class="sp-toggle" [class.sp-toggle--on]="prefs.notifRecordatorio" (click)="toggle('notifRecordatorio')" role="switch" [attr.aria-checked]="prefs.notifRecordatorio" aria-label="Recordatorio diario">
+          <span class="sp-toggle__knob"></span>
+        </button>
+      </div>
+    </section>
+
+    <div class="sp-info-box">
+      <span class="material-symbols-outlined" aria-hidden="true">info</span>
+      <p>Las preferencias se guardan en este dispositivo.</p>
+    </div>
+  </main>
+  <app-medico-bottom-nav [activeTab]="'perfil'"></app-medico-bottom-nav>
+</ion-content>

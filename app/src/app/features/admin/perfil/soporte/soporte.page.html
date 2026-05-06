@@ -1,0 +1,50 @@
+<ion-content>
+  <app-admin-header [userName]="'Soporte'" [noLeidas]="0"></app-admin-header>
+  <main class="sp-main">
+    <button class="sp-back" (click)="volver()" aria-label="Volver al perfil">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Perfil
+    </button>
+    <h1 class="sp-title">Soporte y ayuda</h1>
+    <p class="sp-subtitle">Preguntas frecuentes para administradores.</p>
+    <section class="sp-section">
+      <h2 class="sp-section-title">
+        <span class="material-symbols-outlined" aria-hidden="true">help</span>
+        Preguntas frecuentes
+      </h2>
+      @for (faq of faqs; track faq.pregunta; let i = $index) {
+        <div class="sp-faq-item">
+          <button class="sp-faq-question" (click)="toggleFaq(i)" [attr.aria-expanded]="faq.abierto">
+            <span>{{ faq.pregunta }}</span>
+            <span class="material-symbols-outlined sp-faq-icon" aria-hidden="true">{{ faq.abierto ? 'expand_less' : 'expand_more' }}</span>
+          </button>
+          @if (faq.abierto) {
+            <div class="sp-faq-answer">{{ faq.respuesta }}</div>
+          }
+        </div>
+      }
+    </section>
+    <section class="sp-section">
+      <h2 class="sp-section-title">
+        <span class="material-symbols-outlined" aria-hidden="true">contact_support</span>
+        Contactar soporte
+      </h2>
+      <ul class="sp-contact-list">
+        <li>
+          <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+          <div><strong>Correo</strong><span>soporte@mediconnect.cl</span></div>
+        </li>
+        <li>
+          <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+          <div><strong>Horario</strong><span>Lun – Vie, 09:00 – 18:00</span></div>
+        </li>
+        <li>
+          <span class="material-symbols-outlined" aria-hidden="true">timer</span>
+          <div><strong>Tiempo de respuesta</strong><span>24–48 horas hábiles</span></div>
+        </li>
+      </ul>
+    </section>
+    <footer class="sp-version">MediConnect v1.0.0 — Administrador</footer>
+  </main>
+  <app-admin-bottom-nav [activeTab]="null"></app-admin-bottom-nav>
+</ion-content>

@@ -4,10 +4,10 @@ import { TitleCasePipe } from '@angular/common';
 import { IonContent, IonRefresher, IonRefresherContent, ToastController } from '@ionic/angular/standalone';
 
 import { AuthService } from '../../../core/services/auth.service';
-import { MedicoService, PerfilMedicoData } from '../../../core/services/medico.service';
-import { NotificacionesMedicoStateService } from '../../../core/services/notificaciones-medico-state.service';
-import { MedicoHeaderComponent } from '../../../shared/components/medico-header/medico-header.component';
-import { MedicoBottomNavComponent } from '../../../shared/components/medico-bottom-nav/medico-bottom-nav.component';
+import { AdminService, PerfilAdminData } from '../../../core/services/admin.service';
+import { NotificacionesAdminStateService } from '../../../core/services/notificaciones-admin-state.service';
+import { AdminHeaderComponent } from '../../../shared/components/admin-header/admin-header.component';
+import { AdminBottomNavComponent } from '../../../shared/components/admin-bottom-nav/admin-bottom-nav.component';
 import { formatFechaCompleta } from '../../../shared/utils/fecha.utils';
 
 @Component({
@@ -18,18 +18,18 @@ import { formatFechaCompleta } from '../../../shared/utils/fecha.utils';
   imports: [
     TitleCasePipe,
     IonContent, IonRefresher, IonRefresherContent,
-    MedicoHeaderComponent,
-    MedicoBottomNavComponent,
+    AdminHeaderComponent,
+    AdminBottomNavComponent,
   ],
 })
 export class PerfilPage implements OnInit {
   private readonly auth      = inject(AuthService);
-  private readonly svc       = inject(MedicoService);
+  private readonly svc       = inject(AdminService);
   private readonly router    = inject(Router);
   private readonly toastCtrl = inject(ToastController);
-  private readonly notificacionesState = inject(NotificacionesMedicoStateService);
+  private readonly notificacionesState = inject(NotificacionesAdminStateService);
 
-  perfil: PerfilMedicoData | null = null;
+  perfil: PerfilAdminData | null = null;
   isLoading = true;
 
   get initiales(): string {
@@ -43,7 +43,7 @@ export class PerfilPage implements OnInit {
   }
 
   get noLeidas(): number {
-    return this.notificacionesState.noLeidas() ?? 0;
+    return this.notificacionesState.noLeidas() ?? this.perfil?.alertas ?? 0;
   }
 
   ngOnInit(): void {
@@ -55,6 +55,7 @@ export class PerfilPage implements OnInit {
     this.svc.getPerfil().subscribe({
       next: (data) => {
         this.perfil    = data;
+        this.notificacionesState.setNoLeidas(data.alertas);
         this.isLoading = false;
         event?.target?.complete();
       },
@@ -77,7 +78,7 @@ export class PerfilPage implements OnInit {
   }
 
   navegar(destino: string): void {
-    this.router.navigateByUrl(`/medico/${destino}`);
+    this.router.navigateByUrl(`/admin/${destino}`);
   }
 
   cerrarSesion(): void {

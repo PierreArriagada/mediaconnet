@@ -1,0 +1,95 @@
+<ion-content>
+
+  <app-paciente-header [userName]="'Soporte'" [noLeidas]="0"></app-paciente-header>
+
+  <main class="sp-main">
+
+    <button class="sp-back" (click)="volver()" aria-label="Volver al perfil">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Perfil
+    </button>
+
+    <h1 class="sp-title">Centro de ayuda</h1>
+    <p class="sp-subtitle">Encuentra respuestas a las preguntas más frecuentes.</p>
+
+    <!-- FAQ -->
+    <section class="sp-section">
+      <h2 class="sp-section-title">
+        <span class="material-symbols-outlined" aria-hidden="true">quiz</span>
+        Preguntas frecuentes
+      </h2>
+
+      <div class="sp-faq" role="list">
+        @for (faq of faqs; track $index) {
+          <div class="sp-faq-item" role="listitem">
+            <button
+              class="sp-faq-question"
+              (click)="toggleFaq($index)"
+              [attr.aria-expanded]="faq.abierto"
+              [attr.aria-controls]="'faq-' + $index"
+            >
+              <span class="sp-faq-q-text">{{ faq.pregunta }}</span>
+              <span class="material-symbols-outlined sp-faq-chevron" aria-hidden="true">
+                {{ faq.abierto ? 'expand_less' : 'expand_more' }}
+              </span>
+            </button>
+            @if (faq.abierto) {
+              <div class="sp-faq-answer" [id]="'faq-' + $index" role="region">
+                {{ faq.respuesta }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Contacto -->
+    <section class="sp-section">
+      <h2 class="sp-section-title">
+        <span class="material-symbols-outlined" aria-hidden="true">contact_support</span>
+        Contactar soporte
+      </h2>
+
+      <div class="sp-contact-list" role="list">
+
+        <div class="sp-contact-item" role="listitem">
+          <div class="sp-contact-icon-wrap">
+            <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+          </div>
+          <div class="sp-contact-info">
+            <span class="sp-contact-label">Correo electrónico</span>
+            <span class="sp-contact-value">soporte@mediconnect.cl</span>
+          </div>
+        </div>
+
+        <div class="sp-contact-item" role="listitem">
+          <div class="sp-contact-icon-wrap">
+            <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+          </div>
+          <div class="sp-contact-info">
+            <span class="sp-contact-label">Horario de atención</span>
+            <span class="sp-contact-value">Lunes a Viernes, 8:00 – 18:00</span>
+          </div>
+        </div>
+
+        <div class="sp-contact-item" role="listitem">
+          <div class="sp-contact-icon-wrap">
+            <span class="material-symbols-outlined" aria-hidden="true">timer</span>
+          </div>
+          <div class="sp-contact-info">
+            <span class="sp-contact-label">Tiempo de respuesta</span>
+            <span class="sp-contact-value">Hasta 24 horas hábiles</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Versión -->
+    <p class="sp-version">MediConnect · Versión 1.0.0</p>
+
+  </main>
+
+  <app-paciente-bottom-nav [activeTab]="'perfil'"></app-paciente-bottom-nav>
+
+</ion-content>

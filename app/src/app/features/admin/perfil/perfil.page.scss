@@ -156,7 +156,7 @@ ion-content {
   border-radius: var(--mc-radius-lg);
   padding: 1.5rem;
 
-  &--accent {
+  &--alert {
     border-left: 4px solid var(--mc-tertiary);
   }
 }
@@ -264,10 +264,10 @@ ion-content {
     justify-content: center;
   }
 
-  &--primary   { background: var(--mc-primary-fixed);              color: var(--mc-primary); }
-  &--secondary { background: var(--mc-secondary-container);        color: var(--mc-secondary); }
-  &--neutral   { background: var(--mc-surface-container-high);     color: var(--mc-on-surface-variant); }
-  &--error     { background: var(--mc-error-container);            color: var(--mc-error); }
+  &--primary   { background: var(--mc-primary-fixed);           color: var(--mc-primary); }
+  &--secondary { background: var(--mc-secondary-container);     color: var(--mc-secondary); }
+  &--neutral   { background: var(--mc-surface-container-high);  color: var(--mc-on-surface-variant); }
+  &--error     { background: var(--mc-error-container);         color: var(--mc-error); }
 }
 
 .pf-menu-item__content {

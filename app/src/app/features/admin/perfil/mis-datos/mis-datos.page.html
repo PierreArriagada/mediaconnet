@@ -1,0 +1,87 @@
+<ion-content>
+  <app-admin-header [userName]="'Mis Datos'" [noLeidas]="0"></app-admin-header>
+  <main class="sp-main">
+    <button class="sp-back" (click)="volver()" aria-label="Volver al perfil">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Perfil
+    </button>
+    <h1 class="sp-title">Mis datos</h1>
+    <p class="sp-subtitle">Actualiza tu información de contacto y cuenta.</p>
+
+    @if (isLoading) {
+      <div class="sp-skeleton-wrap">
+        @for (i of [1,2,3,4]; track i) { <div class="sp-skeleton sp-skeleton--field"></div> }
+      </div>
+    }
+
+    @if (!isLoading) {
+      <form class="sp-form" [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+        <section class="sp-section">
+          <h2 class="sp-section-title">
+            <span class="material-symbols-outlined" aria-hidden="true">manage_accounts</span>
+            Datos de cuenta
+          </h2>
+          <div class="sp-field-group">
+            <div class="sp-field">
+              <label class="sp-label" for="nombre">Nombre <span class="sp-required">*</span></label>
+              <input id="nombre" class="sp-input" type="text" formControlName="nombre" autocomplete="given-name" placeholder="Tu nombre" />
+              @if (form.get('nombre')?.touched && form.get('nombre')?.hasError('required')) {
+                <span class="sp-error">El nombre es requerido.</span>
+              }
+            </div>
+            <div class="sp-field">
+              <label class="sp-label" for="apellido">Apellido <span class="sp-required">*</span></label>
+              <input id="apellido" class="sp-input" type="text" formControlName="apellido" autocomplete="family-name" placeholder="Tu apellido" />
+              @if (form.get('apellido')?.touched && form.get('apellido')?.hasError('required')) {
+                <span class="sp-error">El apellido es requerido.</span>
+              }
+            </div>
+          </div>
+          <div class="sp-field">
+            <label class="sp-label" for="correo">Correo electrónico <span class="sp-required">*</span></label>
+            <input id="correo" class="sp-input" type="email" formControlName="correo" autocomplete="email" placeholder="tu@correo.cl" />
+            @if (form.get('correo')?.touched && form.get('correo')?.hasError('email')) {
+              <span class="sp-error">Ingresa un correo válido.</span>
+            }
+          </div>
+          <div class="sp-field">
+            <label class="sp-label" for="telefono">Teléfono</label>
+            <input id="telefono" class="sp-input" type="tel" formControlName="telefono" autocomplete="tel" placeholder="+56 9 1234 5678" />
+          </div>
+        </section>
+
+        @if (perfil) {
+          <section class="sp-section sp-section--readonly">
+            <h2 class="sp-section-title">
+              <span class="material-symbols-outlined" aria-hidden="true">admin_panel_settings</span>
+              Información del sistema
+            </h2>
+            <div class="sp-readonly-row">
+              <span class="sp-readonly-label">Estado</span>
+              <span class="sp-readonly-value">{{ perfil.estado }}</span>
+            </div>
+            <div class="sp-readonly-row">
+              <span class="sp-readonly-label">Médicos activos</span>
+              <span class="sp-readonly-value">{{ perfil.medicos_activos }}</span>
+            </div>
+            <div class="sp-readonly-row">
+              <span class="sp-readonly-label">Miembro desde</span>
+              <span class="sp-readonly-value">{{ perfil.fecha_registro | date:'mediumDate' }}</span>
+            </div>
+          </section>
+        }
+
+        <button type="submit" class="sp-btn sp-btn--primary" [disabled]="isSaving || form.invalid" aria-label="Guardar cambios">
+          @if (isSaving) {
+            <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+            Guardando...
+          } @else {
+            <span class="material-symbols-outlined" aria-hidden="true">save</span>
+            Guardar cambios
+          }
+        </button>
+      </form>
+    }
+  </main>
+  <app-admin-bottom-nav [activeTab]="null"></app-admin-bottom-nav>
+</ion-content>

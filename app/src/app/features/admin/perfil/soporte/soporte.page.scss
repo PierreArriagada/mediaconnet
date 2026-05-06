@@ -1,0 +1,15 @@
+.material-symbols-outlined { font-family:'Material Symbols Outlined',sans-serif; font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24; font-size:1.25rem; line-height:1; display:inline-block; user-select:none; vertical-align:middle; }
+ion-content { --background: var(--mc-surface); }
+.sp-main { max-width:48rem; margin:0 auto; padding:1.5rem 1.25rem 8rem; }
+.sp-back { display:inline-flex; align-items:center; gap:0.375rem; color:var(--mc-primary); background:none; border:none; cursor:pointer; font-family:var(--mc-font-utility); font-size:0.9rem; font-weight:500; padding:0.5rem 0; margin-bottom:1.25rem; .material-symbols-outlined { font-size:1.1rem; } &:active { opacity:0.7; } }
+.sp-title { font-family:var(--mc-font-authority); font-size:1.5rem; font-weight:700; color:var(--mc-on-surface); margin:0 0 0.375rem; }
+.sp-subtitle { font-family:var(--mc-font-utility); font-size:0.875rem; color:var(--mc-on-surface-variant); margin:0 0 1.5rem; }
+.sp-section { background:var(--mc-surface-container-lowest); border-radius:var(--mc-radius-lg); padding:1.5rem; margin-bottom:1.25rem; }
+.sp-section-title { display:flex; align-items:center; gap:0.5rem; font-family:var(--mc-font-authority); font-size:1rem; font-weight:600; color:var(--mc-on-surface); margin:0 0 1.25rem; .material-symbols-outlined { color:var(--mc-primary); } }
+.sp-faq-item { border-bottom:1px solid var(--mc-outline-variant); &:last-child { border-bottom:none; } }
+.sp-faq-question { display:flex; align-items:center; justify-content:space-between; width:100%; background:none; border:none; cursor:pointer; padding:0.875rem 0; font-family:var(--mc-font-utility); font-size:0.9375rem; font-weight:600; color:var(--mc-on-surface); text-align:left; gap:0.75rem; &:active { opacity:0.7; } }
+.sp-faq-icon { font-size:1.25rem; flex-shrink:0; color:var(--mc-on-surface-variant); }
+.sp-faq-answer { padding:0 0 0.875rem; font-family:var(--mc-font-utility); font-size:0.875rem; line-height:1.6; color:var(--mc-on-surface-variant); animation:fade-in 0.2s ease; }
+.sp-contact-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.875rem; li { display:flex; align-items:flex-start; gap:0.875rem; .material-symbols-outlined { color:var(--mc-primary); margin-top:0.125rem; } div { display:flex; flex-direction:column; gap:0.15rem; } strong { font-family:var(--mc-font-utility); font-size:0.875rem; font-weight:600; color:var(--mc-on-surface); } span { font-family:var(--mc-font-utility); font-size:0.8125rem; color:var(--mc-on-surface-variant); } } }
+.sp-version { text-align:center; font-family:var(--mc-font-utility); font-size:0.75rem; color:var(--mc-on-surface-variant); opacity:0.5; padding:1rem 0; }
+@keyframes fade-in { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }

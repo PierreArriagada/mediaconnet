@@ -85,7 +85,7 @@ export class PerfilPage implements OnInit {
   }
 
   navegar(destino: string): void {
-    this.router.navigate(['/paciente', destino]);
+    this.router.navigateByUrl(`/paciente/${destino}`);
   }
 
   cerrarSesion(): void {

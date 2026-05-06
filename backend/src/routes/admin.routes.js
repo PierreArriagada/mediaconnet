@@ -22,6 +22,9 @@ const {
   getNotificacionesAdmin,
   actualizarEstadoNotificacionAdmin,
   eliminarNotificacionAdmin,
+  getPerfilAdmin,
+  actualizarPerfilAdmin,
+  cambiarPasswordAdmin,
 } = require('../controllers/admin.controller');
 
 const router = Router();
@@ -59,6 +62,11 @@ router.get('/solicitudes',                         getSolicitudes);
 router.get('/solicitudes/:id/alternativas',        getSolicitudAlternativas);
 router.patch('/solicitudes/:id/confirmar',         confirmarSolicitud);
 router.patch('/solicitudes/:id/reasignar',         reasignarSolicitud);
+
+// ── Perfil del administrador ──────────────────────────────────────────────
+router.get('/perfil',                              getPerfilAdmin);
+router.put('/perfil',                              actualizarPerfilAdmin);
+router.patch('/perfil/password',                   cambiarPasswordAdmin);
 
 // ── Notificaciones ─────────────────────────────────────────────────────────
 router.get('/notificaciones',                      getNotificacionesAdmin);

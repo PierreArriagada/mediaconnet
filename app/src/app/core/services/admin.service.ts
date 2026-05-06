@@ -299,10 +299,49 @@ export interface AdminNotificacionesResponse {
 
 export type NotificacionesAdminResponse = AdminNotificacionesResponse;
 
+export interface PerfilAdminData {
+  nombre:          string;
+  apellido:        string;
+  correo:          string;
+  telefono:        string | null;
+  estado:          string;
+  fecha_registro:  string;
+  medicos_activos: number;
+  alertas:         number;
+}
+
+export interface ActualizarPerfilAdminPayload {
+  nombre:    string;
+  apellido:  string;
+  correo:    string;
+  telefono?: string | null;
+}
+
+export interface CambiarPasswordAdminPayload {
+  contrasena_actual: string;
+  contrasena_nueva:  string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly http = inject(HttpClient);
   private readonly API  = `${environment.apiUrl}/admin`;
+
+  // ── Perfil del administrador ────────────────────────────────────────────────
+
+  getPerfil(): Observable<PerfilAdminData> {
+    return this.http
+      .get<{ perfil: PerfilAdminData }>(`${this.API}/perfil`)
+      .pipe(map((r) => r.perfil));
+  }
+
+  actualizarPerfil(payload: ActualizarPerfilAdminPayload): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.API}/perfil`, payload);
+  }
+
+  cambiarPassword(payload: CambiarPasswordAdminPayload): Observable<{ message: string }> {
+    return this.http.patch<{ message: string }>(`${this.API}/perfil/password`, payload);
+  }
 
   // ── Disponibilidad (uso desde Horarios) ────────────────────────────────────
 

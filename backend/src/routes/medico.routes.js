@@ -8,6 +8,8 @@ const {
   getFichaPaciente,
   getPacientesMedico,
   getPerfilMedico,
+  actualizarPerfilMedico,
+  cambiarPasswordMedico,
   getDisponibilidad,
   crearDisponibilidad,
   actualizarDisponibilidad,
@@ -25,6 +27,8 @@ router.use(requireRole('Medico'));
 
 router.get('/dashboard', getDashboardMedico);
 router.get('/perfil', getPerfilMedico);
+router.put('/perfil', actualizarPerfilMedico);
+router.patch('/perfil/password', cambiarPasswordMedico);
 router.get('/notificaciones', getNotificacionesMedico);
 router.patch('/notificaciones/:id/leida', actualizarEstadoNotificacionMedico);
 router.delete('/notificaciones/:id', eliminarNotificacionMedico);

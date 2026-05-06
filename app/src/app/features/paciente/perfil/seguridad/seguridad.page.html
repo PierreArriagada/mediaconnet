@@ -1,0 +1,147 @@
+<ion-content>
+
+  <app-paciente-header [userName]="'Seguridad'" [noLeidas]="0"></app-paciente-header>
+
+  <main class="sp-main">
+
+    <button class="sp-back" (click)="volver()" aria-label="Volver al perfil">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Perfil
+    </button>
+
+    <h1 class="sp-title">Seguridad de la cuenta</h1>
+    <p class="sp-subtitle">Cambia tu contraseña. Usa mínimo 8 caracteres.</p>
+
+    <form class="sp-form" [formGroup]="form" (ngSubmit)="cambiar()" novalidate>
+
+      <section class="sp-section">
+        <h2 class="sp-section-title">
+          <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+          Cambiar contraseña
+        </h2>
+
+        <!-- Contraseña actual -->
+        <div class="sp-field">
+          <label class="sp-label" for="contrasena_actual">
+            Contraseña actual <span class="sp-required">*</span>
+          </label>
+          <div class="sp-input-wrap">
+            <input
+              id="contrasena_actual"
+              class="sp-input"
+              [type]="mostrarActual ? 'text' : 'password'"
+              formControlName="contrasena_actual"
+              autocomplete="current-password"
+              placeholder="Tu contraseña actual"
+            />
+            <button
+              type="button"
+              class="sp-toggle-pw"
+              (click)="mostrarActual = !mostrarActual"
+              [attr.aria-label]="mostrarActual ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">
+                {{ mostrarActual ? 'visibility_off' : 'visibility' }}
+              </span>
+            </button>
+          </div>
+          @if (form.get('contrasena_actual')?.touched && form.get('contrasena_actual')?.hasError('required')) {
+            <span class="sp-error">La contraseña actual es requerida.</span>
+          }
+        </div>
+
+        <!-- Nueva contraseña -->
+        <div class="sp-field">
+          <label class="sp-label" for="contrasena_nueva">
+            Nueva contraseña <span class="sp-required">*</span>
+          </label>
+          <div class="sp-input-wrap">
+            <input
+              id="contrasena_nueva"
+              class="sp-input"
+              [type]="mostrarNueva ? 'text' : 'password'"
+              formControlName="contrasena_nueva"
+              autocomplete="new-password"
+              placeholder="Mínimo 8 caracteres"
+            />
+            <button
+              type="button"
+              class="sp-toggle-pw"
+              (click)="mostrarNueva = !mostrarNueva"
+              [attr.aria-label]="mostrarNueva ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">
+                {{ mostrarNueva ? 'visibility_off' : 'visibility' }}
+              </span>
+            </button>
+          </div>
+          @if (form.get('contrasena_nueva')?.touched && form.get('contrasena_nueva')?.hasError('required')) {
+            <span class="sp-error">La nueva contraseña es requerida.</span>
+          }
+          @if (form.get('contrasena_nueva')?.touched && form.get('contrasena_nueva')?.hasError('minlength')) {
+            <span class="sp-error">Mínimo 8 caracteres.</span>
+          }
+        </div>
+
+        <!-- Confirmar nueva -->
+        <div class="sp-field">
+          <label class="sp-label" for="confirmar_nueva">
+            Confirmar nueva contraseña <span class="sp-required">*</span>
+          </label>
+          <div class="sp-input-wrap">
+            <input
+              id="confirmar_nueva"
+              class="sp-input"
+              [type]="mostrarConfirmar ? 'text' : 'password'"
+              formControlName="confirmar_nueva"
+              autocomplete="new-password"
+              placeholder="Repite la nueva contraseña"
+            />
+            <button
+              type="button"
+              class="sp-toggle-pw"
+              (click)="mostrarConfirmar = !mostrarConfirmar"
+              [attr.aria-label]="mostrarConfirmar ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">
+                {{ mostrarConfirmar ? 'visibility_off' : 'visibility' }}
+              </span>
+            </button>
+          </div>
+          @if (form.get('confirmar_nueva')?.touched && form.hasError('noCoinciden')) {
+            <span class="sp-error">Las contraseñas no coinciden.</span>
+          }
+        </div>
+
+        <!-- Info de seguridad -->
+        <div class="sp-info-box">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+          <p>
+            Usa una contraseña única con letras, números y símbolos.
+            No la compartas con nadie.
+          </p>
+        </div>
+      </section>
+
+      <button
+        type="submit"
+        class="sp-btn sp-btn--primary"
+        [disabled]="isSaving || form.invalid"
+        aria-label="Cambiar contraseña"
+      >
+        @if (isSaving) {
+          <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+          Guardando...
+        } @else {
+          <span class="material-symbols-outlined" aria-hidden="true">lock_reset</span>
+          Cambiar contraseña
+        }
+      </button>
+
+    </form>
+
+  </main>
+
+  <app-paciente-bottom-nav [activeTab]="'perfil'"></app-paciente-bottom-nav>
+
+</ion-content>

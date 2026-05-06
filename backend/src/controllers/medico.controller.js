@@ -840,6 +840,114 @@ async function eliminarDisponibilidad(req, res) {
   }
 }
 
+/**
+ * PUT /api/medico/perfil
+ * Actualiza datos personales del médico autenticado (tabla usuarios).
+ * Campos editables: nombre, apellido, correo, telefono.
+ * El número de registro, especialidad y años de experiencia no son auto-editables.
+ * Anti-IDOR: id_usuario siempre del JWT.
+ */
+async function actualizarPerfilMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  const { nombre, apellido, correo, telefono } = req.body;
+
+  if (!nombre || typeof nombre !== 'string' || nombre.trim().length < 2 || nombre.trim().length > 100) {
+    return res.status(400).json({ message: 'Nombre inválido (2–100 caracteres).' });
+  }
+  if (!apellido || typeof apellido !== 'string' || apellido.trim().length < 2 || apellido.trim().length > 100) {
+    return res.status(400).json({ message: 'Apellido inválido (2–100 caracteres).' });
+  }
+  if (!correo || typeof correo !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim()) || correo.trim().length > 150) {
+    return res.status(400).json({ message: 'Correo electrónico inválido.' });
+  }
+  if (telefono !== undefined && telefono !== null && telefono !== '' && (typeof telefono !== 'string' || telefono.trim().length > 20)) {
+    return res.status(400).json({ message: 'Teléfono inválido.' });
+  }
+
+  try {
+    const correoNorm = correo.trim().toLowerCase();
+
+    // Verificar que el correo no esté tomado por otro usuario
+    const correoExistente = await pool.query(
+      'SELECT 1 FROM usuarios WHERE correo = $1 AND id_usuario <> $2',
+      [correoNorm, idUsuario]
+    );
+    if (correoExistente.rowCount > 0) {
+      return res.status(409).json({ message: 'El correo ya está registrado por otro usuario.' });
+    }
+
+    await pool.query(
+      `UPDATE usuarios
+       SET nombre = $1, apellido = $2, correo = $3, telefono = $4,
+           fecha_actualizacion = NOW()
+       WHERE id_usuario = $5`,
+      [
+        nombre.trim(),
+        apellido.trim(),
+        correoNorm,
+        telefono ? telefono.trim() : null,
+        idUsuario,
+      ]
+    );
+
+    return res.json({ message: 'Datos actualizados correctamente.' });
+  } catch (err) {
+    console.error('Error en actualizarPerfilMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * PATCH /api/medico/perfil/password
+ * Cambia la contraseña del médico autenticado.
+ * Requiere: { contrasena_actual, contrasena_nueva }
+ * Anti-IDOR: id_usuario siempre del JWT.
+ */
+async function cambiarPasswordMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  const { contrasena_actual, contrasena_nueva } = req.body;
+
+  if (!contrasena_actual || typeof contrasena_actual !== 'string') {
+    return res.status(400).json({ message: 'Contraseña actual requerida.' });
+  }
+  if (!contrasena_nueva || typeof contrasena_nueva !== 'string' || contrasena_nueva.length < 8 || contrasena_nueva.length > 128) {
+    return res.status(400).json({ message: 'La nueva contraseña debe tener entre 8 y 128 caracteres.' });
+  }
+
+  try {
+    const verificacion = await pool.query(
+      `SELECT (contrasena_hash = crypt($1, contrasena_hash)) AS valid
+       FROM usuarios WHERE id_usuario = $2`,
+      [contrasena_actual, idUsuario]
+    );
+
+    if (verificacion.rowCount === 0 || !verificacion.rows[0].valid) {
+      return res.status(401).json({ message: 'La contraseña actual es incorrecta.' });
+    }
+
+    await pool.query(
+      `UPDATE usuarios
+       SET contrasena_hash = crypt($1, gen_salt('bf', 12)),
+           fecha_actualizacion = NOW()
+       WHERE id_usuario = $2`,
+      [contrasena_nueva, idUsuario]
+    );
+
+    return res.json({ message: 'Contraseña actualizada correctamente.' });
+  } catch (err) {
+    console.error('Error en cambiarPasswordMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
 module.exports = {
   getDashboardMedico,
   getCitasParaMarcar,
@@ -848,6 +956,8 @@ module.exports = {
   getFichaPaciente,
   getPacientesMedico,
   getPerfilMedico,
+  actualizarPerfilMedico,
+  cambiarPasswordMedico,
   getDisponibilidad,
   crearDisponibilidad,
   actualizarDisponibilidad,

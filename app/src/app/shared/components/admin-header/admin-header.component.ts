@@ -66,6 +66,6 @@ export class AdminHeaderComponent implements OnInit {
 
   onAjustes(): void {
     this.ajustesClick.emit();
-    this.router.navigate(['/admin', 'ajustes']);
+    this.router.navigate(['/admin', 'perfil']);
   }
 }
