@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -10,7 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './reset-password.page.html',
   styleUrls: ['./reset-password.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule],
 })
 export class ResetPasswordPage {
   private readonly fb = inject(FormBuilder);
