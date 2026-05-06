@@ -31,3 +31,4 @@ docker-compose.override.yml
 
 # ── Auditoría local
 auditoria/
+README_NOTIFICACIONES_AUDITORIA.md

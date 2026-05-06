@@ -1,5 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { Capacitor } from '@capacitor/core';
+import { StatusBar, Style } from '@capacitor/status-bar';
 
 import { NotificacionesNativasService } from './core/services/notificaciones-nativas.service';
 
@@ -14,5 +16,13 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     void this.notificacionesNativas.inicializar();
+    void this.initStatusBar();
+  }
+
+  private async initStatusBar(): Promise<void> {
+    if (!Capacitor.isNativePlatform()) return;
+    await StatusBar.setOverlaysWebView({ overlay: true });
+    await StatusBar.setStyle({ style: Style.Light });
+    await StatusBar.setBackgroundColor({ color: '#00000000' });
   }
 }

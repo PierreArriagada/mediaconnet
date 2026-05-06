@@ -4,21 +4,21 @@
 
 :host {
   display: block;
-}
-
-.adm-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
   z-index: 100;
+}
+
+.adm-nav {
   background: var(--mc-glass-bg);
   backdrop-filter: blur(var(--mc-glass-blur));
   -webkit-backdrop-filter: blur(var(--mc-glass-blur));
   border-top: 1px solid var(--mc-border-ghost);
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.04);
   border-radius: var(--mc-radius-xl) var(--mc-radius-xl) 0 0;
-  padding: 0.75rem 1rem env(safe-area-inset-bottom, 1rem);
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
   display: flex;
   justify-content: space-around;
   align-items: center;

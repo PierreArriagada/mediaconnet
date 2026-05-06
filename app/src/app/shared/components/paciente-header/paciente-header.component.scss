@@ -13,6 +13,7 @@
   backdrop-filter: blur(var(--mc-glass-blur));
   -webkit-backdrop-filter: blur(var(--mc-glass-blur));
   border-bottom: 1px solid var(--mc-border-ghost);
+  padding-top: env(safe-area-inset-top);
 
   &__inner {
     display: flex;
