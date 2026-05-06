@@ -440,7 +440,12 @@ export class AdminService {
   // ── Notificaciones del administrador ──────────────────────────────────────
 
   getNotificacionesAdmin(): Observable<AdminNotificacionesResponse> {
-    return this.http.get<AdminNotificacionesResponse>(`${this.API}/notificaciones`);
+    return this.http
+      .get<{ notificaciones: NotificacionAdmin[] }>(`${this.API}/notificaciones`)
+      .pipe(map((r) => ({
+        notificaciones: r.notificaciones,
+        noLeidas: r.notificaciones.filter((n) => !n.leida).length,
+      })));
   }
 
   marcarNotificacionesLeidasAdmin(): Observable<{ message: string }> {
