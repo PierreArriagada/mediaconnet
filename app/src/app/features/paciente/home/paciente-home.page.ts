@@ -57,29 +57,6 @@ export class PacienteHomePage implements OnInit {
   confirmLoading     = false;
   private yaEntroALaVista = false;
 
-  // localStorage SOLO para "Ahora no": la BD (confirmada_asistencia) es fuente de verdad
-  // para confirmar/cancelar; aquí solo suprimimos el re-show cuando el usuario descarta sin actuar.
-  private readonly LS_DISMISSED = 'mc-cit-dismissed-';
-  private readonly TTL_DISMISSED = 24 * 60 * 60 * 1000; // 24h = cubre la ventana del backend
-
-  /** True si el usuario ya descartó este modal con "Ahora no" en las últimas 24h */
-  private esCitaDismissed(idCita: number): boolean {
-    try {
-      const raw = localStorage.getItem(this.LS_DISMISSED + idCita);
-      if (!raw) return false;
-      return (Date.now() - parseInt(raw, 10)) < this.TTL_DISMISSED;
-    } catch {
-      return false;
-    }
-  }
-
-  /** Marca la cita como "descartada por el usuario" en localStorage */
-  private marcarCitaDismissed(idCita: number): void {
-    try {
-      localStorage.setItem(this.LS_DISMISSED + idCita, Date.now().toString());
-    } catch { /* sin-op si localStorage no disponible */ }
-  }
-
   /** Primer nombre del usuario para el saludo */
   get firstName(): string {
     return this.user?.name?.split(' ')[0] ?? '';
@@ -118,8 +95,7 @@ export class PacienteHomePage implements OnInit {
         event?.target?.complete();
         // Si hay cita dentro de 24h sin confirmar → mostrar modal
         // La BD (confirmada_asistencia IS NOT TRUE) es la fuente de verdad.
-        // Solo se suprime si el usuario lo descartó con "Ahora no" (sin actuar en BD).
-        if (d.citaPendienteConfirmacion && !this.esCitaDismissed(d.citaPendienteConfirmacion.id_cita)) {
+        if (d.citaPendienteConfirmacion) {
           this.citaConfirmar   = d.citaPendienteConfirmacion;
           this.showConfirmModal = true;
           void this.notificacionesNativas.notificarConfirmacionPendiente(d.citaPendienteConfirmacion);
@@ -212,9 +188,7 @@ export class PacienteHomePage implements OnInit {
   /** El paciente cierra el modal sin tomar acción ("Ahora no") */
   onCerrarModal(): void {
     if (!this.citaConfirmar) return;
-    // localStorage: BD sigue con confirmada_asistencia=NULL, guardamos dismissed
-    // para no re-mostrar el modal en pull-to-refresh durante las próximas 24h.
-    this.marcarCitaDismissed(this.citaConfirmar.id_cita);
+    // No se persiste el cierre: si la cita sigue pendiente, reaparece en la próxima carga.
     this.showConfirmModal = false;
     this.citaConfirmar    = null;
   }
