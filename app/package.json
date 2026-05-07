@@ -10,7 +10,8 @@
     "build:android:local": "ng build --configuration development",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:ci": "CHROME_BIN=${CHROME_BIN:-$(command -v chromium-browser || command -v chromium)} ng test --watch=false --browsers=ChromeHeadlessCI",
+    "test:paciente": "CHROME_BIN=${CHROME_BIN:-$(command -v chromium-browser || command -v chromium || command -v google-chrome || command -v google-chrome-stable)} ng test --watch=false --browsers=ChromeHeadlessCI --include=src/app/features/paciente/**/*.spec.ts --ts-config tsconfig.paciente.spec.json",
+    "test:ci": "CHROME_BIN=${CHROME_BIN:-$(command -v chromium-browser || command -v chromium || command -v google-chrome || command -v google-chrome-stable)} ng test --watch=false --browsers=ChromeHeadlessCI",
     "lint": "ng lint"
   },
   "private": true,

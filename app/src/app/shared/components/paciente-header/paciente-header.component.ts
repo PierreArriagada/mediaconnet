@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { NotificacionesPacienteStateService } from '../../../core/services/notificaciones-paciente-state.service';
 import { PacienteService } from '../../../core/services/paciente.service';
@@ -10,6 +10,10 @@ import { PacienteService } from '../../../core/services/paciente.service';
   standalone: true,
 })
 export class PacienteHeaderComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly notificacionesState = inject(NotificacionesPacienteStateService);
+  private readonly pacienteService = inject(PacienteService);
+
   /** Nombre completo del usuario — se usa para calcular las iniciales */
   @Input() userName = '';
 
@@ -18,12 +22,6 @@ export class PacienteHeaderComponent implements OnInit {
 
   /** Emite cuando el usuario pulsa el botón de notificaciones */
   @Output() notificacionesClick = new EventEmitter<void>();
-
-  constructor(
-    private readonly router: Router,
-    private readonly notificacionesState: NotificacionesPacienteStateService,
-    private readonly pacienteService: PacienteService,
-  ) {}
 
   ngOnInit(): void {
     if (this.notificacionesState.noLeidas() !== null) {

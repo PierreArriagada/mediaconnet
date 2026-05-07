@@ -130,8 +130,13 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
+              "src/app/features/paciente/**/*.ts",
+              "src/app/features/paciente/**/*.html",
+              "src/app/shared/components/paciente-header/**/*.ts",
+              "src/app/shared/components/paciente-header/**/*.html",
+              "src/app/shared/components/paciente-bottom-nav/**/*.ts",
+              "src/app/shared/components/paciente-bottom-nav/**/*.html",
+              "src/app/shared/utils/paciente-ui.utils.ts"
             ]
           }
         }

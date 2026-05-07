@@ -1,7 +1,18 @@
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/1.0/config/configuration-file.html
 
-process.env.CHROME_BIN = process.env.CHROME_BIN || '/usr/bin/chromium-browser';
+const fs = require('fs');
+const defaultChrome = [
+  '/usr/bin/chromium-browser',
+  '/usr/bin/chromium',
+  '/usr/bin/google-chrome',
+  '/usr/bin/google-chrome-stable',
+].find((bin) => fs.existsSync(bin));
+
+process.env.CHROME_BIN = process.env.CHROME_BIN
+  || process.env.GOOGLE_CHROME_BIN
+  || defaultChrome
+  || '/usr/bin/chromium-browser';
 
 module.exports = function (config) {
   config.set({
@@ -33,7 +44,7 @@ module.exports = function (config) {
       },
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/app'),
+        dir: require('path').join(__dirname, './coverage/app'),
       subdir: '.',
       reporters: [
         { type: 'html' },
