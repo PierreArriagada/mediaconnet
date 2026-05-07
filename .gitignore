@@ -21,6 +21,7 @@ Thumbs.db
 *.log
 README.md
 claude.md
+app/ng
 app/ng/
 
 # ── Docker

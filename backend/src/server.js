@@ -18,7 +18,14 @@ app.use(helmet());
 
 // CORS: solo acepta peticiones del frontend en desarrollo
 app.use(cors({
-  origin: ['http://localhost:8100', 'http://localhost:4200'],
+  origin: [
+    'http://localhost:8100',
+    'http://localhost:4200',
+    'http://localhost',
+    'https://localhost',
+    'capacitor://localhost',
+    'ionic://localhost',
+  ],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
