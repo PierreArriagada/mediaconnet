@@ -1,4 +1,5 @@
 const pool = require('../db/pool');
+const { parsePagination } = require('../utils/pagination');
 
 /**
  * GET /api/paciente/dashboard
@@ -960,7 +961,9 @@ async function getNotificacionesPaciente(req, res) {
   }
 
   try {
-    const [notificacionesResult, unreadResult] = await Promise.all([
+    const { limit, offset } = parsePagination(req.query);
+
+    const [notificacionesResult, unreadResult, totalResult] = await Promise.all([
       pool.query(
         `SELECT
            id_notificacion,
@@ -971,8 +974,9 @@ async function getNotificacionesPaciente(req, res) {
            fecha_envio
          FROM   notificaciones
          WHERE  id_usuario = $1
-         ORDER  BY fecha_envio DESC`,
-        [idUsuario]
+         ORDER  BY fecha_envio DESC
+         LIMIT  $2 OFFSET $3`,
+        [idUsuario, limit, offset]
       ),
       pool.query(
         `SELECT COUNT(*) AS total
@@ -981,11 +985,20 @@ async function getNotificacionesPaciente(req, res) {
            AND  leida = FALSE`,
         [idUsuario]
       ),
+      pool.query(
+        `SELECT COUNT(*) AS total
+         FROM   notificaciones
+         WHERE  id_usuario = $1`,
+        [idUsuario]
+      ),
     ]);
 
     return res.json({
       notificaciones: notificacionesResult.rows,
       noLeidas: parseInt(unreadResult.rows[0].total, 10),
+      total: parseInt(totalResult.rows[0].total, 10),
+      limit,
+      offset,
     });
   } catch (err) {
     console.error('Error en getNotificacionesPaciente:', err);

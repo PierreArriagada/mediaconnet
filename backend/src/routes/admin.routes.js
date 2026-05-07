@@ -20,6 +20,7 @@ const {
   confirmarSolicitud,
   reasignarSolicitud,
   getNotificacionesAdmin,
+  getContadorNotificacionesAdmin,
   actualizarEstadoNotificacionAdmin,
   eliminarNotificacionAdmin,
   limpiarNotificacionesAdmin,
@@ -72,7 +73,10 @@ router.patch('/perfil/password',                   cambiarPasswordAdmin);
 
 // ── Notificaciones ─────────────────────────────────────────────────────────
 router.get('/notificaciones',                      getNotificacionesAdmin);
-router.patch('/notificaciones/marcar-leidas',      marcarNotificacionesLeidasAdmin);router.delete('/notificaciones',                   limpiarNotificacionesAdmin);router.patch('/notificaciones/:id/leida',          actualizarEstadoNotificacionAdmin);
+router.get('/notificaciones/contador',             getContadorNotificacionesAdmin);
+router.patch('/notificaciones/marcar-leidas',      marcarNotificacionesLeidasAdmin);
+router.delete('/notificaciones',                   limpiarNotificacionesAdmin);
+router.patch('/notificaciones/:id/leida',          actualizarEstadoNotificacionAdmin);
 router.delete('/notificaciones/:id',               eliminarNotificacionAdmin);
 
 module.exports = router;

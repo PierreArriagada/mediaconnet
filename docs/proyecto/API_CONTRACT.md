@@ -270,6 +270,10 @@ Todos requieren `Authorization: Bearer <token>` con rol `Paciente`.
 | `GET` | `/api/paciente/cita/:idCita` | Detalle completo de una cita del paciente autenticado |
 | `PATCH` | `/api/paciente/cita/:idCita/cancelar` | Cancelar cita pendiente o confirmada, libera slot |
 | `PATCH` | `/api/paciente/cita/:idCita/reagendar` | Reagendar cita a nuevo slot del mismo médico |
+| `GET` | `/api/paciente/notificaciones` | Bandeja paginable de notificaciones del paciente |
+| `PATCH` | `/api/paciente/notificaciones/marcar-leidas` | Marca todas las notificaciones del paciente como leídas |
+| `DELETE` | `/api/paciente/notificaciones/:id` | Elimina una notificación del paciente |
+| `DELETE` | `/api/paciente/notificaciones` | Elimina todas las notificaciones del paciente |
 
 ### GET `/api/paciente/cita/:idCita`
 
@@ -315,6 +319,12 @@ Todos requieren `Authorization: Bearer <token>` con rol `Administrador`.
 | `GET` | `/api/admin/pacientes` | Listado administrativo de pacientes con filtros y métricas |
 | `GET` | `/api/admin/pacientes/:id` | Ficha administrativa del paciente con historial de citas |
 | `GET` | `/api/admin/citas/:id` | Detalle individual de cita con médico e historial de atención |
+| `GET` | `/api/admin/notificaciones` | Bandeja paginable de notificaciones del administrador |
+| `GET` | `/api/admin/notificaciones/contador` | Conteo liviano de notificaciones no leídas |
+| `PATCH` | `/api/admin/notificaciones/marcar-leidas` | Marca todas las notificaciones admin como leídas |
+| `PATCH` | `/api/admin/notificaciones/:id/leida` | Marca una notificación admin como leída o no leída |
+| `DELETE` | `/api/admin/notificaciones/:id` | Elimina una notificación admin |
+| `DELETE` | `/api/admin/notificaciones` | Elimina todas las notificaciones admin |
 
 ### GET `/api/admin/pacientes`
 
@@ -337,6 +347,79 @@ Todos requieren `Authorization: Bearer <token>` con rol `Administrador`.
 - `historial` entrega diagnóstico, tratamiento, notas y fecha de registro; cuando no existe, retorna `null`
 - responde `404` si la cita no existe
 
+## Endpoints de notificaciones por rol
+
+No existe un endpoint genérico `/api/notificaciones`. Las bandejas reales viven bajo el prefijo del rol autenticado y usan el `id_usuario` del JWT.
+
+| Rol | Método | Endpoint | Descripción |
+|---|---|---|---|
+| Paciente | `GET` | `/api/paciente/notificaciones` | Lista notificaciones del paciente |
+| Paciente | `PATCH` | `/api/paciente/notificaciones/marcar-leidas` | Marca todas como leídas |
+| Paciente | `DELETE` | `/api/paciente/notificaciones/:id` | Elimina una notificación |
+| Paciente | `DELETE` | `/api/paciente/notificaciones` | Limpia la bandeja |
+| Médico | `GET` | `/api/medico/notificaciones` | Lista notificaciones del médico |
+| Médico | `PATCH` | `/api/medico/notificaciones/marcar-leidas` | Marca todas como leídas |
+| Médico | `PATCH` | `/api/medico/notificaciones/:id/leida` | Alterna lectura individual |
+| Médico | `DELETE` | `/api/medico/notificaciones/:id` | Elimina una notificación |
+| Médico | `DELETE` | `/api/medico/notificaciones` | Limpia la bandeja |
+| Administrador | `GET` | `/api/admin/notificaciones` | Lista notificaciones del administrador |
+| Administrador | `GET` | `/api/admin/notificaciones/contador` | Devuelve solo `{ noLeidas }` para badges |
+| Administrador | `PATCH` | `/api/admin/notificaciones/marcar-leidas` | Marca todas como leídas |
+| Administrador | `PATCH` | `/api/admin/notificaciones/:id/leida` | Alterna lectura individual |
+| Administrador | `DELETE` | `/api/admin/notificaciones/:id` | Elimina una notificación |
+| Administrador | `DELETE` | `/api/admin/notificaciones` | Limpia la bandeja |
+
+### Query params de bandeja
+
+Los `GET` de bandeja aceptan:
+
+- `limit`: entero opcional, por defecto `100`, máximo `100`
+- `offset`: entero opcional, por defecto `0`
+
+Response común:
+
+```json
+{
+  "notificaciones": [
+    {
+      "id_notificacion": 1,
+      "titulo": "string",
+      "mensaje": "string",
+      "tipo": "string",
+      "leida": false,
+      "fecha_envio": "string"
+    }
+  ],
+  "noLeidas": 0,
+  "total": 0,
+  "limit": 100,
+  "offset": 0
+}
+```
+
+En admin, cada notificación puede incluir además `accion`. Para solicitudes de cita invitado:
+
+```json
+{
+  "tipo": "solicitud_invitado",
+  "entidadTipo": "cita",
+  "entidadId": 123,
+  "ruta": "/admin/operacion/solicitudes"
+}
+```
+
+Política actual de lectura:
+
+- paciente, médico y administrador marcan todas como leídas al abrir su bandeja activa
+- médico y administrador también exponen endpoint individual para alternar lectura
+- el header admin usa `/api/admin/notificaciones/contador` para evitar traer toda la bandeja solo por el badge
+
+Notas nativas:
+
+- `NotificacionesNativasService` programa notificaciones locales solo en Android nativo para confirmación de asistencia del paciente
+- no hay push remoto ni cobertura nativa para médico/admin en el contrato actual
+- Android declara `POST_NOTIFICATIONS` además de `INTERNET`
+
 ## Endpoints públicos de citas
 
 | Método | Endpoint | Descripción |
@@ -348,8 +431,6 @@ Todos requieren `Authorization: Bearer <token>` con rol `Administrador`.
 
 | Método | Endpoint | Descripción |
 |---|---|---|
-| `GET` | `/api/notificaciones` | Lista paginada de notificaciones |
-| `PATCH` | `/api/notificaciones/:id/leer` | Marcar notificación como leída |
 | `GET` | `/api/paciente/historial` | Historial de atenciones completadas |
 | `GET` | `/api/paciente/perfil` | Perfil clínico del paciente |
 | `PATCH` | `/api/paciente/perfil` | Actualizar perfil (rut, fecha_nacimiento, etc.) |

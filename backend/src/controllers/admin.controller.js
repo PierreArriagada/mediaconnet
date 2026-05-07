@@ -1,6 +1,30 @@
+const { parsePagination } = require('../utils/pagination');
+
+function construirAccionNotificacionAdmin(notificacion) {
+  const titulo = (notificacion.titulo ?? '').toLowerCase();
+  const mensaje = notificacion.mensaje ?? '';
+
+  if (!titulo.includes('solicitud de cita invitado')) {
+    return null;
+  }
+
+  const match = mensaje.match(/Solicitud #(\d+)/);
+  const entidadId = match ? parseInt(match[1], 10) : null;
+
+  return {
+    tipo: 'solicitud_invitado',
+    entidadTipo: 'cita',
+    entidadId: Number.isFinite(entidadId) ? entidadId : null,
+    ruta: '/admin/operacion/solicitudes',
+  };
+}
+
+const pool = require('../db/pool');
+
 /**
  * GET /api/admin/notificaciones
- * Devuelve las notificaciones del administrador autenticado.
+ * Devuelve las notificaciones del administrador autenticado junto con el
+ * conteo de no leídas para el badge.
  */
 async function getNotificacionesAdmin(req, res) {
   const idUsuario = parseInt(req.user.id, 10);
@@ -10,21 +34,47 @@ async function getNotificacionesAdmin(req, res) {
   }
 
   try {
-    const result = await pool.query(
-      `SELECT
-         id_notificacion,
-         titulo,
-         mensaje,
-         tipo,
-         leida,
-         fecha_envio
-       FROM notificaciones
-       WHERE id_usuario = $1
-       ORDER BY fecha_envio DESC`,
-      [idUsuario]
-    );
+    const { limit, offset } = parsePagination(req.query);
 
-    return res.json({ notificaciones: result.rows });
+    const [notificacionesResult, unreadResult, totalResult] = await Promise.all([
+      pool.query(
+        `SELECT
+           id_notificacion,
+           titulo,
+           mensaje,
+           tipo,
+           leida,
+           fecha_envio
+         FROM notificaciones
+         WHERE id_usuario = $1
+         ORDER BY fecha_envio DESC
+         LIMIT $2 OFFSET $3`,
+        [idUsuario, limit, offset]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS total
+         FROM notificaciones
+         WHERE id_usuario = $1 AND leida = FALSE`,
+        [idUsuario]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS total
+         FROM notificaciones
+         WHERE id_usuario = $1`,
+        [idUsuario]
+      ),
+    ]);
+
+    return res.json({
+      notificaciones: notificacionesResult.rows.map((row) => ({
+        ...row,
+        accion: construirAccionNotificacionAdmin(row),
+      })),
+      noLeidas: parseInt(unreadResult.rows[0].total, 10),
+      total: parseInt(totalResult.rows[0].total, 10),
+      limit,
+      offset,
+    });
   } catch (err) {
     console.error('Error en getNotificacionesAdmin:', err);
     return res.status(500).json({ message: 'Error interno del servidor.' });
@@ -33,7 +83,7 @@ async function getNotificacionesAdmin(req, res) {
 
 /**
  * PATCH /api/admin/notificaciones/:id/leida
- * Edu: marca una notificación del administrador autenticado como leída o no leída.
+ * Marca una notificación del administrador autenticado como leída o no leída.
  * Body opcional: { leida: boolean }
  */
 async function actualizarEstadoNotificacionAdmin(req, res) {
@@ -67,8 +117,34 @@ async function actualizarEstadoNotificacionAdmin(req, res) {
 }
 
 /**
+ * GET /api/admin/notificaciones/contador
+ * Devuelve solo el conteo de notificaciones no leídas del administrador.
+ */
+async function getContadorNotificacionesAdmin(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT COUNT(*) AS total
+       FROM notificaciones
+       WHERE id_usuario = $1 AND leida = FALSE`,
+      [idUsuario]
+    );
+
+    return res.json({ noLeidas: parseInt(result.rows[0].total, 10) });
+  } catch (err) {
+    console.error('Error en getContadorNotificacionesAdmin:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
  * DELETE /api/admin/notificaciones/:id
- * Edu: elimina una notificación perteneciente al administrador autenticado.
+ * Elimina una notificación perteneciente al administrador autenticado.
  */
 async function eliminarNotificacionAdmin(req, res) {
   const idUsuario = parseInt(req.user.id, 10);
@@ -97,7 +173,6 @@ async function eliminarNotificacionAdmin(req, res) {
     return res.status(500).json({ message: 'Error interno del servidor.' });
   }
 }
-const pool = require('../db/pool');
 
 /**
  * GET /api/admin/medicos
@@ -1267,80 +1342,6 @@ async function reasignarSolicitud(req, res) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// NOTIFICACIONES DEL ADMINISTRADOR
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * GET /api/admin/notificaciones
- * Retorna todas las notificaciones del administrador autenticado ordenadas por fecha.
- * Incluye el conteo de no leídas para el badge del header.
- */
-async function getAdminNotificaciones(req, res) {
-  const idUsuario = parseInt(req.user.id, 10);
-  if (isNaN(idUsuario)) {
-    return res.status(400).json({ message: 'Token inválido.' });
-  }
-
-  try {
-    const [notifsResult, unreadResult] = await Promise.all([
-      pool.query(
-        `SELECT
-           id_notificacion,
-           titulo,
-           mensaje,
-           tipo,
-           leida,
-           fecha_envio
-         FROM notificaciones
-         WHERE id_usuario = $1
-         ORDER BY fecha_envio DESC
-         LIMIT 100`,
-        [idUsuario]
-      ),
-      pool.query(
-        `SELECT COUNT(*) AS total
-         FROM notificaciones
-         WHERE id_usuario = $1 AND leida = FALSE`,
-        [idUsuario]
-      ),
-    ]);
-
-    return res.json({
-      notificaciones: notifsResult.rows,
-      noLeidas: parseInt(unreadResult.rows[0].total, 10),
-    });
-  } catch (err) {
-    console.error('Error en getAdminNotificaciones:', err);
-    return res.status(500).json({ message: 'Error interno del servidor.' });
-  }
-}
-
-/**
- * PATCH /api/admin/notificaciones/marcar-leidas
- * Marca todas las notificaciones del admin autenticado como leídas.
- */
-async function marcarAdminNotificacionesLeidas(req, res) {
-  const idUsuario = parseInt(req.user.id, 10);
-  if (isNaN(idUsuario)) {
-    return res.status(400).json({ message: 'Token inválido.' });
-  }
-
-  try {
-    await pool.query(
-      `UPDATE notificaciones
-       SET leida = TRUE
-       WHERE id_usuario = $1 AND leida = FALSE`,
-      [idUsuario]
-    );
-
-    return res.json({ message: 'Notificaciones marcadas como leídas.' });
-  } catch (err) {
-    console.error('Error en marcarAdminNotificacionesLeidas:', err);
-    return res.status(500).json({ message: 'Error interno del servidor.' });
-  }
-}
-
 /**
  * GET /api/admin/perfil
  * Devuelve los datos del administrador autenticado junto con estadísticas
@@ -1570,6 +1571,7 @@ module.exports = {
   reasignarSolicitud,
   // notificaciones admin
   getNotificacionesAdmin,
+  getContadorNotificacionesAdmin,
   actualizarEstadoNotificacionAdmin,
   eliminarNotificacionAdmin,
   limpiarNotificacionesAdmin,
@@ -1579,5 +1581,3 @@ module.exports = {
   actualizarPerfilAdmin,
   cambiarPasswordAdmin,
 };
-
-

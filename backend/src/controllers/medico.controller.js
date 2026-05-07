@@ -1,3 +1,7 @@
+const { parsePagination } = require('../utils/pagination');
+
+const pool = require('../db/pool');
+
 /**
  * GET /api/medico/notificaciones
  * Devuelve las notificaciones del médico autenticado.
@@ -10,21 +14,44 @@ async function getNotificacionesMedico(req, res) {
   }
 
   try {
-    const result = await pool.query(
-      `SELECT
-         id_notificacion,
-         titulo,
-         mensaje,
-         tipo,
-         leida,
-         fecha_envio
-       FROM notificaciones
-       WHERE id_usuario = $1
-       ORDER BY fecha_envio DESC`,
-      [idUsuario]
-    );
+    const { limit, offset } = parsePagination(req.query);
 
-    return res.json({ notificaciones: result.rows });
+    const [notificacionesResult, unreadResult, totalResult] = await Promise.all([
+      pool.query(
+        `SELECT
+           id_notificacion,
+           titulo,
+           mensaje,
+           tipo,
+           leida,
+           fecha_envio
+         FROM notificaciones
+         WHERE id_usuario = $1
+         ORDER BY fecha_envio DESC
+         LIMIT $2 OFFSET $3`,
+        [idUsuario, limit, offset]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS total
+         FROM notificaciones
+         WHERE id_usuario = $1 AND leida = FALSE`,
+        [idUsuario]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS total
+         FROM notificaciones
+         WHERE id_usuario = $1`,
+        [idUsuario]
+      ),
+    ]);
+
+    return res.json({
+      notificaciones: notificacionesResult.rows,
+      noLeidas: parseInt(unreadResult.rows[0].total, 10),
+      total: parseInt(totalResult.rows[0].total, 10),
+      limit,
+      offset,
+    });
   } catch (err) {
     console.error('Error en getNotificacionesMedico:', err);
     return res.status(500).json({ message: 'Error interno del servidor.' });
@@ -33,7 +60,7 @@ async function getNotificacionesMedico(req, res) {
 
 /**
  * PATCH /api/medico/notificaciones/:id/leida
- * Edu: marca una notificación del médico autenticado como leída o no leída.
+ * Marca una notificación del médico autenticado como leída o no leída.
  * Body opcional: { leida: boolean }
  */
 async function actualizarEstadoNotificacionMedico(req, res) {
@@ -67,6 +94,33 @@ async function actualizarEstadoNotificacionMedico(req, res) {
 }
 
 /**
+ * PATCH /api/medico/notificaciones/marcar-leidas
+ * Marca todas las notificaciones no leídas del médico autenticado como leídas.
+ */
+async function marcarNotificacionesLeidasMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    await pool.query(
+      `UPDATE notificaciones
+       SET leida = TRUE
+       WHERE id_usuario = $1
+         AND leida = FALSE`,
+      [idUsuario]
+    );
+
+    return res.json({ message: 'Notificaciones marcadas como leídas.' });
+  } catch (err) {
+    console.error('Error en marcarNotificacionesLeidasMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
  * DELETE /api/medico/notificaciones
  * Elimina todas las notificaciones del médico autenticado.
  */
@@ -90,7 +144,7 @@ async function limpiarNotificacionesMedico(req, res) {
 
 /**
  * DELETE /api/medico/notificaciones/:id
- * Edu: elimina una notificación perteneciente al médico autenticado.
+ * Elimina una notificación perteneciente al médico autenticado.
  */
 async function eliminarNotificacionMedico(req, res) {
   const idUsuario = parseInt(req.user.id, 10);
@@ -161,7 +215,6 @@ async function getPerfilMedico(req, res) {
     return res.status(500).json({ message: 'Error interno del servidor.' });
   }
 }
-const pool = require('../db/pool');
 
 /**
  * GET /api/medico/citas-hoy
@@ -986,6 +1039,7 @@ module.exports = {
   eliminarDisponibilidad,
   getNotificacionesMedico,
   actualizarEstadoNotificacionMedico,
+  marcarNotificacionesLeidasMedico,
   limpiarNotificacionesMedico,
   eliminarNotificacionMedico,
 };

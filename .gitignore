@@ -8,6 +8,7 @@ app/dist/
 app/.ionic/
 backend/node_modules/
 Ubuntudev/
+docs/
 
 # ── Variables de entorno con secretos
 .env
