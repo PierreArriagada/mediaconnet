@@ -69,7 +69,7 @@
 - **Recordatorio local Android:** cuando el dashboard detecta una cita dentro de 24 horas y la app corre como Android nativo, se crea una notificación local del sistema con alta prioridad; al tocarla, abre el detalle de la cita.
 - **Cancelar desde modal:** ejecuta el mismo flujo de `cancelarCita` → `estado_cita = 'cancelada'`, disponibilidad liberada → notificación `'cancelacion'` al médico (con nombre del paciente y fecha/hora) → notificación `'cancelacion'` al paciente.
 - **Reagendar:** `estado_cita = 'confirmada'`, `confirmada_asistencia = NULL` → cuando la nueva fecha caiga en la ventana de 24h, el modal volverá a activarse.
-- **Ignorar (cerrar app sin responder):** `confirmada_asistencia` permanece `NULL` → el modal reaparece la próxima vez que el paciente abra el dashboard mientras la cita siga dentro de la ventana de 24h.
+- **Ignorar con "Ahora no":** `confirmada_asistencia` permanece `NULL`, pero la app guarda una supresión local por 24h (`mc-cit-dismissed-{idCita}`), por lo que el modal no reaparece en ese dispositivo durante la ventana actual.
 
 ## Dependencias entre archivos
 - `paciente-home.page.ts` depende de `CitaPendienteConfirmacion` de `paciente.service.ts`.

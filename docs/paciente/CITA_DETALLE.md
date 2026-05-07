@@ -1,5 +1,9 @@
 # Detalle de Cita Médica — Vista `citas/:idCita`
 
+## Estado actual validado - 2026-05-07
+
+La ruta real vigente del detalle es `/paciente/citas/:idCita` y el componente vive en `app/src/app/features/paciente/citas/cita-detalle.page.*`. Las referencias históricas a `detalle-solicitud/:idCita` corresponden a una etapa previa del diseño. La auditoría de código del 2026-05-07 dejó abierto un hallazgo funcional: el botón visible de `Reagendar` navega al flujo de selección de horario, pero las pantallas siguientes no llaman todavía al endpoint `PATCH /api/paciente/cita/:idCita/reagendar`.
+
 ## Qué se realizó
 * Creación de la vista de detalle de cita médica para el paciente autenticado
 * La vista muestra toda la información relevante de una cita: progreso, datos del médico, especialidad, fecha, hora, modalidad, motivo de consulta y contacto del centro
@@ -140,4 +144,3 @@
   - Se añadieron estilos para `.mc-pending-banner`
   - Se añadieron estilos para `.mc-timeline__dot--cancelado` e `icon--cancel`
   - Se añadieron ajustes de modo oscuro para los nuevos componentes
-

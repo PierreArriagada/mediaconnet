@@ -15,6 +15,12 @@
 
 ---
 
+## Estado actual validado - 2026-05-07
+
+El flujo vigente ya no pide fecha preferente ni franja horaria al invitado. El formulario público solicita datos personales, especialidad y motivo de consulta; luego el backend busca el slot disponible más cercano para médicos activos de esa especialidad y lo reserva de inmediato como solicitud pendiente de revisión.
+
+---
+
 ## Qué se modificó
 
 * **`auth.routes.ts`:** Se agregó la ruta `solicitar-hora` con carga diferida apuntando al nuevo componente.
@@ -27,7 +33,7 @@
 
 * **Datos Personales:** Nombre, apellidos, RUT (con validación módulo 11 y autoformato), fecha de nacimiento, teléfono y correo electrónico.
 * **Detalle de Consulta:** Selector de especialidad (cargado dinámicamente desde la base de datos) y área de texto para el motivo de consulta.
-* **Preferencia de Agenda:** Selector de fecha (mínimo la fecha actual) y selector visual de franja horaria (mañana / tarde).
+* **Asignación de Agenda:** No hay selector de fecha ni franja en el formulario actual. La fecha y hora se asignan en backend usando la disponibilidad real más cercana.
 
 ---
 
@@ -36,10 +42,10 @@
 * `GET /api/citas/especialidades` — Ruta pública. Devuelve especialidades activas desde la tabla `especialidades`.
 * `POST /api/citas/invitado` — Ruta pública. Flujo transaccional:
   * Busca paciente existente por RUT en la tabla `pacientes`; si no existe, crea un registro con `id_usuario = NULL`.
-  * Auto-asigna el primer médico activo disponible para la especialidad indicada.
-  * La `hora_cita` se establece según la franja seleccionada: mañana → 09:00, tarde → 14:00.
-  * Inserta la cita con `estado_cita = 'pendiente'`, `es_invitado = TRUE` y los campos de invitado correspondientes.
-  * Responde con 422 si no hay médicos activos para la especialidad.
+  * Busca el primer slot futuro disponible para un médico con `m.estado = 'activo'` y `m.estado_laboral = 'activo'`.
+  * La `fecha_cita` y `hora_cita` se copian desde el slot reservado en `disponibilidad_medica`.
+  * Inserta la cita con `estado_cita = 'pendiente'`, `es_invitado = TRUE`, campos de invitado y `fecha_limite_asignacion = NOW() + INTERVAL '2 hours'`.
+  * Responde con 422 si no hay disponibilidad futura para la especialidad.
 
 ---
 
@@ -48,7 +54,7 @@
 * Validación y sanitización de todos los campos con `express-validator` antes de cualquier operación en base de datos.
 * Consultas parametrizadas (`pool.query` con `$n`) para prevenir inyección SQL.
 * Transacción de base de datos con `BEGIN / COMMIT / ROLLBACK` para garantizar consistencia.
-* Validación de RUT chileno con algoritmo módulo 11 tanto en frontend como en el backend.
+* Validación de RUT chileno con algoritmo módulo 11 en frontend. La auditoría de código del 2026-05-07 detectó que backend aún debe canonicalizar y validar el RUT con la misma fuerza antes de persistir.
 * Límites de longitud en cada campo para prevenir ataques de payload masivo.
 * Pantalla de confirmación de éxito que reemplaza el formulario al completar el envío, evitando reenvíos accidentales.
 
