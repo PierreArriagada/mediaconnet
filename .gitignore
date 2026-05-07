@@ -9,6 +9,7 @@ app/.ionic/
 backend/node_modules/
 Ubuntudev/
 docs/
+auditoria/
 
 # ── Variables de entorno con secretos
 .env

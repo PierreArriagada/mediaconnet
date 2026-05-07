@@ -5,6 +5,15 @@
 -- BASE DE DATOS: mediconnect
 -- Migrado desde Oracle 21c XE.
 -- Script de referencia Oracle: database/MediConnect_Oracle_Reference.sql
+--
+-- IMPORTANTE: Este archivo define el schema base, pero no es el schema
+-- completo. Las migraciones posteriores (02_seed_actualizado.sql,
+-- 04_password_reset_tokens.sql, 05_solicitudes_invitado.sql, etc.)
+-- agregan columnas y tablas necesarias para el funcionamiento de todos
+-- los flujos, incluido el flujo de solicitudes de cita como invitado.
+-- Para un entorno de desarrollo completo, ejecutar todos los scripts de
+-- la carpeta /database/ en orden, o usar Docker Compose, que los aplica
+-- automáticamente.
 -- =========================================================
 
 -- =========================================================
