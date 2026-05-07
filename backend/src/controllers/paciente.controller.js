@@ -556,6 +556,7 @@ async function cancelarCita(req, res) {
     // Verificar propiedad y estado cancelable (solo pendiente o confirmada)
     const citaResult = await client.query(
       `SELECT c.id_cita, c.id_disponibilidad, c.estado_cita, c.fecha_cita, c.hora_cita,
+              (c.fecha_cita + c.hora_cita) > NOW() AS es_futura,
               m.id_usuario AS id_usuario_medico,
               up.nombre AS paciente_nombre, up.apellido AS paciente_apellido
        FROM   citas_medicas c
@@ -578,6 +579,11 @@ async function cancelarCita(req, res) {
     if (!['pendiente', 'confirmada'].includes(cita.estado_cita)) {
       await client.query('ROLLBACK');
       return res.status(409).json({ message: 'Solo se pueden cancelar citas pendientes o confirmadas.' });
+    }
+
+    if (!cita.es_futura) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ message: 'No se puede cancelar una cita que ya ocurrió.' });
     }
 
     // Cancelar la cita
