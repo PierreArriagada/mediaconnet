@@ -275,7 +275,7 @@ async function forgotPassword(req, res) {
 async function resetPassword(req, res) {
   const { token, password } = req.body;
 
-  if (!token || !password || password.length < 6) {
+  if (!token || !password || password.length < 8) {
     return res.status(400).json({
       message: 'Datos inválidos para restablecer la contraseña.',
     });
