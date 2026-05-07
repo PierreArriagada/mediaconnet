@@ -931,7 +931,7 @@ async function actualizarPerfilMedico(req, res) {
     return res.status(400).json({ message: 'Token inválido.' });
   }
 
-  const { nombre, apellido, correo, telefono, foto_perfil_url } = req.body;
+  const { nombre, apellido, correo, telefono } = req.body;
 
   if (!nombre || typeof nombre !== 'string' || nombre.trim().length < 2 || nombre.trim().length > 100) {
     return res.status(400).json({ message: 'Nombre inválido (2–100 caracteres).' });
@@ -960,19 +960,14 @@ async function actualizarPerfilMedico(req, res) {
 
     await pool.query(
       `UPDATE usuarios
-       SET nombre = $1,
-           apellido = $2,
-           correo = $3,
-           telefono = $4,
-           foto_perfil_url = $5,
+       SET nombre = $1, apellido = $2, correo = $3, telefono = $4,
            fecha_actualizacion = NOW()
-       WHERE id_usuario = $6`,
+       WHERE id_usuario = $5`,
       [
         nombre.trim(),
         apellido.trim(),
         correoNorm,
         telefono ? telefono.trim() : null,
-        foto_perfil_url ? foto_perfil_url.trim() : null,
         idUsuario,
       ]
     );

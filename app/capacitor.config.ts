@@ -5,9 +5,11 @@ const config: CapacitorConfig = {
   appName: 'MediConnect',
   webDir: 'www',
   server: {
-    // En desarrollo Android local, usar HTTP evita bloqueo por Mixed Content
-    // cuando la app consume la API local en http://10.0.2.2:3000/api
-    androidScheme: 'http',
+    // Esquema HTTPS por defecto para builds Android/iOS.
+    // Para desarrollo local con emulador Android usar:
+    //   adb reverse tcp:3000 tcp:3000
+    // Esto hace que localhost:3000 dentro del emulador apunte al host.
+    androidScheme: 'https',
   },
 };
 
