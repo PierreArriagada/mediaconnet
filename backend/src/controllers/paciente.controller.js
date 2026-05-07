@@ -763,9 +763,11 @@ async function confirmarAsistencia(req, res) {
   try {
     await client.query('BEGIN');
 
-    // Verificar propiedad + que sea confirmable (solo citas confirmadas sin asistencia previa)
+    // Verificar propiedad y estado base; la ventana temporal se valida antes de actualizar.
     const citaResult = await client.query(
       `SELECT c.id_cita, c.fecha_cita, c.hora_cita, c.confirmada_asistencia,
+              ((c.fecha_cita + c.hora_cita) BETWEEN NOW() AND (NOW() + INTERVAL '24 hours'))
+                AS dentro_ventana_confirmacion,
               m.id_usuario AS id_usuario_medico,
               up.nombre AS paciente_nombre, up.apellido AS paciente_apellido
        FROM   citas_medicas c
@@ -789,6 +791,13 @@ async function confirmarAsistencia(req, res) {
     if (cita.confirmada_asistencia === true) {
       await client.query('ROLLBACK');
       return res.status(409).json({ message: 'Ya confirmaste tu asistencia a esta cita.' });
+    }
+
+    if (cita.dentro_ventana_confirmacion !== true) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({
+        message: 'La confirmación de asistencia está disponible solo dentro de las 24 horas previas a la cita.',
+      });
     }
 
     // Marcar asistencia confirmada
