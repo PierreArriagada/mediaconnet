@@ -79,18 +79,6 @@ export default class DetalleProfesionalPage implements OnInit {
     return nombre.endsWith('a') ? 'Dra.' : 'Dr.';
   }
 
-  // Genera arreglo de estrellas para la valoracion
-  estrellas(): ('full' | 'half' | 'empty')[] {
-    const rating = parseFloat(this.data?.medico.valoracion_promedio ?? '0');
-    const result: ('full' | 'half' | 'empty')[] = [];
-    for (let i = 1; i <= 5; i++) {
-      if (rating >= i) result.push('full');
-      else if (rating >= i - 0.5) result.push('half');
-      else result.push('empty');
-    }
-    return result;
-  }
-
   nombreDia(isodow: number): string {
     const dias: Record<number, string> = {
       1: 'Lunes', 2: 'Martes', 3: 'Miércoles',

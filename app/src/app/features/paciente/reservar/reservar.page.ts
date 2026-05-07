@@ -95,4 +95,8 @@ export class ReservarPage implements OnInit {
   verProfesionales(id: number): void {
     this.router.navigate(['/paciente', 'profesionales', id]);
   }
+
+  contactarSoporte(): void {
+    this.router.navigate(['/paciente', 'perfil', 'soporte']);
+  }
 }

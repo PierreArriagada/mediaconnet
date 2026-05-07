@@ -5,7 +5,7 @@
 
   <main class="mc-main">
 
-    <!-- Boton volver -->
+    <!-- Botón volver -->
     <button class="mc-back-btn" (click)="volver()">
       <span class="material-symbols-outlined">arrow_back</span>
     </button>
@@ -37,11 +37,11 @@
           <div class="mc-identity__pills">
             <span class="mc-pill mc-pill--warm">
               <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 0.875rem;">star</span>
-              {{ data.medico.valoracion_promedio }} ({{ data.medico.total_valoraciones }} Resenas)
+              {{ data.medico.valoracion_promedio }} ({{ data.medico.total_valoraciones }} Reseñas)
             </span>
             <span class="mc-pill mc-pill--cool">
               <span class="material-symbols-outlined" style="font-size: 0.875rem;">history</span>
-              {{ data.medico.anios_experiencia }} anos exp.
+              {{ data.medico.anios_experiencia }} años exp.
             </span>
           </div>
         </div>
@@ -53,7 +53,7 @@
           class="mc-tabs__item"
           [class.mc-tabs__item--active]="activeTab === 'info'"
           (click)="activeTab = 'info'">
-          Informacion
+          Información
         </button>
         <button
           class="mc-tabs__item"
@@ -63,20 +63,20 @@
         </button>
       </nav>
 
-      <!-- ═══ TAB: INFORMACION ═══ -->
+      <!-- ═══ TAB: INFORMACIÓN ═══ -->
       @if (activeTab === 'info') {
 
         <!-- Sobre el profesional -->
         @if (data.medico.biografia) {
           <section class="mc-card">
-            <h2 class="mc-card__heading">Sobre el Profesional</h2>
+            <h2 class="mc-card__heading">Sobre el profesional</h2>
             <p class="mc-card__body">{{ data.medico.biografia }}</p>
             <div class="mc-card__grid">
               <div class="mc-cell">
                 <span class="material-symbols-outlined mc-cell__icon">work_history</span>
                 <div>
                   <p class="mc-cell__title">Experiencia</p>
-                  <p class="mc-cell__data">{{ data.medico.anios_experiencia }} anos</p>
+                  <p class="mc-cell__data">{{ data.medico.anios_experiencia }} años</p>
                 </div>
               </div>
               <div class="mc-cell">
@@ -98,13 +98,13 @@
           </section>
         }
 
-        <!-- Informacion profesional -->
+        <!-- Información profesional -->
         <section class="mc-card">
-          <h2 class="mc-card__heading">Informacion Profesional</h2>
+          <h2 class="mc-card__heading">Información profesional</h2>
           <div class="mc-cell">
             <span class="material-symbols-outlined mc-cell__icon">badge</span>
             <div>
-              <p class="mc-cell__title">Numero de Registro</p>
+              <p class="mc-cell__title">Número de registro</p>
               <p class="mc-cell__data">{{ data.medico.numero_registro }}</p>
             </div>
           </div>
@@ -114,7 +114,7 @@
       <!-- ═══ TAB: DISPONIBILIDAD ═══ -->
       @if (activeTab === 'disponibilidad') {
 
-        <!-- Proximo horario -->
+        <!-- Próximo horario -->
         @if (data.proximoSlot) {
           <div class="mc-next-slot">
             <div class="mc-next-slot__icon-wrap">
@@ -130,7 +130,7 @@
         <!-- Horario semanal -->
         @if (data.horarioAtencion.length) {
           <section class="mc-card">
-            <h2 class="mc-card__heading">Horario de Atencion</h2>
+            <h2 class="mc-card__heading">Horario de atención</h2>
             <div class="mc-schedule">
               @for (h of data.horarioAtencion; track h.dia_semana) {
                 <div class="mc-schedule__row">

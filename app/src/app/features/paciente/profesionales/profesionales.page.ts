@@ -41,7 +41,6 @@ export class ProfesionalesPage implements OnInit {
   isLoading  = true;
   errorMsg   = '';
   showError  = false;
-  showProx   = false;
   filtro: FiltroDisp = 'todos';
 
   get noLeidas(): number { return this.data?.noLeidas ?? 0; }
