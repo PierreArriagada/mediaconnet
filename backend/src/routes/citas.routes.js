@@ -11,22 +11,18 @@ const validarCitaInvitado = [
   body('nombre')
     .trim().notEmpty().withMessage('Nombre requerido.')
     .isLength({ max: 100 })
-    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s\-']+$/).withMessage('Nombre inválido.')
-    .escape(),
+    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s\-']+$/).withMessage('Nombre inválido.'),
   body('apellido')
     .trim().notEmpty().withMessage('Apellido requerido.')
     .isLength({ max: 100 })
-    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s\-']+$/).withMessage('Apellido inválido.')
-    .escape(),
+    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s\-']+$/).withMessage('Apellido inválido.'),
   body('rut')
     .trim().notEmpty().withMessage('RUT requerido.')
     .isLength({ max: 12 })
-    .custom((rut) => normalizeRut(rut) !== null).withMessage('RUT inválido.')
-    .escape(),
+    .custom((rut) => normalizeRut(rut) !== null).withMessage('RUT inválido.'),
   body('telefono')
     .trim().notEmpty()
-    .isLength({ min: 7, max: 20 })
-    .escape(),
+    .isLength({ min: 7, max: 20 }),
   body('correo')
     .trim().isEmail().withMessage('Correo inválido.')
     .normalizeEmail()
@@ -37,8 +33,7 @@ const validarCitaInvitado = [
     .isInt({ min: 1 }).withMessage('Especialidad inválida.'),
   body('motivo_consulta')
     .trim().notEmpty().withMessage('Motivo requerido.')
-    .isLength({ max: 255 })
-    .escape(),
+    .isLength({ max: 255 }),
 ];
 
 // Ruta pública: no requiere autenticación
