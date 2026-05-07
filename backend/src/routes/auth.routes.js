@@ -2,6 +2,7 @@ const { Router } = require('express');
 const { body }   = require('express-validator');
 const rateLimit  = require('express-rate-limit');
 const { login, register, forgotPassword, resetPassword } = require('../controllers/auth.controller');
+const { normalizeRut } = require('../utils/rut');
 
 const router = Router();
 
@@ -28,7 +29,8 @@ const registerValidators = [
   body('password').isLength({ min: 8 }),
   body('telefono').optional({ nullable: true }).trim().isLength({ max: 20 }),
   // RUT requerido: clave para vincular solicitudes de invitado con la nueva cuenta
-  body('rut').trim().notEmpty().isLength({ min: 8, max: 12 }),
+  body('rut').trim().notEmpty().isLength({ min: 8, max: 12 })
+    .custom((rut) => normalizeRut(rut) !== null).withMessage('RUT inválido.'),
 ];
 
 router.post('/login',           authLimiter, loginValidators,    login);

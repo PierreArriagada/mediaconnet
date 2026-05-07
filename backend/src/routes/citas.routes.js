@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { body }   = require('express-validator');
 const { getEspecialidades, crearCitaInvitado } = require('../controllers/citas.controller');
+const { normalizeRut } = require('../utils/rut');
 
 const router = Router();
 
@@ -20,6 +21,7 @@ const validarCitaInvitado = [
   body('rut')
     .trim().notEmpty().withMessage('RUT requerido.')
     .isLength({ max: 12 })
+    .custom((rut) => normalizeRut(rut) !== null).withMessage('RUT inválido.')
     .escape(),
   body('telefono')
     .trim().notEmpty()

@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator');
 const pool = require('../db/pool');
+const { normalizeRut } = require('../utils/rut');
 
 /**
  * GET /api/citas/especialidades
@@ -50,6 +51,11 @@ async function crearCitaInvitado(req, res) {
     motivo_consulta,
   } = req.body;
 
+  const rutNormalizado = normalizeRut(rut);
+  if (!rutNormalizado) {
+    return res.status(400).json({ message: 'RUT inválido.' });
+  }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -57,18 +63,29 @@ async function crearCitaInvitado(req, res) {
     // ── 1. Buscar o crear paciente invitado por RUT ──────────────────
     let idPaciente;
     const existingPaciente = await client.query(
-      'SELECT id_paciente FROM pacientes WHERE rut = $1',
-      [rut]
+      `SELECT id_paciente, rut
+       FROM   pacientes
+       WHERE  REPLACE(REPLACE(REPLACE(UPPER(rut), '.', ''), '-', ''), ' ', '') = REPLACE($1, '-', '')
+       ORDER  BY id_usuario IS NULL ASC, id_paciente ASC
+       LIMIT  1
+       FOR UPDATE`,
+      [rutNormalizado]
     );
 
     if (existingPaciente.rowCount > 0) {
       idPaciente = existingPaciente.rows[0].id_paciente;
+      if (existingPaciente.rows[0].rut !== rutNormalizado) {
+        await client.query(
+          'UPDATE pacientes SET rut = $1, fecha_actualizacion = NOW() WHERE id_paciente = $2',
+          [rutNormalizado, idPaciente]
+        );
+      }
     } else {
       const nuevoPaciente = await client.query(
         `INSERT INTO pacientes (id_usuario, rut, fecha_nacimiento)
          VALUES (NULL, $1, $2)
          RETURNING id_paciente`,
-        [rut, fecha_nacimiento]
+        [rutNormalizado, fecha_nacimiento]
       );
       idPaciente = nuevoPaciente.rows[0].id_paciente;
     }
