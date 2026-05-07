@@ -155,7 +155,10 @@ async function getProfesionalesPorEspecialidad(req, res) {
                   ) AS rn
            FROM disponibilidad_medica d
            WHERE d.id_medico  = ANY($1::int[])
-             AND d.fecha      >= CURRENT_DATE
+             AND (
+               d.fecha > CURRENT_DATE
+               OR (d.fecha = CURRENT_DATE AND d.hora_inicio > CURRENT_TIME)
+             )
              AND d.estado     = 'disponible'
          ) sub
          WHERE rn <= 3`,
@@ -262,7 +265,11 @@ async function getDetalleMedico(req, res) {
          MIN(hora_inicio::text) AS hora_inicio,
          MAX(hora_fin::text) AS hora_fin
        FROM   disponibilidad_medica
-       WHERE  id_medico = $1 AND fecha >= CURRENT_DATE
+       WHERE  id_medico = $1
+         AND  (
+           fecha > CURRENT_DATE
+           OR (fecha = CURRENT_DATE AND hora_inicio > CURRENT_TIME)
+         )
          AND  estado IN ('disponible', 'reservada')
        GROUP  BY EXTRACT(ISODOW FROM fecha)
        ORDER  BY dia_semana`,
@@ -273,7 +280,12 @@ async function getDetalleMedico(req, res) {
     const nextSlotResult = await pool.query(
       `SELECT fecha::text, hora_inicio::text, hora_fin::text
        FROM   disponibilidad_medica
-       WHERE  id_medico = $1 AND fecha >= CURRENT_DATE AND estado = 'disponible'
+       WHERE  id_medico = $1
+         AND  (
+           fecha > CURRENT_DATE
+           OR (fecha = CURRENT_DATE AND hora_inicio > CURRENT_TIME)
+         )
+         AND  estado = 'disponible'
        ORDER  BY fecha ASC, hora_inicio ASC
        LIMIT  1`,
       [idMedico]
@@ -337,7 +349,12 @@ async function getDisponibilidadMedico(req, res) {
     const dispResult = await pool.query(
       `SELECT id_disponibilidad, fecha::text, hora_inicio::text, hora_fin::text
        FROM   disponibilidad_medica
-       WHERE  id_medico = $1 AND fecha >= CURRENT_DATE AND estado = 'disponible'
+       WHERE  id_medico = $1
+         AND  (
+           fecha > CURRENT_DATE
+           OR (fecha = CURRENT_DATE AND hora_inicio > CURRENT_TIME)
+         )
+         AND  estado = 'disponible'
        ORDER  BY fecha ASC, hora_inicio ASC`,
       [idMedico]
     );
@@ -405,7 +422,13 @@ async function crearCitaPaciente(req, res) {
     const dispResult = await client.query(
       `SELECT id_disponibilidad, fecha::text, hora_inicio::text
        FROM   disponibilidad_medica
-       WHERE  id_disponibilidad = $1 AND id_medico = $2 AND estado = 'disponible'
+       WHERE  id_disponibilidad = $1
+         AND  id_medico = $2
+         AND  estado = 'disponible'
+         AND  (
+           fecha > CURRENT_DATE
+           OR (fecha = CURRENT_DATE AND hora_inicio > CURRENT_TIME)
+         )
        FOR UPDATE`,
       [idDisp, idMedico]
     );
@@ -649,6 +672,10 @@ async function reagendarCita(req, res) {
        WHERE  id_disponibilidad = $1
          AND  id_medico         = $2
          AND  estado            = 'disponible'
+         AND  (
+           fecha > CURRENT_DATE
+           OR (fecha = CURRENT_DATE AND hora_inicio > CURRENT_TIME)
+         )
        FOR UPDATE`,
       [nuevoIdDisp, cita.id_medico]
     );
