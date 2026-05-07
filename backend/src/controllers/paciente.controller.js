@@ -16,7 +16,7 @@ async function getDashboard(req, res) {
   }
 
   try {
-    // Próxima cita: la más próxima con estado pendiente o confirmada a partir de hoy
+    // Próxima cita: la más próxima con estado pendiente o confirmada a partir de ahora
     const citaResult = await pool.query(
       `SELECT
          c.id_cita,
@@ -35,7 +35,7 @@ async function getDashboard(req, res) {
        JOIN   especialidades   e ON c.id_especialidad  = e.id_especialidad
        WHERE  p.id_usuario   = $1
          AND  c.estado_cita  IN ('pendiente', 'confirmada')
-         AND  c.fecha_cita   >= CURRENT_DATE
+         AND  (c.fecha_cita + c.hora_cita) >= NOW()
        ORDER  BY c.fecha_cita ASC, c.hora_cita ASC
        LIMIT  1`,
       [idUsuario]
@@ -962,7 +962,7 @@ async function getPerfil(req, res) {
        JOIN   especialidades   e ON c.id_especialidad = e.id_especialidad
        WHERE  p.id_usuario   = $1
          AND  c.estado_cita  IN ('pendiente', 'confirmada')
-         AND  c.fecha_cita   >= CURRENT_DATE
+         AND  (c.fecha_cita + c.hora_cita) >= NOW()
        ORDER  BY c.fecha_cita ASC, c.hora_cita ASC
        LIMIT  1`,
       [idUsuario]
