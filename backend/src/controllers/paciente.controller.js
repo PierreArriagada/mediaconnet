@@ -839,9 +839,9 @@ async function confirmarAsistencia(req, res) {
 /**
  * GET /api/paciente/historial?tab=pendientes|confirmadas|pasadas
  * Devuelve todas las citas del paciente autenticado, filtradas por pestaña.
- * - pendientes  → 'pendiente', 'reprogramada'
- * - confirmadas → 'confirmada'
- * - pasadas     → 'completada', 'cancelada'
+ * - pendientes  → 'pendiente', 'reprogramada' con fecha/hora futura
+ * - confirmadas → 'confirmada' con fecha/hora futura
+ * - pasadas     → estados cerrados o cualquier cita cuya fecha/hora ya venció
  * Incluye es_invitado e id_disponibilidad para que el frontend
  * distinga el badge correcto ("En revisión" solo para invitados).
  * Anti-IDOR: id_usuario siempre del JWT, nunca del cliente.
@@ -854,17 +854,22 @@ async function getHistorialCitas(req, res) {
 
   const tab = req.query.tab ?? '';
 
-  // Mapa de tab a lista de estados permitidos
-  const filtroEstado = {
-    pendientes:  ["'pendiente'",  "'reprogramada'"],
-    confirmadas: ["'confirmada'"],
-    pasadas:     ["'completada'", "'cancelada'"],
+  // Mapa de tab a regla cerrada de estados + temporalidad.
+  const filtroTab = {
+    pendientes: `
+       AND c.estado_cita IN ('pendiente', 'reprogramada')
+       AND (c.fecha_cita + c.hora_cita) >= NOW()`,
+    confirmadas: `
+       AND c.estado_cita = 'confirmada'
+       AND (c.fecha_cita + c.hora_cita) >= NOW()`,
+    pasadas: `
+       AND (
+         c.estado_cita IN ('completada', 'cancelada')
+         OR (c.fecha_cita + c.hora_cita) < NOW()
+       )`,
   };
 
-  const estados = filtroEstado[tab];
-  const whereEstado = estados
-    ? `AND c.estado_cita IN (${estados.join(',')})`
-    : '';
+  const whereTab = filtroTab[tab] ?? '';
 
   try {
     const citasResult = await pool.query(
@@ -891,7 +896,7 @@ async function getHistorialCitas(req, res) {
        JOIN   especialidades    e  ON c.id_especialidad = e.id_especialidad
        LEFT JOIN historial_atenciones ha ON ha.id_cita  = c.id_cita
        WHERE  p.id_usuario = $1
-       ${whereEstado}
+       ${whereTab}
        ORDER  BY c.fecha_cita DESC, c.hora_cita DESC`,
       [idUsuario]
     );
