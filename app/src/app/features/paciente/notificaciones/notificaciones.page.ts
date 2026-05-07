@@ -37,6 +37,7 @@ export class NotificacionesPage implements OnInit {
 
   notificaciones: Notificacion[] = [];
   noLeidas = 0;
+  totalNotificaciones = 0;
   isLoading = true;
   limpiando = false;
   confirmandoEliminacionId: number | null = null;
@@ -53,6 +54,7 @@ export class NotificacionesPage implements OnInit {
       next: (data: NotificacionesPacienteData) => {
         this.notificaciones = data.notificaciones;
         this.noLeidas = data.noLeidas;
+        this.totalNotificaciones = data.total;
         this.notificacionesState.setNoLeidas(data.noLeidas);
         this.isLoading = false;
         event?.target?.complete();
@@ -94,8 +96,8 @@ export class NotificacionesPage implements OnInit {
       cssClass: 'mc-alert-modal',
       componentProps: {
         titulo: 'Limpiar notificaciones',
-        mensaje: 'Se eliminarán las notificaciones visibles de tu cuenta. Esta acción no se puede deshacer.',
-        btnConfirmar: 'Sí, limpiar',
+        mensaje: 'Se eliminarán todas las notificaciones de tu cuenta, incluidas las que no estén visibles en esta pantalla. Esta acción no se puede deshacer.',
+        btnConfirmar: 'Sí, eliminar todas',
         colorConfirmar: 'danger',
         icono: 'delete',
       },
@@ -142,6 +144,14 @@ export class NotificacionesPage implements OnInit {
   get resumenLeidas(): string {
     if (!this.notificaciones.length) return 'Sin movimientos pendientes';
     return this.noLeidas > 0 ? `${this.noLeidas} pendientes por revisar` : 'Todas tus notificaciones ya fueron revisadas';
+  }
+
+  get resumenTotal(): string {
+    if (this.totalNotificaciones === this.notificaciones.length) {
+      return `${this.totalNotificaciones} ${this.totalNotificaciones === 1 ? 'aviso disponible' : 'avisos disponibles'}`;
+    }
+
+    return `${this.notificaciones.length} de ${this.totalNotificaciones} avisos disponibles`;
   }
 
   private marcarComoLeidasSiCorresponde(data: NotificacionesPacienteData): void {
@@ -199,6 +209,7 @@ export class NotificacionesPage implements OnInit {
       next: async (res) => {
         this.notificaciones = [];
         this.noLeidas = 0;
+        this.totalNotificaciones = 0;
         this.notificacionesState.registrarLimpiezaTotal();
         this.limpiando = false;
         await this.mostrarToast(res.message, 'success');

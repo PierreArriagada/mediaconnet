@@ -48,7 +48,7 @@
           <div>
             <h2 class="nf-toolbar__title">Historial reciente</h2>
             <p class="nf-toolbar__meta">
-              {{ notificaciones.length }} {{ notificaciones.length === 1 ? 'aviso disponible' : 'avisos disponibles' }}
+              {{ resumenTotal }}
             </p>
           </div>
 
@@ -60,7 +60,7 @@
             [attr.aria-busy]="limpiando"
           >
             <span class="material-symbols-outlined" aria-hidden="true">delete_sweep</span>
-            <span>{{ limpiando ? 'Limpiando...' : 'Limpiar todo' }}</span>
+            <span>{{ limpiando ? 'Eliminando...' : 'Eliminar todas' }}</span>
           </button>
         </div>
 

@@ -1124,7 +1124,7 @@ async function eliminarNotificacionPaciente(req, res) {
 
 /**
  * DELETE /api/paciente/notificaciones
- * Elimina las notificaciones del paciente autenticado.
+ * Elimina todas las notificaciones del paciente autenticado.
  */
 async function limpiarNotificacionesPaciente(req, res) {
   const idUsuario = parseInt(req.user.id, 10);
@@ -1139,7 +1139,7 @@ async function limpiarNotificacionesPaciente(req, res) {
       [idUsuario]
     );
 
-    return res.json({ message: 'Notificaciones eliminadas correctamente.' });
+    return res.json({ message: 'Todas las notificaciones de tu cuenta fueron eliminadas.' });
   } catch (err) {
     console.error('Error en limpiarNotificacionesPaciente:', err);
     return res.status(500).json({ message: 'Error interno del servidor.' });
