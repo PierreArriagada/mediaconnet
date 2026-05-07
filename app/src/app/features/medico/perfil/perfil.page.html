@@ -40,9 +40,36 @@
           <!-- Tarjeta de identidad -->
           <div class="pf-identity-card">
             <div class="pf-avatar-wrap">
-              <div class="pf-avatar" aria-hidden="true">{{ initiales }}</div>
+              @if (fotoPerfilPreview) {
+                <img
+                  class="pf-avatar pf-avatar--image"
+                  [src]="fotoPerfilPreview"
+                  [alt]="'Foto de perfil de ' + nombreCompleto"
+                />
+              } @else {
+                <div class="pf-avatar" aria-hidden="true">{{ initiales }}</div>
+              }
+
               <div class="pf-avatar-ring" aria-hidden="true"></div>
+
+              <label class="pf-avatar-action" for="medicoFotoPerfil" aria-label="Cambiar foto de perfil">
+                <span class="material-symbols-outlined" aria-hidden="true">photo_camera</span>
+              </label>
+
+              <input
+                id="medicoFotoPerfil"
+                class="pf-avatar-input"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                (change)="seleccionarFotoPerfil($event)"
+              />
             </div>
+
+            @if (isUploadingPhoto) {
+              <p class="pf-photo-hint">Subiendo imagen...</p>
+            } @else if (fotoPerfilNombre) {
+              <p class="pf-photo-hint">Imagen seleccionada: {{ fotoPerfilNombre }}</p>
+            }
 
             <h1 class="pf-name" id="pf-user-name">{{ nombreCompleto }}</h1>
             <p class="pf-email">{{ perfil.correo }}</p>

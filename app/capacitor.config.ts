@@ -5,8 +5,9 @@ const config: CapacitorConfig = {
   appName: 'MediConnect',
   webDir: 'www',
   server: {
-    // En desarrollo con Live Reload desde el contenedor Docker
-    // androidScheme: 'https',
+    // En desarrollo Android local, usar HTTP evita bloqueo por Mixed Content
+    // cuando la app consume la API local en http://10.0.2.2:3000/api
+    androidScheme: 'http',
   },
 };
 

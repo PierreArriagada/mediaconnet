@@ -54,7 +54,7 @@ export class ForgotPasswordPage {
   }
 
   navigateToLogin(): void {
-    this.router.navigate(['/auth/login']);
+    this.router.navigateByUrl('/auth/login');
   }
 
   private async showConfirmationToast(): Promise<void> {

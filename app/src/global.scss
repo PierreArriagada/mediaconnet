@@ -51,20 +51,33 @@
   }
 }
 
-// ─── Safe-area global (edge-to-edge Android / iOS) ───────────────────────────
-// Capacitor + viewport-fit=cover: el WebView arranca en y=0 (bajo la barra de
-// estado y la cámara). Las variables CSS env() son la fuente de verdad.
-// Ionic las lee como --ion-safe-area-* para sus propios cálculos.
+// ─── Safe-area global Android / iOS ─────────────────────────────────────────
+// MediConnect debe respetar la zona superior del dispositivo: hora, red,
+// batería, notch/cámara y barra de estado. En navegador normal el valor queda
+// en 0px; en Android/Capacitor se fuerza un mínimo seguro.
 :root {
-  --ion-safe-area-top:    env(safe-area-inset-top);
-  --ion-safe-area-bottom: env(safe-area-inset-bottom);
-  --ion-safe-area-left:   env(safe-area-inset-left);
-  --ion-safe-area-right:  env(safe-area-inset-right);
+  --mc-safe-area-top: env(safe-area-inset-top, 0px);
+  --ion-safe-area-top: var(--mc-safe-area-top);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --ion-safe-area-left: env(safe-area-inset-left, 0px);
+  --ion-safe-area-right: env(safe-area-inset-right, 0px);
 }
 
-// ion-content: no añadir padding-top automático; los headers sticky ya
-// incorporan env(safe-area-inset-top) en su propio padding.
+html.plt-capacitor,
+html.plt-hybrid,
+html.plt-android,
+body.capacitor-native {
+  --mc-safe-area-top: max(env(safe-area-inset-top, 0px), 36px);
+}
+
+// Aplica un espacio superior global a las vistas Ionic para que ninguna pantalla
+// comience debajo de la barra superior del sistema.
 ion-content {
-  --padding-top: 0px;
+  --padding-top: var(--mc-safe-area-top);
+}
+
+// Refuerzo para vistas con ion-header/ion-toolbar.
+ion-header ion-toolbar:first-child {
+  padding-top: var(--mc-safe-area-top);
 }
 
