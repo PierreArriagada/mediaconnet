@@ -33,8 +33,14 @@
       </div>
 
       <!-- Encabezado -->
-      <h1 class="mc-heading">Elige un horario</h1>
-      <p class="mc-subtitle">Selecciona un día con disponibilidad y luego el bloque horario.</p>
+      <h1 class="mc-heading">{{ esReagendamiento ? 'Elige el nuevo horario' : 'Elige un horario' }}</h1>
+      <p class="mc-subtitle">
+        {{
+          esReagendamiento
+            ? 'Selecciona el nuevo día y bloque horario para tu cita.'
+            : 'Selecciona un día con disponibilidad y luego el bloque horario.'
+        }}
+      </p>
 
       <!-- Calendario mensual -->
       <section class="mc-calendar">
@@ -119,7 +125,7 @@
         <span>{{ formatFechaCorta(slotSeleccionado()!.fecha) }} · {{ formatHora(slotSeleccionado()!.hora_inicio) }}</span>
       </div>
       <button class="mc-bottom-bar__btn" (click)="confirmarCita()">
-        Confirmar cita
+        {{ esReagendamiento ? 'Continuar reagendamiento' : 'Confirmar cita' }}
       </button>
     </div>
   }

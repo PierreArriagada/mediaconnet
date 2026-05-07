@@ -34,6 +34,7 @@ export default class ConfirmarReservaPage implements OnInit {
   fecha            = '';
   horaInicio       = '';
   horaFin          = '';
+  idCitaReagendar  = 0;
 
   // Formulario
   motivoConsulta = '';
@@ -44,6 +45,7 @@ export default class ConfirmarReservaPage implements OnInit {
   showError    = false;
   showSuccess  = false;
   errorMsg     = '';
+  successMsg   = '¡Cita reservada correctamente! Redirigiendo...';
 
   ngOnInit(): void {
     const user = this.authSvc.getCurrentUser();
@@ -61,9 +63,19 @@ export default class ConfirmarReservaPage implements OnInit {
     this.horaInicio     = qp['horaInicio'] ?? '';
     this.horaFin        = qp['horaFin'] ?? '';
 
+    const reagendarCitaParam = this.route.snapshot.queryParamMap.get('reagendarCita');
+    if (reagendarCitaParam !== null) {
+      this.idCitaReagendar = Number(reagendarCitaParam);
+      if (!this.idCitaReagendar || this.idCitaReagendar < 1) {
+        this.router.navigate(['/paciente/home']);
+        return;
+      }
+    }
+
     // Validar que vengan todos los datos necesarios
     if (!this.idDisponibilidad || !this.idMedico || !this.idEspecialidad || !this.fecha) {
       this.router.navigate(['/paciente/reservar']);
+      return;
     }
   }
 
@@ -73,6 +85,11 @@ export default class ConfirmarReservaPage implements OnInit {
 
   reservar(): void {
     if (this.isSubmitting()) return;
+
+    if (this.esReagendamiento) {
+      this.reagendar();
+      return;
+    }
 
     // Validación frontend
     const motivo = this.motivoConsulta.trim();
@@ -94,6 +111,7 @@ export default class ConfirmarReservaPage implements OnInit {
 
     this.svc.crearCita(payload).subscribe({
       next: () => {
+        this.successMsg = '¡Cita reservada correctamente! Redirigiendo...';
         this.showSuccess = true;
         // Redirigir al home después de un momento
         setTimeout(() => {
@@ -103,6 +121,25 @@ export default class ConfirmarReservaPage implements OnInit {
       error: (err) => {
         this.isSubmitting.set(false);
         this.errorMsg  = err?.error?.message ?? 'No se pudo reservar la cita. Intenta nuevamente.';
+        this.showError = true;
+      },
+    });
+  }
+
+  private reagendar(): void {
+    this.isSubmitting.set(true);
+
+    this.svc.reagendarCita(this.idCitaReagendar, this.idDisponibilidad).subscribe({
+      next: () => {
+        this.successMsg  = '¡Cita reagendada correctamente! Redirigiendo...';
+        this.showSuccess = true;
+        setTimeout(() => {
+          this.router.navigate(['/paciente/citas', this.idCitaReagendar]);
+        }, 2500);
+      },
+      error: (err) => {
+        this.isSubmitting.set(false);
+        this.errorMsg  = err?.error?.message ?? 'No se pudo reagendar la cita. Intenta nuevamente.';
         this.showError = true;
       },
     });
@@ -131,7 +168,19 @@ export default class ConfirmarReservaPage implements OnInit {
   }
 
   get motivoValido(): boolean {
+    if (this.esReagendamiento) return true;
     const t = this.motivoConsulta.trim();
     return t.length >= 3 && t.length <= 255;
+  }
+
+  get esReagendamiento(): boolean {
+    return this.idCitaReagendar > 0;
+  }
+
+  get textoAccionPrimaria(): string {
+    if (this.isSubmitting()) {
+      return this.esReagendamiento ? 'Reagendando...' : 'Reservando...';
+    }
+    return this.esReagendamiento ? 'Reagendar cita' : 'Reservar cita';
   }
 }

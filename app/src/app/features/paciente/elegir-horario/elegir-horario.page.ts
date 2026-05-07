@@ -38,6 +38,7 @@ export default class ElegirHorarioPage implements OnInit {
 
   userName = '';
   noLeidas = 0;
+  idCitaReagendar = 0;
 
   // Calendario
   mesActual      = signal(new Date());
@@ -60,6 +61,15 @@ export default class ElegirHorarioPage implements OnInit {
     if (!idMedico || idMedico < 1) {
       this.router.navigate(['/paciente/reservar']);
       return;
+    }
+
+    const reagendarCitaParam = this.route.snapshot.queryParamMap.get('reagendarCita');
+    if (reagendarCitaParam !== null) {
+      this.idCitaReagendar = Number(reagendarCitaParam);
+      if (!this.idCitaReagendar || this.idCitaReagendar < 1) {
+        this.router.navigate(['/paciente/home']);
+        return;
+      }
     }
 
     this.svc.getDisponibilidadMedico(idMedico).subscribe({
@@ -128,18 +138,25 @@ export default class ElegirHorarioPage implements OnInit {
   confirmarCita(): void {
     const slot = this.slotSeleccionado();
     if (!slot || !this.data) return;
+
+    const queryParams: Record<string, string | number> = {
+      idMedico:       this.data.medico.id_medico,
+      idEspecialidad: this.data.medico.id_especialidad,
+      nombre:         this.data.medico.nombre,
+      apellido:       this.data.medico.apellido,
+      especialidad:   this.data.medico.nombre_especialidad,
+      fecha:          slot.fecha,
+      horaInicio:     slot.hora_inicio,
+      horaFin:        slot.hora_fin,
+    };
+
+    if (this.esReagendamiento) {
+      queryParams['reagendarCita'] = this.idCitaReagendar;
+    }
+
     // Navegar a confirmar reserva pasando datos por queryParams
     this.router.navigate(['/paciente/confirmar-reserva', slot.id_disponibilidad], {
-      queryParams: {
-        idMedico:       this.data.medico.id_medico,
-        idEspecialidad: this.data.medico.id_especialidad,
-        nombre:         this.data.medico.nombre,
-        apellido:       this.data.medico.apellido,
-        especialidad:   this.data.medico.nombre_especialidad,
-        fecha:          slot.fecha,
-        horaInicio:     slot.hora_inicio,
-        horaFin:        slot.hora_fin,
-      },
+      queryParams,
     });
   }
 
@@ -163,6 +180,10 @@ export default class ElegirHorarioPage implements OnInit {
 
   formatFechaCorta(fechaStr: string): string {
     return formatFechaDiaMesAnio(fechaStr);
+  }
+
+  get esReagendamiento(): boolean {
+    return this.idCitaReagendar > 0;
   }
 
   // ── Internos ────────────────────────────────

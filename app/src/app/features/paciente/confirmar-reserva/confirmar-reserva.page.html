@@ -9,10 +9,16 @@
       <!-- Lado Izquierdo: Contenido Editorial y Resumen -->
       <div class="mc-layout-grid__left">
         <div class="mc-header-group">
-          <span class="mc-overline">Confirmación</span>
-          <h2 class="mc-heading">Casi hemos <br>terminado.</h2>
+          <span class="mc-overline">{{ esReagendamiento ? 'Reagendamiento' : 'Confirmación' }}</span>
+          <h2 class="mc-heading">
+            {{ esReagendamiento ? 'Confirma el nuevo horario.' : 'Casi hemos terminado.' }}
+          </h2>
           <p class="mc-subtitle">
-            Revisa los detalles de tu cita para asegurar que todo sea correcto antes de confirmar.
+            {{
+              esReagendamiento
+                ? 'Revisa el nuevo horario antes de actualizar tu cita existente.'
+                : 'Revisa los detalles de tu cita para asegurar que todo sea correcto antes de confirmar.'
+            }}
           </p>
         </div>
 
@@ -54,42 +60,48 @@
       <!-- Lado Derecho: Controles del Formulario -->
       <div class="mc-layout-grid__right">
         
-        <!-- Modalidad -->
-        <div class="mc-form-group">
-          <label class="mc-form-label">Modalidad de atención</label>
-          <div class="mc-radio-group">
-            <label class="mc-radio" [class.mc-radio--active]="modalidad === 'presencial'">
-              <input type="radio" name="modalidad" value="presencial" [(ngModel)]="modalidad" />
-              <span class="material-symbols-outlined">local_hospital</span>
-              Presencial
-            </label>
-            <label class="mc-radio" [class.mc-radio--active]="modalidad === 'telemedicina'">
-              <input type="radio" name="modalidad" value="telemedicina" [(ngModel)]="modalidad" />
-              <span class="material-symbols-outlined">videocam</span>
-              Telemedicina
-            </label>
+        @if (!esReagendamiento) {
+          <!-- Modalidad -->
+          <div class="mc-form-group">
+            <label class="mc-form-label">Modalidad de atención</label>
+            <div class="mc-radio-group">
+              <label class="mc-radio" [class.mc-radio--active]="modalidad === 'presencial'">
+                <input type="radio" name="modalidad" value="presencial" [(ngModel)]="modalidad" />
+                <span class="material-symbols-outlined">local_hospital</span>
+                Presencial
+              </label>
+              <label class="mc-radio" [class.mc-radio--active]="modalidad === 'telemedicina'">
+                <input type="radio" name="modalidad" value="telemedicina" [(ngModel)]="modalidad" />
+                <span class="material-symbols-outlined">videocam</span>
+                Telemedicina
+              </label>
+            </div>
           </div>
-        </div>
 
-        <!-- Motivo de consulta -->
-        <div class="mc-form-group">
-          <label class="mc-form-label" for="motivo">Motivo de la consulta</label>
-          <textarea
-            id="motivo"
-            class="mc-textarea"
-            [(ngModel)]="motivoConsulta"
-            placeholder="Describe brevemente tus síntomas o el motivo de tu visita..."
-            maxlength="255"
-            rows="4"
-          ></textarea>
-        </div>
+          <!-- Motivo de consulta -->
+          <div class="mc-form-group">
+            <label class="mc-form-label" for="motivo">Motivo de la consulta</label>
+            <textarea
+              id="motivo"
+              class="mc-textarea"
+              [(ngModel)]="motivoConsulta"
+              placeholder="Describe brevemente tus síntomas o el motivo de tu visita..."
+              maxlength="255"
+              rows="4"
+            ></textarea>
+          </div>
+        }
 
         <!-- Info de solicitudes -->
         <div class="mc-info-banner">
           <span class="material-symbols-outlined">info</span>
           <p>
-            Podrás realizar el seguimiento de esta cita y recibir notificaciones en la sección de 
-            <strong>Mis citas</strong> una vez confirmada.
+            @if (esReagendamiento) {
+              Actualizaremos esta misma cita y liberaremos el horario anterior al confirmar el cambio.
+            } @else {
+              Podrás realizar el seguimiento de esta cita y recibir notificaciones en la sección de
+              <strong>Mis citas</strong> una vez confirmada.
+            }
           </p>
         </div>
 
@@ -101,11 +113,7 @@
             [disabled]="!motivoValido || isSubmitting()"
             (click)="reservar()"
           >
-            @if (isSubmitting()) {
-              Reservando...
-            } @else {
-              Reservar cita
-            }
+            {{ textoAccionPrimaria }}
           </button>
           <button class="mc-btn-secondary" type="button" (click)="cambiarHorario()">
             Cambiar horario
@@ -133,7 +141,7 @@
   <!-- Toast éxito -->
   <ion-toast
     [isOpen]="showSuccess"
-    message="¡Cita reservada correctamente! Redirigiendo..."
+    [message]="successMsg"
     [duration]="2500"
     color="success"
     position="bottom"
