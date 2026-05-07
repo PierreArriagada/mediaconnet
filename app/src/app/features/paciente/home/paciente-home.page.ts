@@ -55,6 +55,7 @@ export class PacienteHomePage implements OnInit {
   showConfirmModal   = false;
   citaConfirmar: CitaPendienteConfirmacion | null = null;
   confirmLoading     = false;
+  private yaEntroALaVista = false;
 
   // localStorage SOLO para "Ahora no": la BD (confirmada_asistencia) es fuente de verdad
   // para confirmar/cancelar; aquí solo suprimimos el re-show cuando el usuario descarta sin actuar.
@@ -99,6 +100,13 @@ export class PacienteHomePage implements OnInit {
 
   ngOnInit(): void {
     this.loadDashboard();
+  }
+
+  ionViewWillEnter(): void {
+    if (this.yaEntroALaVista) {
+      this.loadDashboard();
+    }
+    this.yaEntroALaVista = true;
   }
 
   loadDashboard(event?: { target: { complete: () => void } }): void {

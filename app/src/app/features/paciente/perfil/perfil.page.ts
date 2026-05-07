@@ -31,6 +31,7 @@ export class PerfilPage implements OnInit {
 
   perfil: PerfilData | null = null;
   isLoading = true;
+  private yaEntroALaVista = false;
 
   // Iniciales para el avatar generado a partir del nombre
   get initiales(): string {
@@ -51,8 +52,15 @@ export class PerfilPage implements OnInit {
     this.cargarPerfil();
   }
 
+  ionViewWillEnter(): void {
+    if (this.yaEntroALaVista) {
+      this.cargarPerfil();
+    }
+    this.yaEntroALaVista = true;
+  }
+
   cargarPerfil(event?: { target: { complete: () => void } }): void {
-    this.isLoading = true;
+    this.isLoading = !this.perfil;
     this.svc.getPerfil().subscribe({
       next: (data) => {
         this.perfil    = data;
