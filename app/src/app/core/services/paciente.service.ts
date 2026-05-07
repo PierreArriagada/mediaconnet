@@ -235,6 +235,10 @@ export interface NotificacionesPacienteData {
   offset:         number;
 }
 
+export interface NotificacionesPacienteContadorData {
+  noLeidas: number;
+}
+
 export interface NotificacionesQueryParams {
   limit?: number;
   offset?: number;
@@ -308,6 +312,10 @@ export class PacienteService {
     if (typeof filtros?.offset === 'number') params = params.set('offset', filtros.offset);
 
     return this.http.get<NotificacionesPacienteData>(`${this.API}/notificaciones`, { params });
+  }
+
+  getContadorNotificaciones(): Observable<NotificacionesPacienteContadorData> {
+    return this.http.get<NotificacionesPacienteContadorData>(`${this.API}/notificaciones/contador`);
   }
 
   marcarNotificacionesLeidas(): Observable<MensajeResponse> {

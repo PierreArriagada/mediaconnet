@@ -1065,6 +1065,32 @@ async function getNotificacionesPaciente(req, res) {
 }
 
 /**
+ * GET /api/paciente/notificaciones/contador
+ * Retorna sólo el total de notificaciones no leídas del paciente autenticado.
+ */
+async function getContadorNotificacionesPaciente(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT COUNT(*) AS total
+       FROM   notificaciones
+       WHERE  id_usuario = $1
+         AND  leida = FALSE`,
+      [idUsuario]
+    );
+
+    return res.json({ noLeidas: parseInt(result.rows[0].total, 10) });
+  } catch (err) {
+    console.error('Error en getContadorNotificacionesPaciente:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
  * PATCH /api/paciente/notificaciones/marcar-leidas
  * Marca como leidas todas las notificaciones pendientes del paciente autenticado.
  */
@@ -1319,6 +1345,7 @@ module.exports = {
   actualizarPerfilPaciente,
   cambiarPasswordPaciente,
   getNotificacionesPaciente,
+  getContadorNotificacionesPaciente,
   marcarNotificacionesLeidas,
   eliminarNotificacionPaciente,
   limpiarNotificacionesPaciente,

@@ -16,6 +16,7 @@ const {
   actualizarPerfilPaciente,
   cambiarPasswordPaciente,
   getNotificacionesPaciente,
+  getContadorNotificacionesPaciente,
   marcarNotificacionesLeidas,
   eliminarNotificacionPaciente,
   limpiarNotificacionesPaciente,
@@ -42,6 +43,7 @@ router.get('/perfil', getPerfil);
 router.put('/perfil', actualizarPerfilPaciente);
 router.patch('/perfil/password', cambiarPasswordPaciente);
 router.get('/notificaciones', getNotificacionesPaciente);
+router.get('/notificaciones/contador', getContadorNotificacionesPaciente);
 router.patch('/notificaciones/marcar-leidas', marcarNotificacionesLeidas);
 router.delete('/notificaciones/:id', eliminarNotificacionPaciente);
 router.delete('/notificaciones', limpiarNotificacionesPaciente);
