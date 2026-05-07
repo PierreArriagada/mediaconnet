@@ -7,7 +7,7 @@ import { NotificacionesAdminStateService } from '../../../core/services/notifica
 
 @Component({
   standalone: true,
-  selector: 'app-admin-notificaciones',
+  selector: 'app-admin-notificaciones-legacy',
   templateUrl: './notificaciones.page.html',
   styleUrls: ['./notificaciones.page.scss'],
   imports: [CommonModule, IonicModule],
@@ -29,7 +29,7 @@ export class NotificacionesPage implements OnInit {
     this.isLoading = true;
     this.errorMessage = null;
 
-    this.adminService.getNotificaciones().subscribe({
+    this.adminService.getNotificacionesAdmin().subscribe({
       next: (resp) => {
         this.notificaciones = resp.notificaciones;
         this.actualizarContadorNoLeidas();

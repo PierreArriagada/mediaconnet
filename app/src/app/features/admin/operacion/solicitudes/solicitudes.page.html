@@ -62,6 +62,8 @@
           <article
             class="sol-card"
             [class.sol-card--urgente]="urgente(s.tiempo_restante_seg)"
+            [class.sol-card--destacada]="solicitudDestacadaId() === s.id_cita"
+            [attr.id]="'solicitud-' + s.id_cita"
           >
             <!-- Fila superior: nombre + countdown -->
             <div class="sol-card__top">

@@ -33,10 +33,9 @@ export class AdminHeaderComponent implements OnInit {
   }
 
   private cargarContadorNotificaciones(): void {
-    this.adminService.getNotificaciones().subscribe({
+    this.adminService.getContadorNotificacionesAdmin().subscribe({
       next: (resp) => {
-        const totalNoLeidas = resp.notificaciones.filter((item) => !item.leida).length;
-        this.notificacionesState.setNoLeidas(totalNoLeidas);
+        this.notificacionesState.setNoLeidas(resp.noLeidas);
       },
       error: (err) => {
         console.error('Error cargando contador de notificaciones admin:', err);

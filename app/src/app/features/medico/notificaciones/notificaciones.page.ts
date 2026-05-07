@@ -1,20 +1,19 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Location } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { IonContent } from '@ionic/angular/standalone';
 import { AuthService } from '../../../core/services/auth.service';
-import { MedicoService, NotificacionMedico } from '../../../core/services/medico.service';
+import { MedicoService, NotificacionMedico, NotificacionesMedicoData } from '../../../core/services/medico.service';
 import { NotificacionesMedicoStateService } from '../../../core/services/notificaciones-medico-state.service';
 import { MedicoHeaderComponent } from '../../../shared/components/medico-header/medico-header.component';
 import { MedicoBottomNavComponent } from '../../../shared/components/medico-bottom-nav/medico-bottom-nav.component';
 
 @Component({
-  selector: 'app-notificaciones',
+  selector: 'app-medico-notificaciones',
   templateUrl: './notificaciones.page.html',
   styleUrls: ['./notificaciones.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, FormsModule, MedicoHeaderComponent, MedicoBottomNavComponent]
+  imports: [IonContent, CommonModule, MedicoHeaderComponent, MedicoBottomNavComponent]
 })
 export class NotificacionesPage implements OnInit {
   private readonly authService = inject(AuthService);
@@ -25,8 +24,9 @@ export class NotificacionesPage implements OnInit {
   notificaciones: NotificacionMedico[] = [];
   isLoading = true;
   errorMessage: string | null = null;
+  sincronizandoLectura = false;
 
-  // Edu: sincroniza el contador de la campanita con las notificaciones no leídas
+  // Sincroniza el contador de la campanita con las notificaciones no leídas
   private actualizarContadorNoLeidas(): void {
     const totalNoLeidas = this.notificaciones.filter((item) => !item.leida).length;
     this.notificacionesState.setNoLeidas(totalNoLeidas);
@@ -47,10 +47,11 @@ export class NotificacionesPage implements OnInit {
     this.errorMessage = null;
 
     this.medicoService.getNotificaciones().subscribe({
-      next: (data) => {
+      next: (data: NotificacionesMedicoData) => {
         this.notificaciones = data.notificaciones;
-        this.actualizarContadorNoLeidas();
+        this.notificacionesState.setNoLeidas(data.noLeidas);
         this.isLoading = false;
+        this.marcarComoLeidasSiCorresponde(data);
       },
       error: (err) => {
         console.error('Error cargando notificaciones:', err);
@@ -60,7 +61,31 @@ export class NotificacionesPage implements OnInit {
     });
   }
 
-  // Edu: alterna el estado de lectura de una notificación sin recargar toda la vista
+  private marcarComoLeidasSiCorresponde(data: NotificacionesMedicoData): void {
+    if (!data.noLeidas || this.sincronizandoLectura) {
+      return;
+    }
+
+    const notificacionesOriginales = data.notificaciones.map((n) => ({ ...n }));
+
+    this.sincronizandoLectura = true;
+    this.notificaciones = data.notificaciones.map((n) => ({ ...n, leida: true }));
+    this.notificacionesState.limpiarBadge();
+
+    this.medicoService.marcarNotificacionesLeidas().subscribe({
+      next: () => {
+        this.sincronizandoLectura = false;
+      },
+      error: (err) => {
+        this.sincronizandoLectura = false;
+        this.notificaciones = notificacionesOriginales;
+        this.notificacionesState.setNoLeidas(data.noLeidas);
+        console.error('Error marcando notificaciones como leídas:', err);
+        this.errorMessage = 'No fue posible actualizar el estado de lectura.';
+      }
+    });
+  }
+
   alternarLectura(notificacion: NotificacionMedico): void {
     const nuevoEstado = !notificacion.leida;
 
@@ -83,7 +108,6 @@ export class NotificacionesPage implements OnInit {
     });
   }
 
-  // Edu: elimina una notificación del listado y del backend
   eliminarNotificacion(notificacion: NotificacionMedico): void {
     this.medicoService.eliminarNotificacion(notificacion.id_notificacion).subscribe({
       next: () => {

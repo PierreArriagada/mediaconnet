@@ -13,6 +13,7 @@ import {
   DashboardMedicoData,
   CitaMedico,
 } from '../../../core/services/medico.service';
+import { NotificacionesMedicoStateService } from '../../../core/services/notificaciones-medico-state.service';
 import { McAlertComponent } from '../../../shared/components/alertas-sistema/mc-alert/mc-alert.component';
 import { MedicoHeaderComponent } from '../../../shared/components/medico-header/medico-header.component';
 import { MedicoBottomNavComponent } from '../../../shared/components/medico-bottom-nav/medico-bottom-nav.component';
@@ -37,6 +38,7 @@ export class MedicoHomePage implements OnInit {
   private readonly svc      = inject(MedicoService);
   private readonly router   = inject(Router);
   private readonly modalCtrl = inject(ModalController);
+  private readonly notificacionesState = inject(NotificacionesMedicoStateService);
 
   user = this.auth.getCurrentUser();
   data: DashboardMedicoData | null = null;
@@ -58,6 +60,10 @@ export class MedicoHomePage implements OnInit {
     return this.user?.name?.split(' ')[0] ?? '';
   }
 
+  get noLeidas(): number {
+    return this.notificacionesState.noLeidas() ?? this.data?.noLeidas ?? 0;
+  }
+
   ngOnInit(): void {
     this.loadDashboard();
   }
@@ -66,6 +72,7 @@ export class MedicoHomePage implements OnInit {
     this.svc.getDashboard().subscribe({
       next: (d) => {
         this.data      = d;
+        this.notificacionesState.setNoLeidas(d.noLeidas);
         this.isLoading = false;
         event?.target?.complete();
         // Cargar tab activo
@@ -95,6 +102,7 @@ export class MedicoHomePage implements OnInit {
     obs.subscribe({
       next: (res) => {
         this.citasTab.set(res.citas);
+        this.notificacionesState.setNoLeidas(res.noLeidas);
         this.isLoadingTab = false;
       },
       error: () => {

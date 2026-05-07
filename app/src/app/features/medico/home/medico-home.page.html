@@ -6,7 +6,10 @@
   </ion-refresher>
 
   <!-- ===== HEADER DEL MÉDICO ===== -->
-  <app-medico-header [userName]="user?.name ?? ''"></app-medico-header>
+  <app-medico-header
+    [userName]="user?.name ?? ''"
+    [noLeidas]="noLeidas"
+  ></app-medico-header>
 
   <!-- ===== CONTENIDO PRINCIPAL ===== -->
   <main class="md-main">

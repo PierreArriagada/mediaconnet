@@ -14,7 +14,7 @@ import { McAlertComponent } from '../../../shared/components/alertas-sistema/mc-
 import { tiempoRelativoCorto } from '../../../shared/utils/fecha.utils';
 
 @Component({
-  selector: 'app-notificaciones',
+  selector: 'app-paciente-notificaciones',
   templateUrl: './notificaciones.page.html',
   styleUrls: ['./notificaciones.page.scss'],
   standalone: true,
@@ -39,6 +39,8 @@ export class NotificacionesPage implements OnInit {
   noLeidas = 0;
   isLoading = true;
   limpiando = false;
+  confirmandoEliminacionId: number | null = null;
+  eliminandoId: number | null = null;
   sincronizandoLectura = false;
 
   ngOnInit(): void {
@@ -80,7 +82,12 @@ export class NotificacionesPage implements OnInit {
   }
 
   async confirmarLimpieza(): Promise<void> {
-    if (!this.notificaciones.length || this.limpiando) return;
+    if (
+      !this.notificaciones.length ||
+      this.limpiando ||
+      this.confirmandoEliminacionId !== null ||
+      this.eliminandoId !== null
+    ) return;
 
     const modal = await this.modalCtrl.create({
       component: McAlertComponent,
@@ -99,6 +106,37 @@ export class NotificacionesPage implements OnInit {
     if (!data?.confirmado) return;
 
     this.limpiarNotificaciones();
+  }
+
+  async confirmarEliminacion(n: Notificacion): Promise<void> {
+    if (this.limpiando || this.confirmandoEliminacionId !== null || this.eliminandoId !== null) return;
+
+    this.confirmandoEliminacionId = n.id_notificacion;
+    try {
+      const modal = await this.modalCtrl.create({
+        component: McAlertComponent,
+        cssClass: 'mc-alert-modal',
+        componentProps: {
+          titulo: 'Eliminar notificación',
+          mensaje: 'Se eliminará esta notificación de tu cuenta. Esta acción no se puede deshacer.',
+          btnConfirmar: 'Sí, eliminar',
+          colorConfirmar: 'danger',
+          icono: 'delete',
+        },
+      });
+
+      await modal.present();
+      const { data } = await modal.onWillDismiss();
+      if (!data?.confirmado) {
+        this.confirmandoEliminacionId = null;
+        return;
+      }
+
+      this.eliminarItem(n);
+    } catch {
+      this.confirmandoEliminacionId = null;
+      await this.mostrarToast('No se pudo preparar la eliminación.', 'danger');
+    }
   }
 
   get resumenLeidas(): string {
@@ -132,7 +170,11 @@ export class NotificacionesPage implements OnInit {
     });
   }
 
-  eliminarItem(n: Notificacion): void {
+  private eliminarItem(n: Notificacion): void {
+    if (this.eliminandoId !== null) return;
+
+    this.confirmandoEliminacionId = null;
+    this.eliminandoId = n.id_notificacion;
     this.svc.eliminarNotificacion(n.id_notificacion).subscribe({
       next: () => {
         this.notificaciones = this.notificaciones.filter(
@@ -142,8 +184,10 @@ export class NotificacionesPage implements OnInit {
           this.noLeidas = Math.max(0, this.noLeidas - 1);
           this.notificacionesState.setNoLeidas(this.noLeidas);
         }
+        this.eliminandoId = null;
       },
       error: async (err) => {
+        this.eliminandoId = null;
         await this.mostrarToast(err?.error?.message ?? 'No se pudo eliminar la notificación.', 'danger');
       },
     });

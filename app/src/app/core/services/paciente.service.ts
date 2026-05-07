@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -230,6 +230,14 @@ export interface CambiarPasswordPayload {
 export interface NotificacionesPacienteData {
   notificaciones: Notificacion[];
   noLeidas:       number;
+  total:          number;
+  limit:          number;
+  offset:         number;
+}
+
+export interface NotificacionesQueryParams {
+  limit?: number;
+  offset?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -294,8 +302,12 @@ export class PacienteService {
     return this.http.patch<MensajeResponse>(`${this.API}/perfil/password`, payload);
   }
 
-  getNotificaciones(): Observable<NotificacionesPacienteData> {
-    return this.http.get<NotificacionesPacienteData>(`${this.API}/notificaciones`);
+  getNotificaciones(filtros?: NotificacionesQueryParams): Observable<NotificacionesPacienteData> {
+    let params = new HttpParams();
+    if (typeof filtros?.limit === 'number') params = params.set('limit', filtros.limit);
+    if (typeof filtros?.offset === 'number') params = params.set('offset', filtros.offset);
+
+    return this.http.get<NotificacionesPacienteData>(`${this.API}/notificaciones`, { params });
   }
 
   marcarNotificacionesLeidas(): Observable<MensajeResponse> {

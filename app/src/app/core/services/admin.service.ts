@@ -288,6 +288,12 @@ export interface AdminNotificacion {
   tipo: string;
   leida: boolean;
   fecha_envio: string;
+  accion: {
+    tipo: 'solicitud_invitado';
+    entidadTipo: 'cita';
+    entidadId: number | null;
+    ruta: string;
+  } | null;
 }
 
 export type NotificacionAdmin = AdminNotificacion;
@@ -295,9 +301,19 @@ export type NotificacionAdmin = AdminNotificacion;
 export interface AdminNotificacionesResponse {
   notificaciones: AdminNotificacion[];
   noLeidas: number;
+  total: number;
+  limit: number;
+  offset: number;
 }
 
-export type NotificacionesAdminResponse = AdminNotificacionesResponse;
+export interface AdminNotificacionesContadorResponse {
+  noLeidas: number;
+}
+
+export interface NotificacionesQueryParams {
+  limit?: number;
+  offset?: number;
+}
 
 export interface PerfilAdminData {
   nombre:          string;
@@ -478,23 +494,20 @@ export class AdminService {
 
   // ── Notificaciones del administrador ──────────────────────────────────────
 
-  getNotificacionesAdmin(): Observable<AdminNotificacionesResponse> {
-    return this.http
-      .get<{ notificaciones: NotificacionAdmin[] }>(`${this.API}/notificaciones`)
-      .pipe(map((r) => ({
-        notificaciones: r.notificaciones,
-        noLeidas: r.notificaciones.filter((n) => !n.leida).length,
-      })));
+  getNotificacionesAdmin(filtros?: NotificacionesQueryParams): Observable<AdminNotificacionesResponse> {
+    let params = new HttpParams();
+    if (typeof filtros?.limit === 'number') params = params.set('limit', filtros.limit);
+    if (typeof filtros?.offset === 'number') params = params.set('offset', filtros.offset);
+
+    return this.http.get<AdminNotificacionesResponse>(`${this.API}/notificaciones`, { params });
+  }
+
+  getContadorNotificacionesAdmin(): Observable<AdminNotificacionesContadorResponse> {
+    return this.http.get<AdminNotificacionesContadorResponse>(`${this.API}/notificaciones/contador`);
   }
 
   marcarNotificacionesLeidasAdmin(): Observable<{ message: string }> {
     return this.http.patch<{ message: string }>(`${this.API}/notificaciones/marcar-leidas`, {});
-  }
-
-  // ── Notificaciones ────────────────────────────────────────────────────────
-
-  getNotificaciones(): Observable<NotificacionesAdminResponse> {
-    return this.http.get<NotificacionesAdminResponse>(`${this.API}/notificaciones`);
   }
 
   // Edu: marca una notificación admin como leída o no leída.

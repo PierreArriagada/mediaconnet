@@ -56,7 +56,7 @@
             class="nf-clear-btn"
             type="button"
             (click)="confirmarLimpieza()"
-            [disabled]="!notificaciones.length || limpiando"
+            [disabled]="!notificaciones.length || limpiando || confirmandoEliminacionId !== null || eliminandoId !== null"
             [attr.aria-busy]="limpiando"
           >
             <span class="material-symbols-outlined" aria-hidden="true">delete_sweep</span>
@@ -83,8 +83,7 @@
                 class="nf-item"
                 [class.nf-item--unread]="!n.leida"
                 role="listitem"
-                (click)="eliminarItem(n)"
-                style="cursor:pointer"
+                [attr.aria-label]="n.titulo"
               >
                 <div class="nf-item__icon" aria-hidden="true">
                   <span class="material-symbols-outlined">{{ iconoNotificacion(n.tipo) }}</span>
@@ -102,6 +101,19 @@
                     <span class="nf-item__chip" [class.nf-item__chip--read]="n.leida">
                       {{ n.leida ? 'Vista' : 'Nueva' }}
                     </span>
+
+                    <button
+                      class="nf-item__delete"
+                      type="button"
+                      (click)="confirmarEliminacion(n)"
+                      [disabled]="limpiando || confirmandoEliminacionId !== null || eliminandoId !== null"
+                      [attr.aria-busy]="confirmandoEliminacionId === n.id_notificacion || eliminandoId === n.id_notificacion"
+                      [attr.aria-label]="'Eliminar notificación: ' + n.titulo"
+                      title="Eliminar notificación"
+                    >
+                      <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                      <span>{{ eliminandoId === n.id_notificacion ? 'Eliminando...' : 'Eliminar' }}</span>
+                    </button>
                   </div>
                 </div>
               </article>

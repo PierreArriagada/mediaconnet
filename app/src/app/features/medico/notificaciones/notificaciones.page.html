@@ -95,8 +95,7 @@
                   class="nf-item"
                   [class.nf-item--unread]="!n.leida"
                   role="listitem"
-                  (click)="eliminarNotificacion(n)"
-                  style="cursor:pointer"
+                  [attr.aria-label]="n.titulo"
                 >
                   <div class="nf-item__icon" aria-hidden="true">
                     <span class="material-symbols-outlined">{{
@@ -119,6 +118,32 @@
                       <span class="nf-item__chip" [class.nf-item__chip--read]="n.leida">
                         {{ n.leida ? 'Vista' : 'Nueva' }}
                       </span>
+                    </div>
+
+                    <div class="nf-item__actions" aria-label="Acciones de notificación">
+                      <button
+                        class="nf-action-btn"
+                        type="button"
+                        (click)="alternarLectura(n)"
+                        [attr.aria-label]="n.leida ? ('Marcar como no leída: ' + n.titulo) : ('Marcar como leída: ' + n.titulo)"
+                        [title]="n.leida ? 'Marcar como no leída' : 'Marcar como leída'"
+                      >
+                        <span class="material-symbols-outlined" aria-hidden="true">
+                          {{ n.leida ? 'mark_email_unread' : 'mark_email_read' }}
+                        </span>
+                        <span>{{ n.leida ? 'Marcar no leída' : 'Marcar leída' }}</span>
+                      </button>
+
+                      <button
+                        class="nf-action-btn nf-action-btn--danger"
+                        type="button"
+                        (click)="eliminarNotificacion(n)"
+                        [attr.aria-label]="'Eliminar notificación: ' + n.titulo"
+                        title="Eliminar notificación"
+                      >
+                        <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                        <span>Eliminar</span>
+                      </button>
                     </div>
                   </div>
                 </article>

@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { IonContent, ToastController } from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
 
 import {
   AdminService,
@@ -29,14 +29,12 @@ export class AdminNotificacionesPage implements OnInit {
   private readonly state      = inject(NotificacionesAdminStateService);
   private readonly auth       = inject(AuthService);
   private readonly router     = inject(Router);
-  private readonly toastCtrl  = inject(ToastController);
 
   user = this.auth.getCurrentUser();
 
   cargando       = signal(true);
   errorCarga     = signal(false);
   notificaciones = signal<AdminNotificacion[]>([]);
-  marcando       = signal(false);
 
   ngOnInit(): void {
     this.cargar();
@@ -76,17 +74,15 @@ export class AdminNotificacionesPage implements OnInit {
    * a la cola de revisión para que el admin actúe de inmediato.
    */
   accionarNotificacion(notif: AdminNotificacion): void {
-    const esSolicitud = notif.titulo?.toLowerCase().includes('solicitud') ||
-                        notif.mensaje?.toLowerCase().includes('solicitud');
-
-    if (esSolicitud) {
-      this.router.navigate(['/admin/operacion/solicitudes']);
+    if (notif.accion?.tipo === 'solicitud_invitado') {
+      this.router.navigate([notif.accion.ruta], {
+        queryParams: notif.accion.entidadId ? { solicitud: notif.accion.entidadId } : undefined,
+      });
     }
   }
 
   esSolicitud(notif: AdminNotificacion): boolean {
-    return notif.titulo?.toLowerCase().includes('solicitud') ||
-           notif.mensaje?.toLowerCase().includes('solicitud');
+    return notif.accion?.tipo === 'solicitud_invitado';
   }
 
   formatFecha(ts: string | null | undefined): string {
@@ -115,9 +111,6 @@ export class AdminNotificacionesPage implements OnInit {
   }
 
   eliminarItem(n: AdminNotificacion): void {
-    if (this.esSolicitud(n)) {
-      this.router.navigate(['/admin/operacion/solicitudes']);
-    }
     this.adminSvc.eliminarNotificacion(n.id_notificacion).subscribe({
       next: () => {
         this.notificaciones.update(list =>

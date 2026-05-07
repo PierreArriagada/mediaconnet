@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -136,6 +136,15 @@ export interface NotificacionMedico {
 
 export interface NotificacionesMedicoData {
   notificaciones: NotificacionMedico[];
+  noLeidas: number;
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface NotificacionesQueryParams {
+  limit?: number;
+  offset?: number;
 }
 
 export interface DisponibilidadBloque {
@@ -213,8 +222,16 @@ export class MedicoService {
     return this.http.delete<MensajeResponse>(`${this.API}/disponibilidad/${id}`);
   }
 
-  getNotificaciones(): Observable<NotificacionesMedicoData> {
-    return this.http.get<NotificacionesMedicoData>(`${this.API}/notificaciones`);
+  getNotificaciones(filtros?: NotificacionesQueryParams): Observable<NotificacionesMedicoData> {
+    let params = new HttpParams();
+    if (typeof filtros?.limit === 'number') params = params.set('limit', filtros.limit);
+    if (typeof filtros?.offset === 'number') params = params.set('offset', filtros.offset);
+
+    return this.http.get<NotificacionesMedicoData>(`${this.API}/notificaciones`, { params });
+  }
+
+  marcarNotificacionesLeidas(): Observable<MensajeResponse> {
+    return this.http.patch<MensajeResponse>(`${this.API}/notificaciones/marcar-leidas`, {});
   }
 
   // Edu: marca una notificación como leída o no leída.

@@ -96,11 +96,7 @@
                   class="nf-item"
                   [class.nf-item--unread]="!n.leida"
                   [class.nf-item--accionable]="esSolicitud(n)"
-                  (click)="eliminarItem(n)"
-                  style="cursor:pointer"
-                  [attr.aria-label]="esSolicitud(n) ? ('Ver solicitud: ' + n.titulo) : ('Eliminar: ' + n.titulo)"
-                  (keydown.enter)="eliminarItem(n)"
-                  tabindex="0"
+                  [attr.aria-label]="n.titulo"
                   role="listitem"
                 >
                   <div
@@ -127,11 +123,27 @@
                       </span>
 
                       @if (esSolicitud(n)) {
-                        <span class="nf-item__cta">
+                        <button
+                          class="nf-item__cta"
+                          type="button"
+                          (click)="accionarNotificacion(n)"
+                          [attr.aria-label]="'Revisar solicitud: ' + n.titulo"
+                          title="Revisar solicitud"
+                        >
                           <span class="nf-item__cta-label">Revisar</span>
                           <span class="material-symbols-outlined nf-item__cta-arrow">chevron_right</span>
-                        </span>
+                        </button>
                       }
+
+                      <button
+                        class="nf-item__delete"
+                        type="button"
+                        (click)="eliminarItem(n)"
+                        [attr.aria-label]="'Eliminar notificación: ' + n.titulo"
+                        title="Eliminar notificación"
+                      >
+                        <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                      </button>
                     </div>
                   </div>
                 </article>

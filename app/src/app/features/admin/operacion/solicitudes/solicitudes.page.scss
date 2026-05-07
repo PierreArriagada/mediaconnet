@@ -97,6 +97,11 @@
     box-shadow: 0 2px 16px rgba(255, 196, 9, 0.25);
   }
 
+  &--destacada {
+    border-color: var(--ion-color-primary, #3880ff);
+    box-shadow: 0 2px 18px rgba(56, 128, 255, 0.24);
+  }
+
   &--skeleton {
     padding: 20px;
     display: flex;

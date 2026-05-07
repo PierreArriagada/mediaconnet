@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IonContent, IonSpinner, ToastController } from '@ionic/angular/standalone';
 
@@ -24,6 +24,7 @@ import { AdminBottomNavComponent } from '../../../../shared/components/admin-bot
 export class SolicitudesPage implements OnInit, OnDestroy {
   private readonly adminSvc    = inject(AdminService);
   private readonly auth        = inject(AuthService);
+  private readonly route       = inject(ActivatedRoute);
   private readonly router      = inject(Router);
   private readonly toastCtrl   = inject(ToastController);
 
@@ -40,11 +41,15 @@ export class SolicitudesPage implements OnInit, OnDestroy {
 
   /** Acción en curso (id_cita) para mostrar spinner */
   accionEnCurso = signal<number | null>(null);
+  solicitudDestacadaId = signal<number | null>(null);
 
   private pollingId: ReturnType<typeof setInterval> | null = null;
   private timerIds: ReturnType<typeof setInterval>[] = [];
+  private solicitudDestacadaEnfocada = false;
 
   ngOnInit(): void {
+    const solicitud = Number.parseInt(this.route.snapshot.queryParamMap.get('solicitud') ?? '', 10);
+    this.solicitudDestacadaId.set(Number.isFinite(solicitud) && solicitud > 0 ? solicitud : null);
     this.cargar();
     // Recargar cada 30s para actualizar la cuenta regresiva desde el servidor
     this.pollingId = setInterval(() => this.cargar(), 30_000);
@@ -61,12 +66,26 @@ export class SolicitudesPage implements OnInit, OnDestroy {
         this.solicitudes.set(data);
         this.cargando.set(false);
         this.errorCarga.set(false);
+        this.enfocarSolicitudDestacada();
       },
       error: () => {
         this.cargando.set(false);
         this.errorCarga.set(true);
       },
     });
+  }
+
+  private enfocarSolicitudDestacada(): void {
+    const idSolicitud = this.solicitudDestacadaId();
+    if (!idSolicitud || this.solicitudDestacadaEnfocada) return;
+
+    setTimeout(() => {
+      const elemento = document.getElementById(`solicitud-${idSolicitud}`);
+      if (!elemento) return;
+
+      this.solicitudDestacadaEnfocada = true;
+      elemento.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 0);
   }
 
   // ── Countdown ────────────────────────────────────────────────────────────
