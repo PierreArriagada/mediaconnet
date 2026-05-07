@@ -128,12 +128,14 @@ async function getProfesionalesPorEspecialidad(req, res) {
       return res.status(404).json({ message: 'Especialidad no encontrada.' });
     }
 
-    // Médicos activos de la especialidad
+    // Médicos activos de la especialidad y disponibles laboralmente
     const medicosResult = await pool.query(
       `SELECT m.id_medico, u.nombre, u.apellido, m.anios_experiencia, m.numero_registro
        FROM   medicos  m
        JOIN   usuarios u ON m.id_usuario = u.id_usuario
-       WHERE  m.id_especialidad = $1 AND m.estado = 'activo'
+       WHERE  m.id_especialidad = $1
+         AND  m.estado = 'activo'
+         AND  m.estado_laboral = 'activo'
        ORDER  BY m.id_medico ASC`,
       [idEspecialidad]
     );
@@ -250,7 +252,9 @@ async function getDetalleMedico(req, res) {
        FROM   medicos m
        JOIN   usuarios u ON m.id_usuario = u.id_usuario
        JOIN   especialidades e ON m.id_especialidad = e.id_especialidad
-       WHERE  m.id_medico = $1 AND m.estado = 'activo'`,
+       WHERE  m.id_medico = $1
+         AND  m.estado = 'activo'
+         AND  m.estado_laboral = 'activo'`,
       [idMedico]
     );
 
@@ -337,7 +341,9 @@ async function getDisponibilidadMedico(req, res) {
        FROM   medicos m
        JOIN   usuarios u ON m.id_usuario = u.id_usuario
        JOIN   especialidades e ON m.id_especialidad = e.id_especialidad
-       WHERE  m.id_medico = $1 AND m.estado = 'activo'`,
+       WHERE  m.id_medico = $1
+         AND  m.estado = 'activo'
+         AND  m.estado_laboral = 'activo'`,
       [idMedico]
     );
 
@@ -420,16 +426,19 @@ async function crearCitaPaciente(req, res) {
 
     // Bloquear fila de disponibilidad para evitar doble reserva (race condition)
     const dispResult = await client.query(
-      `SELECT id_disponibilidad, fecha::text, hora_inicio::text
-       FROM   disponibilidad_medica
-       WHERE  id_disponibilidad = $1
-         AND  id_medico = $2
-         AND  estado = 'disponible'
+      `SELECT d.id_disponibilidad, d.fecha::text, d.hora_inicio::text, m.id_especialidad
+       FROM   disponibilidad_medica d
+       JOIN   medicos m ON d.id_medico = m.id_medico
+       WHERE  d.id_disponibilidad = $1
+         AND  d.id_medico = $2
+         AND  d.estado = 'disponible'
+         AND  m.estado = 'activo'
+         AND  m.estado_laboral = 'activo'
          AND  (
-           fecha > CURRENT_DATE
-           OR (fecha = CURRENT_DATE AND hora_inicio > CURRENT_TIME)
+           d.fecha > CURRENT_DATE
+           OR (d.fecha = CURRENT_DATE AND d.hora_inicio > CURRENT_TIME)
          )
-       FOR UPDATE`,
+       FOR UPDATE OF d`,
       [idDisp, idMedico]
     );
 
@@ -439,6 +448,10 @@ async function crearCitaPaciente(req, res) {
     }
 
     const slot = dispResult.rows[0];
+    if (Number(slot.id_especialidad) !== idEsp) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ message: 'La especialidad no corresponde al médico seleccionado.' });
+    }
 
     // Marcar slot como reservado
     await client.query(
@@ -454,7 +467,7 @@ async function crearCitaPaciente(req, res) {
          es_invitado
        ) VALUES ($1, $2, $3, $4, $5, $6::date, $7::time, 'confirmada', $8, FALSE)
        RETURNING id_cita`,
-      [idPaciente, idMedico, idEsp, idDisp, modalidad.trim(), slot.fecha, slot.hora_inicio, motivo_consulta.trim()]
+      [idPaciente, idMedico, slot.id_especialidad, idDisp, modalidad.trim(), slot.fecha, slot.hora_inicio, motivo_consulta.trim()]
     );
 
     // Crear notificación de confirmación
@@ -667,16 +680,19 @@ async function reagendarCita(req, res) {
 
     // Bloquear y verificar nuevo slot disponible (mismo médico)
     const nuevoSlot = await client.query(
-      `SELECT id_disponibilidad, fecha::text, hora_inicio::text
-       FROM   disponibilidad_medica
-       WHERE  id_disponibilidad = $1
-         AND  id_medico         = $2
-         AND  estado            = 'disponible'
+      `SELECT d.id_disponibilidad, d.fecha::text, d.hora_inicio::text, m.id_especialidad
+       FROM   disponibilidad_medica d
+       JOIN   medicos m ON d.id_medico = m.id_medico
+       WHERE  d.id_disponibilidad = $1
+         AND  d.id_medico         = $2
+         AND  d.estado            = 'disponible'
+         AND  m.estado            = 'activo'
+         AND  m.estado_laboral    = 'activo'
          AND  (
-           fecha > CURRENT_DATE
-           OR (fecha = CURRENT_DATE AND hora_inicio > CURRENT_TIME)
+           d.fecha > CURRENT_DATE
+           OR (d.fecha = CURRENT_DATE AND d.hora_inicio > CURRENT_TIME)
          )
-       FOR UPDATE`,
+       FOR UPDATE OF d`,
       [nuevoIdDisp, cita.id_medico]
     );
 
@@ -705,9 +721,10 @@ async function reagendarCita(req, res) {
     await client.query(
       `UPDATE citas_medicas
        SET    id_disponibilidad = $1, fecha_cita = $2::date, hora_cita = $3::time,
-              estado_cita = 'confirmada', confirmada_asistencia = NULL
-       WHERE  id_cita = $4`,
-      [nuevoIdDisp, slot.fecha, slot.hora_inicio, idCita]
+              id_especialidad = $4, estado_cita = 'confirmada',
+              confirmada_asistencia = NULL
+       WHERE  id_cita = $5`,
+      [nuevoIdDisp, slot.fecha, slot.hora_inicio, slot.id_especialidad, idCita]
     );
 
     // Notificación de reprogramación
