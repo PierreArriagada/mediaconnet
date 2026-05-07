@@ -22,6 +22,7 @@ import {
   formatHoraCorta,
   tiempoRelativoCorto,
 } from '../../../shared/utils/fecha.utils';
+import { iconoNotificacionPaciente } from '../../../shared/utils/paciente-ui.utils';
 
 type HistorialTab = 'pendientes' | 'confirmadas' | 'pasadas';
 
@@ -56,6 +57,7 @@ export class PacienteHomePage implements OnInit {
   citaConfirmar: CitaPendienteConfirmacion | null = null;
   confirmLoading     = false;
   private yaEntroALaVista = false;
+  readonly iconoNotificacion = iconoNotificacionPaciente;
 
   /** Primer nombre del usuario para el saludo */
   get firstName(): string {
@@ -123,18 +125,6 @@ export class PacienteHomePage implements OnInit {
   /** Tiempo relativo legible para notificaciones */
   tiempoRelativo(fechaISO: string): string {
     return tiempoRelativoCorto(fechaISO);
-  }
-
-  /** Icono Material Symbol según el tipo de notificación */
-  iconoNotificacion(tipo: string): string {
-    const mapa: Record<string, string> = {
-      recordatorio:   'event_available',
-      confirmacion:   'check_circle',
-      cancelacion:    'cancel',
-      reprogramacion: 'event_repeat',
-      general:        'info',
-    };
-    return mapa[tipo] ?? 'notifications';
   }
 
   /** El paciente confirma que asistirá a la cita */

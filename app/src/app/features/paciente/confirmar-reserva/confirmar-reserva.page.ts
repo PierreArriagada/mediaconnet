@@ -8,6 +8,11 @@ import { PacienteHeaderComponent } from '../../../shared/components/paciente-hea
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { formatFechaLargaConDia, formatHoraCorta } from '../../../shared/utils/fecha.utils';
+import {
+  inicialesPersona,
+  temaAvatarPorId,
+  tituloMedicoPorNombre,
+} from '../../../shared/utils/paciente-ui.utils';
 
 @Component({
   standalone: true,
@@ -46,6 +51,9 @@ export default class ConfirmarReservaPage implements OnInit {
   showSuccess  = false;
   errorMsg     = '';
   successMsg   = '¡Cita reservada correctamente! Redirigiendo...';
+  readonly iniciales = inicialesPersona;
+  readonly temaAvatar = temaAvatarPorId;
+  readonly titulo = tituloMedicoPorNombre;
 
   ngOnInit(): void {
     const user = this.authSvc.getCurrentUser();
@@ -143,20 +151,6 @@ export default class ConfirmarReservaPage implements OnInit {
         this.showError = true;
       },
     });
-  }
-
-  // ── Helpers ─────────────────────────────────
-  iniciales(): string {
-    return `${this.nombreMedico.charAt(0)}${this.apellidoMedico.charAt(0)}`.toUpperCase();
-  }
-
-  temaAvatar(): string {
-    const temas = ['primary', 'tertiary', 'secondary'];
-    return temas[this.idMedico % temas.length];
-  }
-
-  titulo(): string {
-    return this.nombreMedico.endsWith('a') ? 'Dra.' : 'Dr.';
   }
 
   formatFecha(): string {

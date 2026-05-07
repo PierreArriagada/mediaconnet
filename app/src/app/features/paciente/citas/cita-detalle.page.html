@@ -134,7 +134,7 @@
               <div class="mc-info-cell">
                 <span class="material-symbols-outlined mc-info-cell__icon">person_check</span>
                 <p class="mc-info-cell__label">Profesional</p>
-                <p class="mc-info-cell__value">{{ titulo }} {{ cita.medico_nombre }} {{ cita.medico_apellido }}</p>
+                <p class="mc-info-cell__value">{{ titulo(cita.medico_nombre) }} {{ cita.medico_nombre }} {{ cita.medico_apellido }}</p>
               </div>
               <div class="mc-info-cell">
                 <span class="material-symbols-outlined mc-info-cell__icon">calendar_month</span>
@@ -174,10 +174,10 @@
           <!-- Tarjeta del médico -->
           <section class="mc-doctor-card">
             <div class="mc-doctor-card__avatar" [attr.data-theme]="cita.id_medico % 3">
-              {{ iniciales }}
+              {{ iniciales(cita.medico_nombre, cita.medico_apellido) }}
             </div>
             <div class="mc-doctor-card__info">
-              <h4 class="mc-doctor-card__name">{{ titulo }} {{ cita.medico_nombre }} {{ cita.medico_apellido }}</h4>
+              <h4 class="mc-doctor-card__name">{{ titulo(cita.medico_nombre) }} {{ cita.medico_nombre }} {{ cita.medico_apellido }}</h4>
               <p class="mc-doctor-card__specialty">{{ cita.nombre_especialidad }}</p>
               @if (cita.biografia) {
                 <p class="mc-doctor-card__bio">{{ cita.biografia }}</p>

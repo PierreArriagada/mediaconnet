@@ -9,6 +9,7 @@ import { NotificacionesPacienteStateService } from '../../../core/services/notif
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { formatFechaCompleta, formatFechaCorta } from '../../../shared/utils/fecha.utils';
+import { inicialesPersona } from '../../../shared/utils/paciente-ui.utils';
 
 @Component({
   selector: 'app-perfil',
@@ -36,7 +37,7 @@ export class PerfilPage implements OnInit {
   // Iniciales para el avatar generado a partir del nombre
   get initiales(): string {
     if (!this.perfil) return '';
-    return `${this.perfil.nombre[0] ?? ''}${this.perfil.apellido[0] ?? ''}`.toUpperCase();
+    return inicialesPersona(this.perfil.nombre, this.perfil.apellido);
   }
 
   get nombreCompleto(): string {

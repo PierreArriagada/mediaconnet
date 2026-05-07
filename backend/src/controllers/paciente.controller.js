@@ -1,6 +1,18 @@
 const pool = require('../db/pool');
 const { parsePagination } = require('../utils/pagination');
 
+async function contarNotificacionesNoLeidas(idUsuario) {
+  const result = await pool.query(
+    `SELECT COUNT(*) AS total
+     FROM   notificaciones
+     WHERE  id_usuario = $1
+       AND  leida = FALSE`,
+    [idUsuario]
+  );
+
+  return parseInt(result.rows[0].total, 10);
+}
+
 /**
  * GET /api/paciente/dashboard
  * Devuelve la próxima cita del paciente y las últimas 5 notificaciones.
@@ -58,13 +70,7 @@ async function getDashboard(req, res) {
     );
 
     // Cantidad de notificaciones no leídas para el badge del header
-    const unreadResult = await pool.query(
-      `SELECT COUNT(*) AS total
-       FROM   notificaciones
-       WHERE  id_usuario = $1
-         AND  leida = FALSE`,
-      [idUsuario]
-    );
+    const noLeidas = await contarNotificacionesNoLeidas(idUsuario);
 
     // Cita que requiere confirmación de asistencia:
     // confirmada + dentro de las próximas 24h + aún no confirmó asistencia
@@ -95,7 +101,7 @@ async function getDashboard(req, res) {
       proximaCita:              citaResult.rows[0] ?? null,
       citaPendienteConfirmacion: confirmResult.rows[0] ?? null,
       notificaciones:           notifResult.rows,
-      noLeidas:                 parseInt(unreadResult.rows[0].total, 10),
+      noLeidas,
     });
   } catch (err) {
     console.error('Error en getDashboard paciente:', err);
@@ -170,12 +176,7 @@ async function getProfesionalesPorEspecialidad(req, res) {
     }
 
     // Badge de notificaciones no leídas del usuario autenticado
-    const unreadResult = await pool.query(
-      `SELECT COUNT(*) AS total
-       FROM   notificaciones
-       WHERE  id_usuario = $1 AND leida = FALSE`,
-      [idUsuario]
-    );
+    const noLeidas = await contarNotificacionesNoLeidas(idUsuario);
 
     // Asociar disponibilidades a cada médico
     const medicosConDisp = medicos.map((m) => ({
@@ -186,7 +187,7 @@ async function getProfesionalesPorEspecialidad(req, res) {
     return res.json({
       especialidad: espResult.rows[0],
       medicos:      medicosConDisp,
-      noLeidas:     parseInt(unreadResult.rows[0].total, 10),
+      noLeidas,
     });
   } catch (err) {
     console.error('Error en getProfesionalesPorEspecialidad:', err);
@@ -206,24 +207,19 @@ async function getEspecialidadesConBadge(req, res) {
   }
 
   try {
-    const [espResult, unreadResult] = await Promise.all([
+    const [espResult, noLeidas] = await Promise.all([
       pool.query(
         `SELECT id_especialidad, nombre_especialidad, descripcion
          FROM   especialidades
          WHERE  estado = 'activa'
          ORDER  BY nombre_especialidad ASC`
       ),
-      pool.query(
-        `SELECT COUNT(*) AS total
-         FROM   notificaciones
-         WHERE  id_usuario = $1 AND leida = FALSE`,
-        [idUsuario]
-      ),
+      contarNotificacionesNoLeidas(idUsuario),
     ]);
 
     return res.json({
       especialidades: espResult.rows,
-      noLeidas: parseInt(unreadResult.rows[0].total, 10),
+      noLeidas,
     });
   } catch (err) {
     console.error('Error en getEspecialidadesConBadge:', err);
@@ -303,17 +299,14 @@ async function getDetalleMedico(req, res) {
       [idMedico]
     );
 
-    const unreadResult = await pool.query(
-      `SELECT COUNT(*) AS total FROM notificaciones WHERE id_usuario = $1 AND leida = FALSE`,
-      [idUsuario]
-    );
+    const noLeidas = await contarNotificacionesNoLeidas(idUsuario);
 
     return res.json({
       medico:          medicoResult.rows[0],
       horarioAtencion: scheduleResult.rows,
       proximoSlot:     nextSlotResult.rows[0] ?? null,
       totalConsultas:  parseInt(consultasResult.rows[0].total, 10),
-      noLeidas:        parseInt(unreadResult.rows[0].total, 10),
+      noLeidas,
     });
   } catch (err) {
     console.error('Error en getDetalleMedico:', err);
@@ -365,15 +358,12 @@ async function getDisponibilidadMedico(req, res) {
       [idMedico]
     );
 
-    const unreadResult = await pool.query(
-      `SELECT COUNT(*) AS total FROM notificaciones WHERE id_usuario = $1 AND leida = FALSE`,
-      [idUsuario]
-    );
+    const noLeidas = await contarNotificacionesNoLeidas(idUsuario);
 
     return res.json({
       medico:         medicoResult.rows[0],
       disponibilidad: dispResult.rows,
-      noLeidas:       parseInt(unreadResult.rows[0].total, 10),
+      noLeidas,
     });
   } catch (err) {
     console.error('Error en getDisponibilidadMedico:', err);
@@ -534,14 +524,11 @@ async function getDetalleCita(req, res) {
       return res.status(404).json({ message: 'Cita no encontrada.' });
     }
 
-    const unreadResult = await pool.query(
-      `SELECT COUNT(*) AS total FROM notificaciones WHERE id_usuario = $1 AND leida = FALSE`,
-      [idUsuario]
-    );
+    const noLeidas = await contarNotificacionesNoLeidas(idUsuario);
 
     return res.json({
       cita:     citaResult.rows[0],
-      noLeidas: parseInt(unreadResult.rows[0].total, 10),
+      noLeidas,
     });
   } catch (err) {
     console.error('Error en getDetalleCita:', err);
@@ -901,16 +888,11 @@ async function getHistorialCitas(req, res) {
       [idUsuario]
     );
 
-    const unreadResult = await pool.query(
-      `SELECT COUNT(*) AS total
-       FROM   notificaciones
-       WHERE  id_usuario = $1 AND leida = FALSE`,
-      [idUsuario]
-    );
+    const noLeidas = await contarNotificacionesNoLeidas(idUsuario);
 
     return res.json({
       citas:    citasResult.rows,
-      noLeidas: parseInt(unreadResult.rows[0].total, 10),
+      noLeidas,
     });
   } catch (err) {
     console.error('Error en getHistorialCitas:', err);
@@ -974,13 +956,7 @@ async function getPerfil(req, res) {
     );
 
     // Alertas = notificaciones no leídas del usuario
-    const alertasResult = await pool.query(
-      `SELECT COUNT(*) AS total
-       FROM   notificaciones
-       WHERE  id_usuario = $1
-         AND  leida = FALSE`,
-      [idUsuario]
-    );
+    const alertas = await contarNotificacionesNoLeidas(idUsuario);
 
     const perfil = perfilResult.rows[0];
 
@@ -999,7 +975,7 @@ async function getPerfil(req, res) {
       contacto_emergencia:   perfil.contacto_emergencia,
       telefono_emergencia:   perfil.telefono_emergencia,
       proxima_cita:          citaResult.rows[0] ?? null,
-      alertas:               parseInt(alertasResult.rows[0].total, 10),
+      alertas,
     });
   } catch (err) {
     console.error('Error en getPerfil:', err);
@@ -1021,7 +997,7 @@ async function getNotificacionesPaciente(req, res) {
   try {
     const { limit, offset } = parsePagination(req.query);
 
-    const [notificacionesResult, unreadResult, totalResult] = await Promise.all([
+    const [notificacionesResult, noLeidas, totalResult] = await Promise.all([
       pool.query(
         `SELECT
            id_notificacion,
@@ -1036,13 +1012,7 @@ async function getNotificacionesPaciente(req, res) {
          LIMIT  $2 OFFSET $3`,
         [idUsuario, limit, offset]
       ),
-      pool.query(
-        `SELECT COUNT(*) AS total
-         FROM   notificaciones
-         WHERE  id_usuario = $1
-           AND  leida = FALSE`,
-        [idUsuario]
-      ),
+      contarNotificacionesNoLeidas(idUsuario),
       pool.query(
         `SELECT COUNT(*) AS total
          FROM   notificaciones
@@ -1053,7 +1023,7 @@ async function getNotificacionesPaciente(req, res) {
 
     return res.json({
       notificaciones: notificacionesResult.rows,
-      noLeidas: parseInt(unreadResult.rows[0].total, 10),
+      noLeidas,
       total: parseInt(totalResult.rows[0].total, 10),
       limit,
       offset,
@@ -1075,15 +1045,8 @@ async function getContadorNotificacionesPaciente(req, res) {
   }
 
   try {
-    const result = await pool.query(
-      `SELECT COUNT(*) AS total
-       FROM   notificaciones
-       WHERE  id_usuario = $1
-         AND  leida = FALSE`,
-      [idUsuario]
-    );
-
-    return res.json({ noLeidas: parseInt(result.rows[0].total, 10) });
+    const noLeidas = await contarNotificacionesNoLeidas(idUsuario);
+    return res.json({ noLeidas });
   } catch (err) {
     console.error('Error en getContadorNotificacionesPaciente:', err);
     return res.status(500).json({ message: 'Error interno del servidor.' });

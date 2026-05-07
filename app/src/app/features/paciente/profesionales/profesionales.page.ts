@@ -13,6 +13,11 @@ import { NotificacionesPacienteStateService } from '../../../core/services/notif
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { PacienteHeaderComponent } from '../../../shared/components/paciente-header/paciente-header.component';
 import { esHoy as esFechaHoy, formatFechaDiaMes, formatHoraCorta } from '../../../shared/utils/fecha.utils';
+import {
+  inicialesPersona,
+  temaAvatarPorId,
+  tituloMedicoPorNombre,
+} from '../../../shared/utils/paciente-ui.utils';
 
 // Filtros por disponibilidad — sin filtros externos para no hacer peticiones extra
 type FiltroDisp = 'todos' | 'hoy' | 'semana';
@@ -42,6 +47,9 @@ export class ProfesionalesPage implements OnInit {
   errorMsg   = '';
   showError  = false;
   filtro: FiltroDisp = 'todos';
+  readonly iniciales = inicialesPersona;
+  readonly temaAvatar = temaAvatarPorId;
+  readonly titulo = tituloMedicoPorNombre;
 
   get noLeidas(): number { return this.data?.noLeidas ?? 0; }
 
@@ -93,21 +101,6 @@ export class ProfesionalesPage implements OnInit {
 
   volver(): void {
     this.location.back();
-  }
-
-  /** Dos iniciales del médico para el avatar */
-  iniciales(nombre: string, apellido: string): string {
-    return `${nombre[0] ?? ''}${apellido[0] ?? ''}`.toUpperCase();
-  }
-
-  /** Asigna tema de avatar según id para dar variedad visual */
-  temaAvatar(idMedico: number): string {
-    return ['primary', 'tertiary', 'secondary'][idMedico % 3];
-  }
-
-  /** Heurística básica de título honorífico por terminación del nombre */
-  titulo(nombre: string): string {
-    return nombre.trim().slice(-1).toLowerCase() === 'a' ? 'Dra.' : 'Dr.';
   }
 
   esHoy(fecha: string): boolean {

@@ -12,6 +12,7 @@ import { PacienteHeaderComponent } from '../../../shared/components/paciente-hea
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { McAlertComponent } from '../../../shared/components/alertas-sistema/mc-alert/mc-alert.component';
 import { tiempoRelativoCorto } from '../../../shared/utils/fecha.utils';
+import { iconoNotificacionPaciente } from '../../../shared/utils/paciente-ui.utils';
 
 @Component({
   selector: 'app-paciente-notificaciones',
@@ -43,6 +44,7 @@ export class NotificacionesPage implements OnInit {
   confirmandoEliminacionId: number | null = null;
   eliminandoId: number | null = null;
   sincronizandoLectura = false;
+  readonly iconoNotificacion = iconoNotificacionPaciente;
 
   ngOnInit(): void {
     this.cargarNotificaciones();
@@ -70,17 +72,6 @@ export class NotificacionesPage implements OnInit {
 
   tiempoRelativo(fechaISO: string): string {
     return tiempoRelativoCorto(fechaISO);
-  }
-
-  iconoNotificacion(tipo: string): string {
-    const mapa: Record<string, string> = {
-      recordatorio: 'event_available',
-      confirmacion: 'check_circle',
-      cancelacion: 'cancel',
-      reprogramacion: 'event_repeat',
-      general: 'info',
-    };
-    return mapa[tipo] ?? 'notifications';
   }
 
   async confirmarLimpieza(): Promise<void> {

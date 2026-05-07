@@ -18,6 +18,10 @@ import {
   formatFechaLargaConDia,
   formatHoraCorta,
 } from '../../../shared/utils/fecha.utils';
+import {
+  inicialesPersona,
+  tituloMedicoPorNombre,
+} from '../../../shared/utils/paciente-ui.utils';
 
 /** Pasos del timeline según el estado de la cita (solo invitados/solicitudes) */
 interface PasoTimeline {
@@ -52,6 +56,8 @@ export default class CitaDetallePage implements OnInit {
   successMsg  = '';
 
   isCancelling  = signal(false);
+  readonly iniciales = inicialesPersona;
+  readonly titulo = tituloMedicoPorNombre;
 
   ngOnInit(): void {
     const user = this.authSvc.getCurrentUser();
@@ -230,15 +236,6 @@ export default class CitaDetallePage implements OnInit {
   }
 
   // ── Helpers de formato ────────────────────────────────
-
-  get titulo(): string {
-    const nombre = this.cita?.medico_nombre ?? '';
-    return nombre.endsWith('a') ? 'Dra.' : 'Dr.';
-  }
-
-  get iniciales(): string {
-    return `${(this.cita?.medico_nombre ?? '').charAt(0)}${(this.cita?.medico_apellido ?? '').charAt(0)}`.toUpperCase();
-  }
 
   formatFecha(fecha: string | null): string {
     return formatFechaLargaConDia(fecha);

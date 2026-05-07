@@ -8,6 +8,11 @@ import { PacienteHeaderComponent } from '../../../shared/components/paciente-hea
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { formatFechaDiaMesAnio, formatHoraCorta, formatMesAnio } from '../../../shared/utils/fecha.utils';
+import {
+  inicialesPersona,
+  temaAvatarPorId,
+  tituloMedicoPorNombre,
+} from '../../../shared/utils/paciente-ui.utils';
 
 interface DiaCalendario {
   dia:        number;
@@ -48,6 +53,9 @@ export default class ElegirHorarioPage implements OnInit {
   // Selecciones
   fechaSeleccionada = signal<string>('');
   slotSeleccionado  = signal<DisponibilidadSlot | null>(null);
+  readonly iniciales = inicialesPersona;
+  readonly temaAvatar = temaAvatarPorId;
+  readonly titulo = tituloMedicoPorNombre;
 
   // Disponibilidad indexada por fecha
   private dispPorFecha = new Map<string, DisponibilidadSlot[]>();
@@ -158,20 +166,6 @@ export default class ElegirHorarioPage implements OnInit {
     this.router.navigate(['/paciente/confirmar-reserva', slot.id_disponibilidad], {
       queryParams,
     });
-  }
-
-  // ── Helpers ─────────────────────────────────
-  iniciales(nombre: string, apellido: string): string {
-    return `${nombre.charAt(0)}${apellido.charAt(0)}`.toUpperCase();
-  }
-
-  temaAvatar(id: number): string {
-    const temas = ['primary', 'tertiary', 'secondary'];
-    return temas[id % temas.length];
-  }
-
-  titulo(nombre: string): string {
-    return nombre.endsWith('a') ? 'Dra.' : 'Dr.';
   }
 
   formatHora(hora: string): string {

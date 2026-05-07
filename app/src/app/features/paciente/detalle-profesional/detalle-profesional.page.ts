@@ -8,6 +8,11 @@ import { PacienteHeaderComponent } from '../../../shared/components/paciente-hea
 import { PacienteBottomNavComponent } from '../../../shared/components/paciente-bottom-nav/paciente-bottom-nav.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { formatFechaCercana, formatHoraCorta } from '../../../shared/utils/fecha.utils';
+import {
+  inicialesPersona,
+  temaAvatarPorId,
+  tituloMedicoPorNombre,
+} from '../../../shared/utils/paciente-ui.utils';
 
 @Component({
   standalone: true,
@@ -30,6 +35,9 @@ export default class DetalleProfesionalPage implements OnInit {
   userName   = '';
   noLeidas   = 0;
   activeTab  = 'info';
+  readonly iniciales = inicialesPersona;
+  readonly temaAvatar = temaAvatarPorId;
+  readonly titulo = tituloMedicoPorNombre;
 
   ngOnInit(): void {
     const user = this.authSvc.getCurrentUser();
@@ -63,20 +71,6 @@ export default class DetalleProfesionalPage implements OnInit {
   verHorarios(): void {
     if (!this.data) return;
     this.router.navigate(['/paciente/elegir-horario', this.data.medico.id_medico]);
-  }
-
-  // ── Helpers ──────────────────────────────
-  iniciales(nombre: string, apellido: string): string {
-    return `${nombre.charAt(0)}${apellido.charAt(0)}`.toUpperCase();
-  }
-
-  temaAvatar(id: number): string {
-    const temas = ['primary', 'tertiary', 'secondary'];
-    return temas[id % temas.length];
-  }
-
-  titulo(nombre: string): string {
-    return nombre.endsWith('a') ? 'Dra.' : 'Dr.';
   }
 
   nombreDia(isodow: number): string {

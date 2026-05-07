@@ -25,11 +25,11 @@
         <!-- Tarjeta de Resumen Profesional -->
         <section class="mc-summary-card">
           <div class="mc-summary-card__profile">
-            <div class="mc-avatar-hero mc-avatar-hero--{{ temaAvatar() }}">
-              {{ iniciales() }}
+            <div class="mc-avatar-hero mc-avatar-hero--{{ temaAvatar(idMedico) }}">
+              {{ iniciales(nombreMedico, apellidoMedico) }}
             </div>
             <div class="mc-summary-card__info">
-              <h3 class="mc-summary-card__name">{{ titulo() }} {{ nombreMedico }} {{ apellidoMedico }}</h3>
+              <h3 class="mc-summary-card__name">{{ titulo(nombreMedico) }} {{ nombreMedico }} {{ apellidoMedico }}</h3>
               <p class="mc-summary-card__specialty">{{ especialidad }}</p>
               <div class="mc-summary-card__badge">
                 <span class="material-symbols-outlined">verified</span>
