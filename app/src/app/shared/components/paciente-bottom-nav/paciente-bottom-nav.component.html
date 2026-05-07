@@ -1,40 +1,36 @@
 <nav class="mc-bottom-nav" role="navigation" aria-label="Navegación principal">
 
   <a class="mc-nav-item"
+     routerLink="/paciente/home"
      [class.mc-nav-item--active]="activeTab === 'home'"
-     (click)="ir('home')"
-     role="button"
-     tabindex="0"
+     [attr.aria-current]="activeTab === 'home' ? 'page' : null"
      aria-label="Inicio">
     <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">home</span>
     <span class="mc-nav-item__label">Inicio</span>
   </a>
 
   <a class="mc-nav-item"
+     routerLink="/paciente/reservar"
      [class.mc-nav-item--active]="activeTab === 'reservar'"
-     (click)="ir('reservar')"
-     role="button"
-     tabindex="0"
+     [attr.aria-current]="activeTab === 'reservar' ? 'page' : null"
      aria-label="Reservar hora">
     <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">calendar_add_on</span>
     <span class="mc-nav-item__label">Reservar</span>
   </a>
 
   <a class="mc-nav-item"
+     routerLink="/paciente/historial"
      [class.mc-nav-item--active]="activeTab === 'historial'"
-     (click)="ir('historial')"
-     role="button"
-     tabindex="0"
+     [attr.aria-current]="activeTab === 'historial' ? 'page' : null"
      aria-label="Historial de citas">
     <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">history</span>
     <span class="mc-nav-item__label">Historial</span>
   </a>
 
   <a class="mc-nav-item"
+     routerLink="/paciente/perfil"
      [class.mc-nav-item--active]="activeTab === 'perfil'"
-     (click)="ir('perfil')"
-     role="button"
-     tabindex="0"
+     [attr.aria-current]="activeTab === 'perfil' ? 'page' : null"
      aria-label="Perfil de usuario">
     <span class="material-symbols-outlined mc-nav-item__icon" aria-hidden="true">person</span>
     <span class="mc-nav-item__label">Perfil</span>

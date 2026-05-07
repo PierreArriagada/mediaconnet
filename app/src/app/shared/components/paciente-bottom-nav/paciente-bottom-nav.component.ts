@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 export type PacienteNavTab = 'home' | 'reservar' | 'historial' | 'perfil';
 
@@ -8,14 +8,9 @@ export type PacienteNavTab = 'home' | 'reservar' | 'historial' | 'perfil';
   templateUrl: './paciente-bottom-nav.component.html',
   styleUrls:   ['./paciente-bottom-nav.component.scss'],
   standalone: true,
+  imports: [RouterLink],
 })
 export class PacienteBottomNavComponent {
   /** Pestaña activa actualmente — se pasa desde la página contenedora */
   @Input() activeTab: PacienteNavTab | null = 'home';
-
-  constructor(private readonly router: Router) {}
-
-  ir(tab: PacienteNavTab): void {
-    this.router.navigate(['/paciente', tab]);
-  }
 }
