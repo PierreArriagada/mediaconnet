@@ -847,6 +847,11 @@ async function getHistorialCitas(req, res) {
 
   const tab = req.query.tab ?? '';
 
+  const tabsPermitidos = ['pendientes', 'confirmadas', 'pasadas'];
+  if (tab !== '' && !tabsPermitidos.includes(tab)) {
+    return res.status(400).json({ message: 'El parámetro tab no es válido.' });
+  }
+
   // Mapa de tab a regla cerrada de estados + temporalidad.
   const filtroTab = {
     pendientes: `
