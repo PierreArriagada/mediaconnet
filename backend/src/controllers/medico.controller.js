@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const { parsePagination } = require('../utils/pagination');
 
 const pool = require('../db/pool');
@@ -194,6 +196,7 @@ async function getPerfilMedico(req, res) {
          u.correo,
          u.telefono,
          u.estado,
+         u.foto_perfil_url,
          m.numero_registro,
          m.anios_experiencia,
          e.nombre_especialidad
@@ -928,7 +931,7 @@ async function actualizarPerfilMedico(req, res) {
     return res.status(400).json({ message: 'Token inválido.' });
   }
 
-  const { nombre, apellido, correo, telefono } = req.body;
+  const { nombre, apellido, correo, telefono, foto_perfil_url } = req.body;
 
   if (!nombre || typeof nombre !== 'string' || nombre.trim().length < 2 || nombre.trim().length > 100) {
     return res.status(400).json({ message: 'Nombre inválido (2–100 caracteres).' });
@@ -957,14 +960,19 @@ async function actualizarPerfilMedico(req, res) {
 
     await pool.query(
       `UPDATE usuarios
-       SET nombre = $1, apellido = $2, correo = $3, telefono = $4,
+       SET nombre = $1,
+           apellido = $2,
+           correo = $3,
+           telefono = $4,
+           foto_perfil_url = $5,
            fecha_actualizacion = NOW()
-       WHERE id_usuario = $5`,
+       WHERE id_usuario = $6`,
       [
         nombre.trim(),
         apellido.trim(),
         correoNorm,
         telefono ? telefono.trim() : null,
+        foto_perfil_url ? foto_perfil_url.trim() : null,
         idUsuario,
       ]
     );
@@ -972,6 +980,48 @@ async function actualizarPerfilMedico(req, res) {
     return res.json({ message: 'Datos actualizados correctamente.' });
   } catch (err) {
     console.error('Error en actualizarPerfilMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * POST /api/medico/perfil/foto
+ * Guarda una foto de perfil persistente para el médico autenticado.
+ */
+async function subirFotoPerfilMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ message: 'No se recibió ninguna imagen.' });
+  }
+
+  try {
+    const nombreArchivo = req.file.filename;
+    const rutaPublica = `/uploads/perfiles/${nombreArchivo}`;
+
+    await pool.query(
+      `UPDATE usuarios
+       SET foto_perfil_url = $1,
+           fecha_actualizacion = NOW()
+       WHERE id_usuario = $2`,
+      [rutaPublica, idUsuario]
+    );
+
+    return res.status(201).json({
+      message: 'Foto de perfil actualizada correctamente.',
+      foto_perfil_url: rutaPublica,
+    });
+  } catch (err) {
+    // Si falla BD, elimina imagen huérfana.
+    if (req.file?.path && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+
+    console.error('Error en subirFotoPerfilMedico:', err);
     return res.status(500).json({ message: 'Error interno del servidor.' });
   }
 }
@@ -1032,6 +1082,7 @@ module.exports = {
   getPacientesMedico,
   getPerfilMedico,
   actualizarPerfilMedico,
+  subirFotoPerfilMedico,
   cambiarPasswordMedico,
   getDisponibilidad,
   crearDisponibilidad,

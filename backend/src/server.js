@@ -1,4 +1,5 @@
 const express          = require('express');
+const path             = require('path');
 const helmet           = require('helmet');
 const cors             = require('cors');
 const rateLimit        = require('express-rate-limit');
@@ -40,6 +41,12 @@ app.use(rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 }));
+
+// Archivos públicos persistentes (fotos de perfil, futuras evidencias, etc.)
+app.use(
+  '/uploads',
+  express.static(path.join(__dirname, '../uploads'))
+);
 
 app.use('/api/auth',     authRoutes);
 app.use('/api/paciente', pacienteRoutes);

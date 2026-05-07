@@ -116,7 +116,7 @@ ion-content {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 4.25rem 1.5rem 1.5rem;
   background: var(--mc-surface);
 
   @media (min-width: 768px) {
@@ -130,7 +130,7 @@ ion-content {
   max-width: 28rem;
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 2.25rem;
 }
 
 // Marca visual en móvil
@@ -139,6 +139,7 @@ ion-content {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  margin-top: 0.25rem;
 
   @media (min-width: 768px) {
     display: none;

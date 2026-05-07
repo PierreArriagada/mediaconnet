@@ -108,6 +108,7 @@ export interface PerfilMedicoData {
   correo:              string;
   telefono:            string | null;
   estado:              string;
+  foto_perfil_url:     string | null;
   numero_registro:     string;
   anios_experiencia:   number;
   nombre_especialidad: string;
@@ -123,6 +124,11 @@ export interface ActualizarPerfilMedicoPayload {
 export interface CambiarPasswordPayload {
   contrasena_actual: string;
   contrasena_nueva:  string;
+}
+
+export interface FotoPerfilMedicoResponse {
+  message: string;
+  foto_perfil_url: string;
 }
 
 export interface NotificacionMedico {
@@ -173,6 +179,13 @@ export class MedicoService {
 
   actualizarPerfil(payload: ActualizarPerfilMedicoPayload): Observable<{ message: string }> {
     return this.http.put<{ message: string }>(`${this.API}/perfil`, payload);
+  }
+
+  subirFotoPerfil(archivo: File): Observable<FotoPerfilMedicoResponse> {
+    const formData = new FormData();
+    formData.append('fotoPerfil', archivo);
+
+    return this.http.post<FotoPerfilMedicoResponse>(`${this.API}/perfil/foto`, formData);
   }
 
   cambiarPassword(payload: CambiarPasswordPayload): Observable<{ message: string }> {

@@ -29,6 +29,7 @@ ion-content {
   left: 0;
   width: 100%;
   z-index: 50;
+  padding-top: max(env(safe-area-inset-top), 2.25rem);
   background: var(--mc-glass-bg);
   backdrop-filter: blur(var(--mc-glass-blur));
   -webkit-backdrop-filter: blur(var(--mc-glass-blur));
@@ -38,10 +39,11 @@ ion-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1.25rem 1rem;
     max-width: 80rem;
     margin: 0 auto;
     width: 100%;
+    box-sizing: border-box;
   }
 
   &__logo {
@@ -81,7 +83,7 @@ ion-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 6rem;   // clear fixed header
+  padding-top: 8rem;   // clear fixed header + Android safe area
   padding-bottom: 3rem;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
@@ -200,6 +202,42 @@ ion-content {
 
   &__header {
     margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__back {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    background: var(--mc-surface-container-lowest);
+    border: 1px solid var(--mc-border-ghost);
+    cursor: pointer;
+    color: var(--mc-primary);
+    font-family: var(--mc-font-utility);
+    font-size: 0.875rem;
+    font-weight: 700;
+    padding: 0.65rem 0.95rem;
+    border-radius: 999px;
+    box-shadow: 0 8px 18px rgba(15, 76, 117, 0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+
+    &:hover {
+      background: var(--mc-surface-container-low);
+      transform: translateX(-1px);
+      box-shadow: 0 10px 22px rgba(15, 76, 117, 0.12);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    .material-symbols-outlined {
+      font-size: 1.125rem;
+    }
   }
 
   &__title {
