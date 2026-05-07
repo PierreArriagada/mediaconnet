@@ -611,11 +611,11 @@ async function cancelarCita(req, res) {
     await client.query(
       `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
        VALUES ($1, 'Cita cancelada por paciente',
-               $2 || ' ha cancelado su cita del ' ||
-               to_char($3::date, 'DD/MM/YYYY') || ' a las ' || to_char($4::time, 'HH24:MI') || '.',
+               $2 || ' ' || $3 || ' ha cancelado su cita del ' ||
+               to_char($4::date, 'DD/MM/YYYY') || ' a las ' || to_char($5::time, 'HH24:MI') || '.',
                'cancelacion', FALSE)`,
       [cita.id_usuario_medico,
-       cita.paciente_nombre + ' ' + cita.paciente_apellido,
+       cita.paciente_nombre, cita.paciente_apellido,
        cita.fecha_cita, cita.hora_cita]
     );
 
@@ -803,11 +803,11 @@ async function confirmarAsistencia(req, res) {
     await client.query(
       `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
        VALUES ($1, 'Asistencia confirmada',
-               $2 || ' ha confirmado asistencia a la cita del ' ||
-               to_char($3::date, 'DD/MM/YYYY') || ' a las ' || to_char($4::time, 'HH24:MI') || '.',
+               $2 || ' ' || $3 || ' ha confirmado asistencia a la cita del ' ||
+               to_char($4::date, 'DD/MM/YYYY') || ' a las ' || to_char($5::time, 'HH24:MI') || '.',
                'confirmacion', FALSE)`,
       [cita.id_usuario_medico,
-       cita.paciente_nombre + ' ' + cita.paciente_apellido,
+       cita.paciente_nombre, cita.paciente_apellido,
        cita.fecha_cita, cita.hora_cita]
     );
 
