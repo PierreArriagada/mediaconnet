@@ -615,15 +615,16 @@ async function cancelarCita(req, res) {
     );
 
     // Notificar al médico que el paciente canceló
+    const dC = String(cita.fecha_cita.getDate()).padStart(2, '0');
+    const mC = String(cita.fecha_cita.getMonth() + 1).padStart(2, '0');
+    const yC = cita.fecha_cita.getFullYear();
+    const horaC = cita.hora_cita.substring(0, 5);
+    const mensajeCancelacion = `${cita.paciente_nombre} ${cita.paciente_apellido} ha cancelado su cita del ${dC}/${mC}/${yC} a las ${horaC}.`;
+
     await client.query(
       `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
-       VALUES ($1, 'Cita cancelada por paciente',
-               $2 || ' ' || $3 || ' ha cancelado su cita del ' ||
-               to_char($4::date, 'DD/MM/YYYY') || ' a las ' || to_char($5::time, 'HH24:MI') || '.',
-               'cancelacion', FALSE)`,
-      [cita.id_usuario_medico,
-       cita.paciente_nombre, cita.paciente_apellido,
-       cita.fecha_cita, cita.hora_cita]
+       VALUES ($1, 'Cita cancelada por paciente', $2, 'cancelacion', FALSE)`,
+      [cita.id_usuario_medico, mensajeCancelacion]
     );
 
     await client.query('COMMIT');
@@ -814,15 +815,16 @@ async function confirmarAsistencia(req, res) {
     );
 
     // Notificar al médico que el paciente confirmó asistencia
+    const dA = String(cita.fecha_cita.getDate()).padStart(2, '0');
+    const mA = String(cita.fecha_cita.getMonth() + 1).padStart(2, '0');
+    const yA = cita.fecha_cita.getFullYear();
+    const horaA = cita.hora_cita.substring(0, 5);
+    const mensajeAsistencia = `${cita.paciente_nombre} ${cita.paciente_apellido} ha confirmado asistencia a la cita del ${dA}/${mA}/${yA} a las ${horaA}.`;
+
     await client.query(
       `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
-       VALUES ($1, 'Asistencia confirmada',
-               $2 || ' ' || $3 || ' ha confirmado asistencia a la cita del ' ||
-               to_char($4::date, 'DD/MM/YYYY') || ' a las ' || to_char($5::time, 'HH24:MI') || '.',
-               'confirmacion', FALSE)`,
-      [cita.id_usuario_medico,
-       cita.paciente_nombre, cita.paciente_apellido,
-       cita.fecha_cita, cita.hora_cita]
+       VALUES ($1, 'Asistencia confirmada', $2, 'confirmacion', FALSE)`,
+      [cita.id_usuario_medico, mensajeAsistencia]
     );
 
     // Notificar al paciente para su historial
