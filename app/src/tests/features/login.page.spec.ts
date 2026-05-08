@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { IonicModule } from '@ionic/angular';
+import { of } from 'rxjs';
 import { LoginPage } from '../../app/features/auth/login/login.page';
 import { AuthService } from '../../app/core/services/auth.service';
 
@@ -60,13 +60,20 @@ describe('LoginPage', () => {
     expect(component.loginForm.get('email')?.invalid).toBeTrue();
   });
 
-  it('should navigate to /dashboard on successful login', async () => {
+  it('should navigate to the patient home on successful login', () => {
     const navigateSpy = spyOn(router, 'navigate');
+    spyOn(authService, 'login').and.returnValue(of({
+      token: 'test-token',
+      user: { id: '2', email: 'paciente1@mediconnect.cl', name: 'Laura Mora', role: 'Paciente' },
+    }));
+
     component.loginForm.setValue({
       email: 'paciente1@mediconnect.cl',
       password: 'mediconnect2026',
     });
-    await component.onLogin();
-    expect(navigateSpy).toHaveBeenCalledWith(['/dashboard']);
+
+    component.onLogin();
+
+    expect(navigateSpy).toHaveBeenCalledWith(['/paciente/home'], { replaceUrl: true });
   });
 });
