@@ -28,6 +28,20 @@ export class PacientesPage implements OnInit {
   pacientes: PacienteMedico[] = [];
   isLoading = true;
   errorMessage = '';
+  terminoBusqueda = '';
+
+  get pacientesFiltrados(): PacienteMedico[] {
+    const termino = this.terminoBusqueda.trim().toLowerCase();
+    if (!termino) {
+      return this.pacientes;
+    }
+    return this.pacientes.filter(p => {
+      const nombreCompleto = `${p.nombre} ${p.apellido}`.toLowerCase();
+      const rut = p.rut.toLowerCase();
+      const correo = p.correo.toLowerCase();
+      return nombreCompleto.includes(termino) || rut.includes(termino) || correo.includes(termino);
+    });
+  }
 
   ngOnInit() {
     this.cargarPacientes();

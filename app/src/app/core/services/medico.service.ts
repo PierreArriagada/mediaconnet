@@ -56,7 +56,9 @@ export interface PacienteMedico {
   correo: string;
   telefono: string;
   estado: string;
-  ultima_cita: string | null;
+  ultima_cita_real: string | null;
+  proxima_cita: string | null;
+  total_atenciones: number;
 }
 
 export interface PacientesMedicoData {

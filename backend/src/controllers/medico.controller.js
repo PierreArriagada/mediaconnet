@@ -1046,13 +1046,15 @@ async function getPacientesMedico(req, res) {
          u.correo,
          u.telefono,
          u.estado,
-         MAX(c.fecha_cita) AS ultima_cita
+         MAX(CASE WHEN (c.fecha_cita + c.hora_cita) <= NOW() AND c.estado_cita IN ('confirmada', 'completada') THEN c.fecha_cita END) AS ultima_cita_real,
+         MIN(CASE WHEN (c.fecha_cita + c.hora_cita) > NOW() AND c.estado_cita IN ('confirmada', 'pendiente') THEN c.fecha_cita END) AS proxima_cita,
+         COUNT(CASE WHEN (c.fecha_cita + c.hora_cita) <= NOW() AND c.estado_cita IN ('confirmada', 'completada') THEN 1 END) AS total_atenciones
        FROM   citas_medicas c
        JOIN   pacientes     p ON c.id_paciente = p.id_paciente
        JOIN   usuarios      u ON p.id_usuario = u.id_usuario
        WHERE  c.id_medico = $1
        GROUP  BY p.id_paciente, p.rut, u.nombre, u.apellido, u.correo, u.telefono, u.estado
-       ORDER  BY u.apellido ASC, u.nombre ASC`,
+       ORDER  BY ultima_cita_real DESC NULLS LAST, u.apellido ASC, u.nombre ASC`,
       [idMedico]
     );
 

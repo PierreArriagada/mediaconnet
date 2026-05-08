@@ -18,17 +18,24 @@
     <h1>Pacientes Asociados</h1>
     <p>Seleccione un paciente para revisar su ficha clínica.</p>
 
-    <div *ngIf="pacientes.length === 0">
-      <p>No existen pacientes asociados actualmente.</p>
+    <div style="margin-bottom: 20px;">
+      <input type="search" placeholder="Buscar por nombre, RUT o correo..." [(ngModel)]="terminoBusqueda" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
     </div>
 
-    <div *ngFor="let paciente of pacientes">
+    <div *ngIf="pacientesFiltrados.length === 0">
+      <p>No se encontraron pacientes que coincidan con la búsqueda.</p>
+    </div>
+
+    <div *ngFor="let paciente of pacientesFiltrados">
       <h2>{{ paciente.nombre }} {{ paciente.apellido }}</h2>
       <p><strong>RUT:</strong> {{ paciente.rut }}</p>
       <p><strong>Correo:</strong> {{ paciente.correo }}</p>
       <p><strong>Teléfono:</strong> {{ paciente.telefono }}</p>
       <p><strong>Estado:</strong> {{ paciente.estado }}</p>
-      <p><strong>Última cita:</strong> {{ paciente.ultima_cita ? (paciente.ultima_cita | date:'dd/MM/yyyy') : 'Sin registro' }}</p>
+      <p><strong>Estado Relación Clínica:</strong> {{ (paciente.ultima_cita_real || paciente.proxima_cita) ? 'Activo' : 'Inactivo' }}</p>
+      <p><strong>Última cita real:</strong> {{ paciente.ultima_cita_real ? (paciente.ultima_cita_real | date:'dd/MM/yyyy') : 'Sin registro' }}</p>
+      <p><strong>Próxima cita:</strong> {{ paciente.proxima_cita ? (paciente.proxima_cita | date:'dd/MM/yyyy') : 'No agendada' }}</p>
+      <p><strong>Total de atenciones:</strong> {{ paciente.total_atenciones }}</p>
 
       <button type="button" (click)="verFicha(paciente.id_paciente)">
         Ver ficha clínica
