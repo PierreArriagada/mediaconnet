@@ -1198,6 +1198,7 @@ async function getSolicitudAlternativas(req, res) {
  * PATCH /api/admin/solicitudes/:id/confirmar
  * El admin confirma la asignación sugerida por el sistema.
  * Cambia estado_cita → 'confirmada' y limpia fecha_limite_asignacion.
+ * Notifica al médico asignado y al paciente (si tiene cuenta registrada).
  * Usa FOR UPDATE para evitar condición de carrera con el job.
  */
 async function confirmarSolicitud(req, res) {
@@ -1211,13 +1212,22 @@ async function confirmarSolicitud(req, res) {
     await client.query('BEGIN');
 
     const citaRes = await client.query(
-      `SELECT id_cita, id_disponibilidad
-       FROM citas_medicas
-       WHERE id_cita = $1
-         AND es_invitado = TRUE
-         AND estado_cita = 'pendiente'
-         AND fecha_limite_asignacion IS NOT NULL
-       FOR UPDATE`,
+      `SELECT c.id_cita, c.id_disponibilidad,
+              c.fecha_cita::text, c.hora_cita::text,
+              c.nombre_invitado, c.apellido_invitado,
+              um.id_usuario AS id_usuario_medico,
+              um.nombre     AS medico_nombre,
+              um.apellido   AS medico_apellido,
+              pac.id_usuario AS id_usuario_paciente
+       FROM citas_medicas c
+       JOIN medicos   m   ON m.id_medico  = c.id_medico
+       JOIN usuarios  um  ON um.id_usuario = m.id_usuario
+       JOIN pacientes pac ON pac.id_paciente = c.id_paciente
+       WHERE c.id_cita = $1
+         AND c.es_invitado = TRUE
+         AND c.estado_cita = 'pendiente'
+         AND c.fecha_limite_asignacion IS NOT NULL
+       FOR UPDATE OF c`,
       [idCita]
     );
 
@@ -1226,6 +1236,8 @@ async function confirmarSolicitud(req, res) {
       return res.status(404).json({ message: 'Solicitud no encontrada o ya procesada.' });
     }
 
+    const cita = citaRes.rows[0];
+
     await client.query(
       `UPDATE citas_medicas
        SET estado_cita = 'confirmada',
@@ -1233,6 +1245,28 @@ async function confirmarSolicitud(req, res) {
        WHERE id_cita = $1`,
       [idCita]
     );
+
+    // Notificar al médico asignado
+    await client.query(
+      `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+       VALUES ($1, 'Cita de invitado confirmada', $2, 'confirmacion', FALSE)`,
+      [
+        cita.id_usuario_medico,
+        `La solicitud #${idCita} de ${cita.nombre_invitado} ${cita.apellido_invitado} fue confirmada para el ${cita.fecha_cita} a las ${cita.hora_cita.substring(0, 5)}.`,
+      ]
+    );
+
+    // Notificar al paciente solo si tiene cuenta registrada
+    if (cita.id_usuario_paciente) {
+      await client.query(
+        `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+         VALUES ($1, 'Solicitud confirmada', $2, 'confirmacion', FALSE)`,
+        [
+          cita.id_usuario_paciente,
+          `Tu solicitud de cita fue confirmada con ${cita.medico_nombre} ${cita.medico_apellido} para el ${cita.fecha_cita} a las ${cita.hora_cita.substring(0, 5)}.`,
+        ]
+      );
+    }
 
     await client.query('COMMIT');
     return res.json({ message: 'Solicitud confirmada correctamente.' });
@@ -1252,6 +1286,7 @@ async function confirmarSolicitud(req, res) {
  * - Libera el slot anterior (→ 'disponible')
  * - Reserva el nuevo slot (→ 'reservada') con FOR UPDATE
  * - Actualiza la cita y la confirma en un solo commit
+ * - Notifica al médico reasignado y al paciente (si tiene cuenta)
  */
 async function reasignarSolicitud(req, res) {
   const idCita = parseInt(req.params.id, 10);
@@ -1268,15 +1303,18 @@ async function reasignarSolicitud(req, res) {
   try {
     await client.query('BEGIN');
 
-    // Bloquear la cita y leer el slot actual
+    // Bloquear la cita y leer el slot actual + datos del invitado/paciente
     const citaRes = await client.query(
-      `SELECT id_cita, id_disponibilidad AS id_slot_actual
-       FROM citas_medicas
-       WHERE id_cita = $1
-         AND es_invitado = TRUE
-         AND estado_cita = 'pendiente'
-         AND fecha_limite_asignacion IS NOT NULL
-       FOR UPDATE`,
+      `SELECT c.id_cita, c.id_disponibilidad AS id_slot_actual,
+              c.nombre_invitado, c.apellido_invitado,
+              pac.id_usuario AS id_usuario_paciente
+       FROM citas_medicas c
+       JOIN pacientes pac ON pac.id_paciente = c.id_paciente
+       WHERE c.id_cita = $1
+         AND c.es_invitado = TRUE
+         AND c.estado_cita = 'pendiente'
+         AND c.fecha_limite_asignacion IS NOT NULL
+       FOR UPDATE OF c`,
       [idCita]
     );
     if (citaRes.rowCount === 0) {
@@ -1284,14 +1322,21 @@ async function reasignarSolicitud(req, res) {
       return res.status(404).json({ message: 'Solicitud no encontrada o ya procesada.' });
     }
 
-    const idSlotActual = citaRes.rows[0].id_slot_actual;
+    const cita = citaRes.rows[0];
+    const idSlotActual = cita.id_slot_actual;
 
-    // Bloquear y verificar el nuevo slot
+    // Bloquear y verificar el nuevo slot + datos del médico destino
     const nuevoSlotRes = await client.query(
-      `SELECT id_disponibilidad, id_medico, fecha::text, hora_inicio::text, hora_fin::text, estado
-       FROM disponibilidad_medica
-       WHERE id_disponibilidad = $1
-       FOR UPDATE`,
+      `SELECT d.id_disponibilidad, d.id_medico,
+              d.fecha::text, d.hora_inicio::text, d.hora_fin::text, d.estado,
+              um.id_usuario AS id_usuario_medico,
+              um.nombre     AS medico_nombre,
+              um.apellido   AS medico_apellido
+       FROM disponibilidad_medica d
+       JOIN medicos  m  ON m.id_medico   = d.id_medico
+       JOIN usuarios um ON um.id_usuario = m.id_usuario
+       WHERE d.id_disponibilidad = $1
+       FOR UPDATE OF d`,
       [idNuevoSlot]
     );
     if (nuevoSlotRes.rowCount === 0) {
@@ -1331,6 +1376,28 @@ async function reasignarSolicitud(req, res) {
        WHERE id_cita = $5`,
       [idNuevoSlot, nuevoSlot.id_medico, nuevoSlot.fecha, nuevoSlot.hora_inicio, idCita]
     );
+
+    // Notificar al médico reasignado
+    await client.query(
+      `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+       VALUES ($1, 'Cita de invitado reasignada', $2, 'confirmacion', FALSE)`,
+      [
+        nuevoSlot.id_usuario_medico,
+        `Se le reasignó la solicitud #${idCita} de ${cita.nombre_invitado} ${cita.apellido_invitado} para el ${nuevoSlot.fecha} a las ${nuevoSlot.hora_inicio.substring(0, 5)}.`,
+      ]
+    );
+
+    // Notificar al paciente solo si tiene cuenta registrada
+    if (cita.id_usuario_paciente) {
+      await client.query(
+        `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+         VALUES ($1, 'Solicitud confirmada', $2, 'confirmacion', FALSE)`,
+        [
+          cita.id_usuario_paciente,
+          `Tu solicitud de cita fue confirmada con ${nuevoSlot.medico_nombre} ${nuevoSlot.medico_apellido} para el ${nuevoSlot.fecha} a las ${nuevoSlot.hora_inicio.substring(0, 5)}.`,
+        ]
+      );
+    }
 
     await client.query('COMMIT');
     return res.json({ message: 'Solicitud reasignada y confirmada correctamente.' });
