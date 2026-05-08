@@ -15,19 +15,19 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
-  // Módulo del paciente (protegido por authGuard)
+  // Módulo del paciente (protegido por authGuard y roleGuard)
   {
     path: 'paciente',
     loadChildren: () =>
       import('./features/paciente/paciente.routes').then((m) => m.PACIENTE_ROUTES),
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard('Paciente')],
   },
-  // Módulo del médico (protegido por authGuard)
+  // Módulo del médico (protegido por authGuard y roleGuard)
   {
     path: 'medico',
     loadChildren: () =>
       import('./features/medico/medico.routes').then((m) => m.MEDICO_ROUTES),
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard('Medico')],
   },
   // Módulo del administrador (protegido por authGuard + roleGuard)
   {
