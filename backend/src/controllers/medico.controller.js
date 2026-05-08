@@ -609,6 +609,7 @@ async function marcarAsistencia(req, res) {
     // Verificar que la cita pertenece a este médico y es marcable
     const citaResult = await client.query(
       `SELECT c.id_cita, c.estado_cita, c.asistio_cita, c.fecha_cita, c.hora_cita,
+              ((c.fecha_cita + c.hora_cita) <= NOW()) AS cita_ocurrida,
               p.id_usuario AS id_usuario_paciente
        FROM   citas_medicas c
        JOIN   pacientes     p ON c.id_paciente = p.id_paciente
@@ -624,6 +625,11 @@ async function marcarAsistencia(req, res) {
     }
 
     const cita = citaResult.rows[0];
+
+    if (!cita.cita_ocurrida) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ message: 'Solo se puede marcar asistencia cuando la cita ya ocurrió.' });
+    }
 
     // Solo citas confirmadas o completadas sin asistencia previa pueden marcarse
     if (!['confirmada', 'completada'].includes(cita.estado_cita)) {
