@@ -136,7 +136,9 @@
 
           <!-- Editor de bloques horarios: filas desde/hasta + botón agregar -->
           <div class="ag-bloques-editor">
-            <h4 class="ag-bloques-editor__title">Editor de Bloques Horarios</h4>
+            <h4 class="ag-bloques-editor__title">
+              {{ bloqueEditandoId !== null ? 'Editar bloque horario' : 'Editor de Bloques Horarios' }}
+            </h4>
 
             <div class="ag-bloque-row" *ngFor="let bloque of bloquesForm; let i = index">
               <div class="ag-bloque-row__field">
@@ -152,15 +154,21 @@
                 type="button"
                 class="ag-icon-btn ag-icon-btn--danger"
                 (click)="eliminarBloqueForm(i)"
+                [disabled]="bloqueEditandoId !== null"
                 aria-label="Eliminar rango horario"
               >
                 <span class="material-symbols-outlined">delete</span>
               </button>
             </div>
 
-            <button type="button" class="ag-add-bloque" (click)="agregarBloqueForm()">
+            <button
+              type="button"
+              class="ag-add-bloque"
+              (click)="agregarBloqueForm()"
+              [disabled]="bloqueEditandoId !== null"
+            >
               <span class="material-symbols-outlined">add_circle</span>
-              Agregar bloque horario
+              {{ bloqueEditandoId !== null ? 'Editando un bloque existente' : 'Agregar bloque horario' }}
             </button>
           </div>
 
@@ -168,7 +176,7 @@
           <div class="ag-acciones-card">
 
           <!-- Repetir semanas -->
-          <div class="ag-repetir-row">
+          <div class="ag-repetir-row" *ngIf="bloqueEditandoId === null">
             <label>
               Repetir durante
               <input
@@ -187,8 +195,16 @@
             <button type="button" class="ag-btn-ghost" (click)="togglePanelHorario()">
               Descartar cambios
             </button>
+            <button
+              *ngIf="bloqueEditandoId !== null"
+              type="button"
+              class="ag-btn-ghost"
+              (click)="cancelarEdicion()"
+            >
+              Cancelar edición
+            </button>
             <button type="button" class="ag-btn-primary" (click)="guardarDisponibilidad()">
-              Guardar configuración de agenda
+              {{ bloqueEditandoId !== null ? 'Guardar edición del bloque' : 'Guardar configuración de agenda' }}
             </button>
           </div>
           </div>
@@ -210,7 +226,13 @@
                 <span class="ag-slot__estado">{{ slot.estado }}</span>
               </div>
               <div class="ag-slot__acciones">
-                <button type="button" class="ag-icon-btn" (click)="editarBloque(slot)" aria-label="Editar bloque">
+                <button
+                  type="button"
+                  class="ag-icon-btn"
+                  (click)="editarBloque(slot)"
+                  [disabled]="slot.estado === 'reservada'"
+                  aria-label="Editar bloque"
+                >
                   <span class="material-symbols-outlined">edit</span>
                 </button>
                 <button

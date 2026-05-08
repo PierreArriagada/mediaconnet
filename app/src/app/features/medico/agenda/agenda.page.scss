@@ -119,6 +119,11 @@
     color: var(--mc-on-surface);
   }
 
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+
   .material-symbols-outlined {
     font-size: 1.25rem;
   }
@@ -954,6 +959,11 @@ ion-content {
     border-color: var(--mc-primary);
     color: var(--mc-primary);
   }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
 }
 
 /* Edu: tarjeta visual para agrupar repetición y acciones de agenda */
@@ -1056,6 +1066,12 @@ ion-content {
 
   &:active {
     transform: scale(0.98);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
   }
 }
 

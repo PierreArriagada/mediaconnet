@@ -287,11 +287,21 @@ export class AgendaPage implements OnInit {
 
   /** Agrega una nueva fila vacía al editor de bloques horarios. */
   agregarBloqueForm(): void {
+    if (this.bloqueEditandoId !== null) {
+      this.feedbackMessage = 'Termina o cancela la edición actual antes de agregar otro rango.';
+      return;
+    }
+
     this.bloquesForm = [...this.bloquesForm, { horaInicio: '09:00', horaFin: '10:00' }];
   }
 
   /** Elimina la fila del editor de bloques (no elimina bloques ya guardados). */
   eliminarBloqueForm(index: number): void {
+    if (this.bloqueEditandoId !== null) {
+      this.feedbackMessage = 'No se puede eliminar la fila única mientras editas un bloque guardado.';
+      return;
+    }
+
     this.bloquesForm = this.bloquesForm.filter((_, i) => i !== index);
   }
 
@@ -303,6 +313,11 @@ export class AgendaPage implements OnInit {
   guardarDisponibilidad(): void {
     if (!this.bloquesFormValidos()) {
       this.feedbackMessage = 'Revisa los rangos: la hora fin debe ser posterior a la hora inicio en cada bloque.';
+      return;
+    }
+
+    if (this.bloqueEditandoId !== null) {
+      this.guardarEdicionBloque();
       return;
     }
 
@@ -335,6 +350,51 @@ export class AgendaPage implements OnInit {
       },
       error: () => {
         this.feedbackMessage = 'No fue posible guardar los bloques. Intenta nuevamente.';
+      },
+    });
+  }
+
+  private guardarEdicionBloque(): void {
+    const idBloque = this.bloqueEditandoId;
+    const bloque = this.bloquesForm[0];
+
+    if (idBloque === null || !bloque) {
+      this.feedbackMessage = 'No hay un bloque seleccionado para editar.';
+      return;
+    }
+
+    const slotActual = this.disponibilidad.find((slot) => slot.id_disponibilidad === idBloque);
+    if (!slotActual) {
+      this.feedbackMessage = 'El bloque seleccionado ya no está disponible en la agenda.';
+      this.bloqueEditandoId = null;
+      return;
+    }
+
+    if (slotActual.estado === 'reservada') {
+      this.feedbackMessage = 'No se puede editar una disponibilidad con cita reservada.';
+      return;
+    }
+
+    const cambios: Partial<DisponibilidadBloque> = {
+      hora_inicio: bloque.horaInicio,
+      hora_fin: bloque.horaFin,
+    };
+
+    if (slotActual.nota !== undefined) {
+      cambios.nota = slotActual.nota;
+    }
+
+    this.medicoService.actualizarDisponibilidad(idBloque, cambios).subscribe({
+      next: (actualizado: DisponibilidadBloque) => {
+        this.disponibilidad = this.disponibilidad.map((item) =>
+          item.id_disponibilidad !== idBloque ? item : actualizado
+        );
+        this.bloqueEditandoId = null;
+        this.bloquesForm = [{ horaInicio: '08:00', horaFin: '10:30' }];
+        this.feedbackMessage = 'Bloque horario actualizado correctamente.';
+      },
+      error: (err) => {
+        this.feedbackMessage = err?.error?.message ?? 'No fue posible actualizar el bloque horario.';
       },
     });
   }
@@ -392,14 +452,20 @@ export class AgendaPage implements OnInit {
    * sepa que está actualizando un bloque existente (conectar en E2).
    */
   editarBloque(slot: DisponibilidadBloque): void {
+    if (slot.estado === 'reservada') {
+      this.feedbackMessage = 'No se puede editar una disponibilidad con cita reservada.';
+      return;
+    }
+
     this.bloqueEditandoId = slot.id_disponibilidad;
-    this.bloquesForm = [{ horaInicio: slot.hora_inicio, horaFin: slot.hora_fin }];
+    this.bloquesForm = [{ horaInicio: slot.hora_inicio.slice(0, 5), horaFin: slot.hora_fin.slice(0, 5) }];
     this.feedbackMessage = 'Editando bloque existente. Ajusta el rango y guarda.';
   }
 
   /** Sale del modo edición sin guardar cambios. */
   cancelarEdicion(): void {
     this.bloqueEditandoId = null;
+    this.bloquesForm = [{ horaInicio: '08:00', horaFin: '10:30' }];
     this.feedbackMessage = '';
   }
 
@@ -624,5 +690,3 @@ export class AgendaPage implements OnInit {
     return `${year}-${month}-${day}`;
   }
 }
-
-
