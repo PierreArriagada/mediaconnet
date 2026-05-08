@@ -12,6 +12,11 @@ export const ADMIN_ROUTES: Routes = [
       import('./home/admin-home.page').then((m) => m.AdminHomePage),
   },
   {
+    path: 'auditoria',
+    loadComponent: () =>
+      import('./auditoria/auditoria.page').then((m) => m.AuditoriaPage),
+  },
+  {
     path: 'operacion',
     loadChildren: () =>
       import('./operacion/operacion.routes').then((m) => m.OPERACION_ROUTES),
@@ -56,7 +61,5 @@ export const ADMIN_ROUTES: Routes = [
     loadComponent: () =>
       import('./perfil/soporte/soporte.page').then((m) => m.SoporteAdminPage),
   },
-  // path: 'auditoria'      → pendiente
   // path: 'ajustes'        → pendiente
 ];
-

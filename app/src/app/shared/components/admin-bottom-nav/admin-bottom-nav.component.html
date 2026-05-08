@@ -2,6 +2,7 @@
 
   <a class="adm-nav__item"
      [class.adm-nav__item--active]="activeTab === 'home'"
+     [attr.aria-current]="activeTab === 'home' ? 'page' : null"
      (click)="ir('home')"
      role="button"
      tabindex="0"
@@ -12,6 +13,7 @@
 
   <a class="adm-nav__item"
      [class.adm-nav__item--active]="activeTab === 'medicos'"
+     [attr.aria-current]="activeTab === 'medicos' ? 'page' : null"
      (click)="ir('medicos')"
      role="button"
      tabindex="0"
@@ -22,6 +24,7 @@
 
   <a class="adm-nav__item"
      [class.adm-nav__item--active]="activeTab === 'pacientes'"
+     [attr.aria-current]="activeTab === 'pacientes' ? 'page' : null"
      (click)="ir('pacientes')"
      role="button"
      tabindex="0"
@@ -32,12 +35,24 @@
 
   <a class="adm-nav__item"
      [class.adm-nav__item--active]="activeTab === 'operacion'"
+     [attr.aria-current]="activeTab === 'operacion' ? 'page' : null"
      (click)="ir('operacion')"
      role="button"
      tabindex="0"
      aria-label="Centro de operaciones">
     <span class="material-symbols-outlined adm-nav__icon" aria-hidden="true">build_circle</span>
     <span class="adm-nav__label">Operación</span>
+  </a>
+
+  <a class="adm-nav__item"
+     [class.adm-nav__item--active]="activeTab === 'auditoria'"
+     [attr.aria-current]="activeTab === 'auditoria' ? 'page' : null"
+     (click)="ir('auditoria')"
+     role="button"
+     tabindex="0"
+     aria-label="Auditoría administrativa">
+    <span class="material-symbols-outlined adm-nav__icon" aria-hidden="true">receipt_long</span>
+    <span class="adm-nav__label">Auditoría</span>
   </a>
 
 </nav>

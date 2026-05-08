@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 
-export type AdminNavTab = 'home' | 'medicos' | 'pacientes' | 'operacion';
+export type AdminNavTab = 'home' | 'medicos' | 'pacientes' | 'operacion' | 'auditoria';
 
 @Component({
   selector: 'app-admin-bottom-nav',

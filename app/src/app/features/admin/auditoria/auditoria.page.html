@@ -1,0 +1,148 @@
+<app-admin-header [userName]="user?.name ?? ''" [noLeidas]="0"></app-admin-header>
+
+<ion-content class="audit-content">
+  <main class="audit-wrap">
+    <header class="audit-head">
+      <div>
+        <p class="audit-kicker">Administrador</p>
+        <h1>Auditoría</h1>
+      </div>
+
+      <button class="audit-refresh" type="button" (click)="cargarAuditoria()" [disabled]="cargando" aria-label="Actualizar auditoría">
+        <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+      </button>
+    </header>
+
+    <section class="audit-summary" aria-label="Resumen de auditoría">
+      <article class="audit-stat">
+        <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>
+        <strong>{{ resumen?.total_eventos ?? 0 }}</strong>
+        <span>Total</span>
+      </article>
+
+      <article class="audit-stat">
+        <span class="material-symbols-outlined" aria-hidden="true">today</span>
+        <strong>{{ resumen?.eventos_hoy ?? 0 }}</strong>
+        <span>Hoy</span>
+      </article>
+
+      <article class="audit-stat">
+        <span class="material-symbols-outlined" aria-hidden="true">error</span>
+        <strong>{{ resumen?.eventos_error ?? 0 }}</strong>
+        <span>Errores</span>
+      </article>
+
+      <article class="audit-stat">
+        <span class="material-symbols-outlined" aria-hidden="true">admin_panel_settings</span>
+        <strong>{{ resumen?.administradores ?? 0 }}</strong>
+        <span>Admins</span>
+      </article>
+    </section>
+
+    <section class="audit-filters" aria-label="Filtros de auditoría">
+      <label class="audit-field audit-field--search">
+        <span class="material-symbols-outlined" aria-hidden="true">search</span>
+        <input
+          type="search"
+          [(ngModel)]="filtroBusqueda"
+          (keyup.enter)="aplicarFiltros()"
+          placeholder="Buscar usuario, correo o endpoint"
+          aria-label="Buscar en auditoría"
+        />
+      </label>
+
+      <label class="audit-field">
+        <select [(ngModel)]="filtroCategoria" aria-label="Filtrar por categoría">
+          <option value="">Todas las categorías</option>
+          <option *ngFor="let categoria of categorias" [value]="categoria.value">{{ categoria.label }}</option>
+        </select>
+      </label>
+
+      <label class="audit-field">
+        <select [(ngModel)]="filtroTipoAccion" aria-label="Filtrar por acción">
+          <option value="">Todas las acciones</option>
+          <option *ngFor="let accion of tiposAccion" [value]="accion.value">{{ accion.label }}</option>
+        </select>
+      </label>
+
+      <button class="audit-btn audit-btn--primary" type="button" (click)="aplicarFiltros()" [disabled]="cargando">
+        Aplicar
+      </button>
+
+      <button class="audit-btn" type="button" (click)="limpiarFiltros()" [disabled]="cargando">
+        Limpiar
+      </button>
+    </section>
+
+    <section class="audit-panel">
+      <div class="audit-panel__top">
+        <span>{{ total }} eventos</span>
+        <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
+      </div>
+
+      <div *ngIf="cargando" class="audit-state" role="status">
+        <span class="material-symbols-outlined" aria-hidden="true">sync</span>
+        Cargando auditoría...
+      </div>
+
+      <div *ngIf="!cargando && error" class="audit-state audit-state--error" role="alert">
+        <span class="material-symbols-outlined" aria-hidden="true">warning</span>
+        {{ error }}
+      </div>
+
+      <div *ngIf="!cargando && !error && logs.length === 0" class="audit-state">
+        <span class="material-symbols-outlined" aria-hidden="true">manage_search</span>
+        Sin eventos para mostrar.
+      </div>
+
+      <div *ngIf="!cargando && !error && logs.length > 0" class="audit-table" role="table" aria-label="Eventos auditados">
+        <div class="audit-row audit-row--head" role="row">
+          <span role="columnheader">Fecha</span>
+          <span role="columnheader">Acción</span>
+          <span role="columnheader">Usuario</span>
+          <span role="columnheader">Detalle</span>
+          <span role="columnheader">Estado</span>
+        </div>
+
+        <div class="audit-row" role="row" *ngFor="let log of logs; trackBy: trackByLog">
+          <span role="cell" class="audit-date">{{ formatearFecha(log.fecha_evento) }}</span>
+
+          <span role="cell" class="audit-action">
+            <span class="material-symbols-outlined" aria-hidden="true">{{ iconoAccion(log.tipo_accion) }}</span>
+            {{ etiquetaAccion(log.tipo_accion) }}
+          </span>
+
+          <span role="cell" class="audit-user">
+            <strong>{{ log.nombre_usuario_admin }}</strong>
+            <small>{{ log.email_usuario_admin }}</small>
+          </span>
+
+          <span role="cell" class="audit-detail">
+            <strong>{{ etiquetaCategoria(log.categoria) }}</strong>
+            <small>{{ descripcion(log) }} · {{ log.metodo_http }} {{ log.endpoint_api }}</small>
+          </span>
+
+          <span role="cell">
+            <span class="audit-badge" [class.audit-badge--error]="log.estado === 'error'">
+              {{ log.codigo_respuesta || '-' }}
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div class="audit-pagination" *ngIf="!cargando && !error && total > limit">
+        <button type="button" (click)="paginaAnterior()" [disabled]="offset === 0">
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+          Anterior
+        </button>
+
+        <button type="button" (click)="paginaSiguiente()" [disabled]="offset + limit >= total">
+          Siguiente
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <app-admin-bottom-nav slot="fixed" activeTab="auditoria"></app-admin-bottom-nav>
+</ion-content>

@@ -8,6 +8,7 @@ const pacienteRoutes   = require('./routes/paciente.routes');
 const citasRoutes      = require('./routes/citas.routes');
 const medicoRoutes     = require('./routes/medico.routes');
 const adminRoutes      = require('./routes/admin.routes');
+const auditRoutes      = require('./routes/audit.routes');
 const errorHandler     = require('./middleware/error.middleware');
 const { iniciarJobAutoAsignacion }   = require('./jobs/auto-asignacion.job');
 const { iniciarJobAutoInasistencia } = require('./jobs/auto-inasistencia.job');
@@ -53,6 +54,7 @@ app.use('/api/auth',     authRoutes);
 app.use('/api/paciente', pacienteRoutes);
 app.use('/api/citas',    citasRoutes);
 app.use('/api/medico',   medicoRoutes);
+app.use('/api/admin/auditoria', auditRoutes);
 app.use('/api/admin',    adminRoutes);
 
 // Rutas no encontradas

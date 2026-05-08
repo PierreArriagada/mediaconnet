@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const { requireAuth, requireRole } = require('../middleware/auth.middleware');
+const { auditarAccionAdmin } = require('../services/audit.service');
 const {
   getMedicos,
   getDisponibilidadMedico,
@@ -38,6 +39,7 @@ const router = Router();
 // Todas las rutas admin requieren JWT válido y rol Administrador
 router.use(requireAuth);
 router.use(requireRole('Administrador'));
+router.use(auditarAccionAdmin);
 
 // ── Médicos (horarios) — orden importa: /gestion antes de /:id ──────────────
 router.get('/medicos', getMedicos);

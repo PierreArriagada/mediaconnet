@@ -9,7 +9,6 @@ app/.ionic/
 backend/node_modules/
 Ubuntudev/
 docs/
-auditoria/
 
 # ── Variables de entorno con secretos
 .env
@@ -33,5 +32,5 @@ docker-compose.override.yml
 .idea/
 
 # ── Auditoría local
-auditoria/
+/auditoria/
 README_NOTIFICACIONES_AUDITORIA.md

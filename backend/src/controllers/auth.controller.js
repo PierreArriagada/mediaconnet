@@ -3,6 +3,7 @@ const jwt  = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const pool = require('../db/pool');
+const { registrarLoginAdmin } = require('../services/audit.service');
 const { JWT_SECRET, JWT_EXPIRES } = require('../config/jwt.config');
 const { normalizeRut } = require('../utils/rut');
 const { isValidPassword } = require('../utils/password.utils');
@@ -46,6 +47,7 @@ async function sendRecoveryEmailSandbox(to, resetLink) {
 
 /** Inicio de sesión: verifica credenciales contra la BD real usando pgcrypto */
 async function login(req, res) {
+  const inicio = Date.now();
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ message: 'Datos inválidos' });
@@ -87,6 +89,12 @@ async function login(req, res) {
     };
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES });
+
+    await registrarLoginAdmin({
+      req,
+      user: payload,
+      duracionMs: Date.now() - inicio,
+    });
 
     return res.json({ token, user: payload });
   } catch (err) {

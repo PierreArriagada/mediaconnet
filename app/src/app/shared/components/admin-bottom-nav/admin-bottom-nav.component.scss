@@ -28,8 +28,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    // padding adaptado para 5 ítems pero con los mismos estilos
-    padding: 0.5rem 0.6rem;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.5rem 0.25rem;
     border-radius: var(--mc-radius-xl);
     cursor: pointer;
     text-decoration: none;
@@ -38,7 +39,6 @@
     gap: 0.25rem;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    min-width: 3.5rem;
 
     // Pestaña activa: fondo azul pálido + texto oscuro (igual a paciente/médico)
     &--active {
@@ -53,7 +53,10 @@
   &__icon { font-size: 1.5rem; }
 
   &__label {
-    font-size: 0.75rem;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.7rem;
     font-weight: 600;
     font-family: var(--mc-font-utility);
     white-space: nowrap;
