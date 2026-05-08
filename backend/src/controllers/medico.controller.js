@@ -1066,11 +1066,25 @@ async function actualizarDisponibilidad(req, res) {
 
     // Verificar que el bloque pertenece al médico autenticado
     const bloqueResult = await pool.query(
-      'SELECT estado FROM disponibilidad_medica WHERE id_disponibilidad = $1 AND id_medico = $2',
+      `SELECT
+         d.estado,
+         EXISTS (
+           SELECT 1
+           FROM citas_medicas c
+           WHERE c.id_disponibilidad = d.id_disponibilidad
+             AND c.estado_cita IN ('pendiente', 'confirmada')
+         ) AS tiene_cita_activa
+       FROM disponibilidad_medica d
+       WHERE d.id_disponibilidad = $1
+         AND d.id_medico = $2`,
       [idDisponibilidad, idMedico]
     );
     if (bloqueResult.rowCount === 0) {
       return res.status(404).json({ message: 'Bloque no encontrado.' });
+    }
+
+    if (bloqueResult.rows[0].estado === 'reservada' || bloqueResult.rows[0].tiene_cita_activa) {
+      return res.status(409).json({ message: 'No se puede modificar un bloque con cita reservada.' });
     }
 
     const campos = [];
