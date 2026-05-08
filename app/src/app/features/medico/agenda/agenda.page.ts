@@ -12,7 +12,14 @@ import {
   DisponibilidadBloque,
   MedicoService,
 } from '../../../core/services/medico.service';
-import { formatFechaCorta, formatFechaDiaMesAnio, formatFechaLargaConDia, formatHoraCorta, formatMesAnio } from '../../../shared/utils/fecha.utils';
+import {
+  esFechaHoraFutura,
+  formatFechaCorta,
+  formatFechaDiaMesAnio,
+  formatFechaLargaConDia,
+  formatHoraCorta,
+  formatMesAnio,
+} from '../../../shared/utils/fecha.utils';
 
 type VistaAgenda = 'dia' | 'semana' | 'mes'; // Solo 'semana' y 'mes' están implementadas visualmente
 // Opciones válidas para el filtro de estado de cita. Sirve para autocompletar y evitar strings sueltos.
@@ -631,11 +638,7 @@ export class AgendaPage implements OnInit {
   }
 
   private citaEsFutura(cita: CitaMedico): boolean {
-    return this.fechaHoraCita(cita).getTime() > Date.now();
-  }
-
-  private fechaHoraCita(cita: CitaMedico): Date {
-    return new Date(`${this.fechaCita(cita)}T${cita.hora_cita.slice(0, 5)}`);
+    return esFechaHoraFutura(cita.fecha_cita, cita.hora_cita);
   }
 
   formatFechaSlot(fechaISO: string | null | undefined): string {

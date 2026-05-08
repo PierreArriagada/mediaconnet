@@ -325,7 +325,7 @@
             <!-- Edu: fecha y hora visibles para que Próximas Citas no dependa del día seleccionado -->
             <div class="ag-card__time">
               <span class="material-symbols-outlined">event</span>
-              {{ formatFechaSlot(cita.fecha_cita) }} · {{ cita.hora_cita.substring(0, 5) }}
+              {{ formatFechaSlot(cita.fecha_cita) }} · {{ formatHora(cita.hora_cita) }}
             </div>
             <!-- Usamos un badge para el estado -->
             <span class="ag-badge" [ngClass]="'ag-badge--' + normalizarEstado(cita.estado_cita)">

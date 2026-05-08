@@ -17,6 +17,7 @@ import { NotificacionesMedicoStateService } from '../../../core/services/notific
 import { McAlertComponent } from '../../../shared/components/alertas-sistema/mc-alert/mc-alert.component';
 import { MedicoHeaderComponent } from '../../../shared/components/medico-header/medico-header.component';
 import { MedicoBottomNavComponent } from '../../../shared/components/medico-bottom-nav/medico-bottom-nav.component';
+import { formatFechaLarga, formatHoraCorta } from '../../../shared/utils/fecha.utils';
 
 type TabMedico = 'hoy' | 'proximas';
 
@@ -170,15 +171,11 @@ export class MedicoHomePage implements OnInit {
   }
 
   formatFecha(fecha: string): string {
-    if (!fecha) return '—';
-    const [y, m, d] = fecha.split('T')[0].split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString('es-CL', {
-      day: 'numeric', month: 'long', year: 'numeric',
-    });
+    return formatFechaLarga(fecha);
   }
 
   formatHora(hora: string): string {
-    return hora?.slice(0, 5) ?? '—';
+    return formatHoraCorta(hora);
   }
 
   irAAgenda(): void {

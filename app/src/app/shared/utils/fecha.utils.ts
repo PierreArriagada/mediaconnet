@@ -41,13 +41,52 @@ const MES_ANIO: Intl.DateTimeFormatOptions = {
   year: 'numeric',
 };
 
-function fechaLocalDesdeIso(fecha: string | null | undefined): Date | null {
+export function fechaLocalDesdeIso(fecha: string | null | undefined): Date | null {
   if (!fecha) return null;
 
   const [year, month, day] = fecha.split('T')[0].split('-').map(Number);
   if (!year || !month || !day) return null;
 
   return new Date(year, month - 1, day);
+}
+
+export function fechaHoraLocalDesdeIso(
+  fecha: string | null | undefined,
+  hora: string | null | undefined,
+): Date | null {
+  const fechaLocal = fechaLocalDesdeIso(fecha);
+  if (!fechaLocal || !hora) return null;
+
+  const [hours, minutes] = hora.slice(0, 5).split(':').map(Number);
+  if (
+    !Number.isInteger(hours) ||
+    !Number.isInteger(minutes) ||
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59
+  ) {
+    return null;
+  }
+
+  return new Date(
+    fechaLocal.getFullYear(),
+    fechaLocal.getMonth(),
+    fechaLocal.getDate(),
+    hours,
+    minutes,
+  );
+}
+
+export function esFechaHoraFutura(
+  fecha: string | null | undefined,
+  hora: string | null | undefined,
+  referencia = new Date(),
+): boolean {
+  const fechaHora = fechaHoraLocalDesdeIso(fecha, hora);
+  if (!fechaHora) return false;
+
+  return fechaHora.getTime() > referencia.getTime();
 }
 
 function formatearFecha(
