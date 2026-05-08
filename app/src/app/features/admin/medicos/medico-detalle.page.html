@@ -217,7 +217,7 @@
                 <label class="md-label" for="eEsp">Especialidad <span class="md-req">*</span></label>
                 <select id="eEsp" class="md-input md-select" [(ngModel)]="editIdEspecialidad" name="editIdEspecialidad" required>
                   @for (esp of especialidades; track esp.id_especialidad) {
-                    <option [value]="esp.id_especialidad">{{ esp.nombre_especialidad }}</option>
+                    <option [ngValue]="esp.id_especialidad">{{ esp.nombre_especialidad }}</option>
                   }
                 </select>
               </div>

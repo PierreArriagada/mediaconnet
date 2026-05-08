@@ -89,7 +89,7 @@ export class MedicoNuevoPage implements OnInit {
       correo:           this.correo.trim(),
       telefono:         this.telefono.trim() || undefined,
       password_inicial: this.passwordInicial,
-      id_especialidad:  this.idEspecialidad!,
+      id_especialidad:  Number(this.idEspecialidad),
       numero_registro:  this.numeroRegistro.trim(),
       anios_experiencia: this.aniosExperiencia,
       biografia:        this.biografia.trim() || undefined,

@@ -139,9 +139,9 @@
             name="idEspecialidad"
             required
           >
-            <option [value]="null" disabled>Selecciona una especialidad</option>
+            <option [ngValue]="null" disabled>Selecciona una especialidad</option>
             @for (esp of especialidades; track esp.id_especialidad) {
-              <option [value]="esp.id_especialidad">{{ esp.nombre_especialidad }}</option>
+              <option [ngValue]="esp.id_especialidad">{{ esp.nombre_especialidad }}</option>
             }
           </select>
         </div>

@@ -223,7 +223,7 @@ export class MedicoDetallePage implements OnInit {
       apellido:         this.editApellido.trim(),
       correo:           this.editCorreo.trim(),
       telefono:         this.editTelefono.trim() || undefined,
-      id_especialidad:  this.editIdEspecialidad!,
+      id_especialidad:  Number(this.editIdEspecialidad),
       numero_registro:  this.editNumeroRegistro.trim(),
       anios_experiencia: this.editAnios,
       biografia:        this.editBiografia.trim() || undefined,
