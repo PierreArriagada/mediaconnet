@@ -730,6 +730,10 @@ async function editarPerfilMedico(req, res) {
  *  inactivo   → medicos.estado = inactivo
  *  activo     → medicos.estado = activo, usuarios.estado = activo
  *  resto      → solo cambia estado_laboral (médico sigue activo en sistema)
+ *
+ * Cascada: si el nuevo estado no es 'activo', las citas futuras pendientes o
+ * confirmadas del médico se cancelan, sus slots se liberan y se notifica a
+ * los pacientes afectados que tengan cuenta registrada.
  */
 async function cambiarEstadoLaboral(req, res) {
   const idMedico = parseInt(req.params.id, 10);
@@ -802,12 +806,58 @@ async function cambiarEstadoLaboral(req, res) {
     }
     // vacaciones / licencia_medica / licencia_administrativa → solo estado_laboral cambia
 
+    // ── Cascada: cancelar citas futuras si el médico deja de estar operativo ──
+    let citasCanceladas = 0;
+    if (nuevo_estado !== 'activo') {
+      const citasFuturas = await client.query(
+        `SELECT c.id_cita, c.id_disponibilidad, c.fecha_cita::text, c.hora_cita::text,
+                pac.id_usuario AS id_usuario_paciente
+         FROM citas_medicas c
+         JOIN pacientes pac ON pac.id_paciente = c.id_paciente
+         WHERE c.id_medico = $1
+           AND c.estado_cita IN ('pendiente', 'confirmada')
+           AND (c.fecha_cita + c.hora_cita) > NOW()`,
+        [idMedico]
+      );
+
+      for (const cita of citasFuturas.rows) {
+        // Cancelar la cita
+        await client.query(
+          `UPDATE citas_medicas SET estado_cita = 'cancelada' WHERE id_cita = $1`,
+          [cita.id_cita]
+        );
+
+        // Liberar el slot de disponibilidad si existe
+        if (cita.id_disponibilidad) {
+          await client.query(
+            `UPDATE disponibilidad_medica SET estado = 'disponible' WHERE id_disponibilidad = $1`,
+            [cita.id_disponibilidad]
+          );
+        }
+
+        // Notificar al paciente si tiene cuenta registrada
+        if (cita.id_usuario_paciente) {
+          await client.query(
+            `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+             VALUES ($1, 'Cita cancelada por el centro', $2, 'cancelacion', FALSE)`,
+            [
+              cita.id_usuario_paciente,
+              `Tu cita del ${cita.fecha_cita} a las ${cita.hora_cita.substring(0, 5)} fue cancelada porque el profesional no estará disponible. Por favor reagenda con otro especialista.`,
+            ]
+          );
+        }
+      }
+
+      citasCanceladas = citasFuturas.rowCount;
+    }
+
     await client.query('COMMIT');
 
     return res.json({
       message: 'Estado laboral actualizado correctamente.',
       nuevo_estado,
       motivo: motivo ?? null,
+      citas_canceladas: citasCanceladas,
     });
   } catch (err) {
     await client.query('ROLLBACK');
