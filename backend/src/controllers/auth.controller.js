@@ -5,6 +5,7 @@ const nodemailer = require('nodemailer');
 const pool = require('../db/pool');
 const { JWT_SECRET, JWT_EXPIRES } = require('../config/jwt.config');
 const { normalizeRut } = require('../utils/rut');
+const { isValidPassword } = require('../utils/password.utils');
 
 async function sendRecoveryEmailSandbox(to, resetLink) {
   const testAccount = await nodemailer.createTestAccount();
@@ -275,9 +276,9 @@ async function forgotPassword(req, res) {
 async function resetPassword(req, res) {
   const { token, password } = req.body;
 
-  if (!token || !password || password.length < 8) {
+  if (!token || !isValidPassword(password)) {
     return res.status(400).json({
-      message: 'Datos inválidos para restablecer la contraseña.',
+      message: 'Datos inválidos para restablecer la contraseña. Debe tener entre 8 y 128 caracteres.',
     });
   }
 

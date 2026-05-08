@@ -1,4 +1,5 @@
 const pool = require('../db/pool');
+const { isValidPassword } = require('../utils/password.utils');
 const { parsePagination } = require('../utils/pagination');
 
 async function contarNotificacionesNoLeidas(idUsuario) {
@@ -1287,7 +1288,7 @@ async function cambiarPasswordPaciente(req, res) {
   if (!contrasena_actual || typeof contrasena_actual !== 'string') {
     return res.status(400).json({ message: 'Contraseña actual requerida.' });
   }
-  if (!contrasena_nueva || typeof contrasena_nueva !== 'string' || contrasena_nueva.length < 8 || contrasena_nueva.length > 128) {
+  if (!isValidPassword(contrasena_nueva)) {
     return res.status(400).json({ message: 'La nueva contraseña debe tener entre 8 y 128 caracteres.' });
   }
 
