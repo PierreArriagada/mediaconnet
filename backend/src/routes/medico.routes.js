@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const { requireAuth, requireRole } = require('../middleware/auth.middleware');
+const pool = require('../db/pool');
 const {
   getDashboardMedico,
   getCitasParaMarcar,
@@ -63,9 +64,24 @@ const uploadFotoPerfil = multer({
 
 const router = Router();
 
-// Todas las rutas del módulo médico requieren JWT válido y rol Medico
+// Todas las rutas del módulo médico requieren JWT válido, rol Medico y perfil activo
 router.use(requireAuth);
 router.use(requireRole('Medico'));
+
+async function requireMedicoActivo(req, res, next) {
+  const idUsuario = parseInt(req.user.id, 10);
+  try {
+    const result = await pool.query('SELECT estado FROM medicos WHERE id_usuario = $1', [idUsuario]);
+    if (result.rowCount === 0 || result.rows[0].estado !== 'activo') {
+      return res.status(403).json({ message: 'Perfil de médico inactivo. El acceso al módulo está bloqueado.' });
+    }
+    next();
+  } catch (err) {
+    return res.status(500).json({ message: 'Error verificando estado del médico.' });
+  }
+}
+
+router.use(requireMedicoActivo);
 
 router.get('/dashboard', getDashboardMedico);
 router.get('/perfil', getPerfilMedico);
