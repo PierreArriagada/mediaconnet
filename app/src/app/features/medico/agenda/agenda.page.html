@@ -327,7 +327,11 @@
           </div>
           
           <div class="ag-card__footer">
-            <button class="ag-btn-secondary" type="button" (click)="verFichaPaciente($any(cita).id_paciente)">
+            <button class="ag-btn-secondary" type="button" (click)="verDetalleCita(cita.id_cita)">
+              <span class="material-symbols-outlined">clinical_notes</span>
+              Ver detalle
+            </button>
+            <button class="ag-btn-secondary" type="button" (click)="verFichaPaciente(cita.id_paciente)">
               <span class="material-symbols-outlined">person</span>
               Ver ficha paciente
             </button>

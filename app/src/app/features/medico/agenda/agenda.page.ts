@@ -547,6 +547,10 @@ export class AgendaPage implements OnInit {
     this.router.navigate(['/medico/pacientes', idPaciente, 'ficha']);
   }
 
+  verDetalleCita(idCita: number) {
+    this.router.navigate(['/medico/citas', idCita]);
+  }
+
   /**
    * Sanitiza el estado que llega de backend, por si el desarrollador puso Uppercase o estados
    * inesperados que no encajan en el filtro controlado. Fuerza cualquier valor corrupto a "pendiente".
@@ -623,7 +627,6 @@ export class AgendaPage implements OnInit {
     return `${year}-${month}-${day}`;
   }
 }
-
 
 
 

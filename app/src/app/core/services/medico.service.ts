@@ -65,6 +65,7 @@ export interface PacientesMedicoData {
 
 export interface CitaMedico {
   id_cita:                number;
+  id_paciente:            number;
   fecha_cita:             string;
   hora_cita:              string;
   estado_cita:            string;
@@ -80,6 +81,49 @@ export interface CitaMedico {
 export interface CitasMedicoData {
   citas:    CitaMedico[];
   noLeidas: number;
+}
+
+export interface HistorialAtencionMedico {
+  id_historial:    number;
+  id_cita:         number;
+  diagnostico:     string | null;
+  tratamiento:     string | null;
+  observaciones:   string | null;
+  fecha_registro:  string;
+}
+
+export interface DetalleCitaMedicoData {
+  cita: {
+    id_cita:                  number;
+    id_paciente:              number;
+    id_especialidad:          number;
+    id_disponibilidad:        number | null;
+    fecha_cita:               string;
+    hora_cita:                string;
+    estado_cita:              string;
+    modalidad:                string;
+    motivo_consulta:          string;
+    observaciones_cita:       string | null;
+    es_invitado:              boolean;
+    confirmada_asistencia:    boolean | null;
+    asistio_cita:             boolean | null;
+    paciente_rut:             string;
+    paciente_nombre:          string;
+    paciente_apellido:        string;
+    paciente_correo:          string;
+    paciente_telefono:        string;
+    nombre_especialidad:      string;
+    cita_ocurrida:            boolean;
+  };
+  historial: HistorialAtencionMedico | null;
+  puedeRegistrarHistorial: boolean;
+  noLeidas: number;
+}
+
+export interface GuardarHistorialCitaPayload {
+  diagnostico?:   string | null;
+  tratamiento?:   string | null;
+  observaciones?: string | null;
 }
 
 export interface DashboardMedicoData {
@@ -198,6 +242,20 @@ export class MedicoService {
 
   getCitasProximas(): Observable<CitasMedicoData> {
     return this.http.get<CitasMedicoData>(`${this.API}/citas-proximas`);
+  }
+
+  getDetalleCita(idCita: number): Observable<DetalleCitaMedicoData> {
+    return this.http.get<DetalleCitaMedicoData>(`${this.API}/cita/${idCita}`);
+  }
+
+  guardarHistorialCita(
+    idCita: number,
+    payload: GuardarHistorialCitaPayload
+  ): Observable<{ message: string; historial: HistorialAtencionMedico }> {
+    return this.http.put<{ message: string; historial: HistorialAtencionMedico }>(
+      `${this.API}/cita/${idCita}/historial`,
+      payload
+    );
   }
 
   // Edu: obtiene ficha clínica básica del paciente para futuras vistas médicas.

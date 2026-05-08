@@ -194,9 +194,7 @@ export class MedicoHomePage implements OnInit {
   }
 
   verDetalleCita(idCita: number): void {
-    // TODO: Navegar al detalle de cita cuando esté implementado
-    // Por ahora, ir a la página de citas
-    this.router.navigate(['/medico/citas']);
+    this.router.navigate(['/medico/citas', idCita]);
   }
 
   cerrarSesion(): void {

@@ -1,8 +1,140 @@
-<app-medico-header [userName]="user?.name ?? ''"></app-medico-header>
+<app-medico-header [userName]="user?.name ?? ''" [noLeidas]="noLeidas"></app-medico-header>
 
-<ion-content [fullscreen]="true">
-  <div class="mc-page-placeholder">
-    <h2>Próximamente: detalle de citas</h2>
-    <p>Esta vista será el punto de entrada para los datos de cada cita médica.</p>
-  </div>
+<ion-content class="ct-content" [fullscreen]="true">
+  <main class="ct-main">
+    <button class="ct-back" type="button" (click)="volverAgenda()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Agenda
+    </button>
+
+    <section *ngIf="sinCitaSeleccionada" class="ct-state">
+      <span class="material-symbols-outlined">event_note</span>
+      <h2>Selecciona una cita</h2>
+      <p>Abre el detalle desde Inicio o Agenda para registrar la atención clínica.</p>
+    </section>
+
+    <section *ngIf="isLoading" class="ct-state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <h2>Cargando cita</h2>
+      <p>Consultando el detalle clínico asociado al profesional autenticado.</p>
+    </section>
+
+    <section *ngIf="!isLoading && errorMessage" class="ct-state ct-state--error">
+      <span class="material-symbols-outlined">error</span>
+      <h2>No disponible</h2>
+      <p>{{ errorMessage }}</p>
+      <button class="ct-btn-primary" type="button" (click)="cargarDetalle()">Reintentar</button>
+    </section>
+
+    <ng-container *ngIf="!isLoading && !errorMessage && detalle as data">
+      <section class="ct-hero">
+        <div>
+          <p class="ct-kicker">Cita #{{ data.cita.id_cita }}</p>
+          <h1>{{ data.cita.paciente_nombre }} {{ data.cita.paciente_apellido }}</h1>
+          <p>{{ data.cita.nombre_especialidad }} · {{ formatFecha(data.cita.fecha_cita) }} · {{ formatHora(data.cita.hora_cita) }}</p>
+        </div>
+        <button class="ct-btn-secondary" type="button" (click)="verFichaPaciente()">
+          <span class="material-symbols-outlined">assignment_ind</span>
+          Ver ficha
+        </button>
+      </section>
+
+      <section class="ct-grid">
+        <article class="ct-panel">
+          <h2>Datos de la cita</h2>
+          <dl class="ct-definition">
+            <div>
+              <dt>Estado</dt>
+              <dd>{{ normalizarEstado(data.cita.estado_cita) | titlecase }}</dd>
+            </div>
+            <div>
+              <dt>Asistencia</dt>
+              <dd>{{ labelAsistencia(data.cita.asistio_cita) }}</dd>
+            </div>
+            <div>
+              <dt>Modalidad</dt>
+              <dd>{{ data.cita.modalidad | titlecase }}</dd>
+            </div>
+            <div>
+              <dt>RUT</dt>
+              <dd>{{ data.cita.paciente_rut }}</dd>
+            </div>
+            <div>
+              <dt>Correo</dt>
+              <dd>{{ data.cita.paciente_correo || 'Sin correo' }}</dd>
+            </div>
+            <div>
+              <dt>Teléfono</dt>
+              <dd>{{ data.cita.paciente_telefono || 'Sin teléfono' }}</dd>
+            </div>
+          </dl>
+
+          <div class="ct-note">
+            <h3>Motivo de consulta</h3>
+            <p>{{ data.cita.motivo_consulta }}</p>
+          </div>
+
+          <div class="ct-note" *ngIf="data.cita.observaciones_cita">
+            <h3>Observaciones de agenda</h3>
+            <p>{{ data.cita.observaciones_cita }}</p>
+          </div>
+        </article>
+
+        <form class="ct-panel ct-panel--clinical" [formGroup]="historialForm" (ngSubmit)="guardarHistorial()">
+          <div class="ct-panel__header">
+            <div>
+              <p class="ct-kicker">Historial clínico</p>
+              <h2>Registro de atención</h2>
+            </div>
+            <span class="ct-pill" *ngIf="data.historial">Editando</span>
+          </div>
+
+          <p *ngIf="!data.puedeRegistrarHistorial" class="ct-warning">
+            El historial se habilita cuando la cita ya ocurrió y está confirmada o completada.
+          </p>
+
+          <label class="ct-field">
+            <span>Diagnóstico</span>
+            <textarea
+              formControlName="diagnostico"
+              [attr.maxlength]="maxTextoClinico"
+              [readonly]="!data.puedeRegistrarHistorial"
+              rows="5"
+            ></textarea>
+          </label>
+
+          <label class="ct-field">
+            <span>Tratamiento</span>
+            <textarea
+              formControlName="tratamiento"
+              [attr.maxlength]="maxTextoClinico"
+              [readonly]="!data.puedeRegistrarHistorial"
+              rows="5"
+            ></textarea>
+          </label>
+
+          <label class="ct-field">
+            <span>Observaciones clínicas</span>
+            <textarea
+              formControlName="observaciones"
+              [attr.maxlength]="maxTextoClinico"
+              [readonly]="!data.puedeRegistrarHistorial"
+              rows="5"
+            ></textarea>
+          </label>
+
+          <button
+            class="ct-btn-primary"
+            type="submit"
+            [disabled]="!data.puedeRegistrarHistorial || isSaving"
+          >
+            <span class="material-symbols-outlined">save</span>
+            {{ isSaving ? 'Guardando...' : 'Guardar historial' }}
+          </button>
+        </form>
+      </section>
+    </ng-container>
+  </main>
 </ion-content>
+
+<app-medico-bottom-nav slot="fixed" activeTab="agenda"></app-medico-bottom-nav>

@@ -7,6 +7,8 @@ const {
   getDashboardMedico,
   getCitasParaMarcar,
   getCitasProximas,
+  getDetalleCitaMedico,
+  guardarHistorialCitaMedico,
   marcarAsistencia,
   getFichaPaciente,
   getPacientesMedico,
@@ -83,6 +85,8 @@ router.get('/citas-hoy', getCitasParaMarcar);
 router.get('/citas-proximas', getCitasProximas);
 router.get('/pacientes', getPacientesMedico);
 router.get('/paciente/:idPaciente/ficha', getFichaPaciente);
+router.get('/cita/:idCita', getDetalleCitaMedico);
+router.put('/cita/:idCita/historial', guardarHistorialCitaMedico);
 router.patch('/cita/:idCita/marcar-asistencia', marcarAsistencia);
 
 // Disponibilidad médica

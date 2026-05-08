@@ -22,6 +22,11 @@ export const MEDICO_ROUTES: Routes = [
       import('./citas/citas.page').then(m => m.CitasPage),
   },
   {
+    path: 'citas/:idCita',
+    loadComponent: () =>
+      import('./citas/citas.page').then(m => m.CitasPage),
+  },
+  {
     path: 'pacientes',
     loadComponent: () =>
       import('./pacientes/pacientes.page').then(m => m.PacientesPage),

@@ -4,6 +4,39 @@ const { parsePagination } = require('../utils/pagination');
 
 const pool = require('../db/pool');
 
+const MAX_TEXTO_CLINICO = 5000;
+
+function validarPayloadHistorialAtencion(body = {}) {
+  const campos = ['diagnostico', 'tratamiento', 'observaciones'];
+  const data = {};
+
+  for (const campo of campos) {
+    const valor = body[campo];
+
+    if (valor === undefined || valor === null) {
+      data[campo] = null;
+      continue;
+    }
+
+    if (typeof valor !== 'string') {
+      return { error: `El campo "${campo}" debe ser texto.` };
+    }
+
+    const limpio = valor.trim();
+    if (limpio.length > MAX_TEXTO_CLINICO) {
+      return { error: `El campo "${campo}" no puede superar ${MAX_TEXTO_CLINICO} caracteres.` };
+    }
+
+    data[campo] = limpio || null;
+  }
+
+  if (!data.diagnostico && !data.tratamiento && !data.observaciones) {
+    return { error: 'Debes registrar diagnóstico, tratamiento u observaciones clínicas.' };
+  }
+
+  return { data };
+}
+
 /**
  * GET /api/medico/notificaciones
  * Devuelve las notificaciones del médico autenticado.
@@ -247,6 +280,7 @@ async function getCitasParaMarcar(req, res) {
     const citasResult = await pool.query(
       `SELECT
          c.id_cita,
+         c.id_paciente,
          c.fecha_cita,
          c.hora_cita,
          c.estado_cita,
@@ -342,6 +376,198 @@ async function getCitasProximas(req, res) {
   } catch (err) {
     console.error('Error en getCitasProximas:', err);
     return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * GET /api/medico/cita/:idCita
+ * Devuelve el detalle clínico de una cita asignada al médico autenticado.
+ * Anti-IDOR: la cita debe pertenecer al id_medico derivado del JWT.
+ */
+async function getDetalleCitaMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idCita = parseInt(req.params.idCita, 10);
+
+  if (isNaN(idUsuario) || isNaN(idCita) || idCita < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  try {
+    const medicoResult = await pool.query(
+      'SELECT id_medico FROM medicos WHERE id_usuario = $1 AND estado = $2',
+      [idUsuario, 'activo']
+    );
+    if (medicoResult.rowCount === 0) {
+      return res.status(403).json({ message: 'No se encontró perfil de médico activo.' });
+    }
+    const idMedico = medicoResult.rows[0].id_medico;
+
+    const citaResult = await pool.query(
+      `SELECT
+         c.id_cita,
+         c.id_paciente,
+         c.id_especialidad,
+         c.id_disponibilidad,
+         c.fecha_cita::text AS fecha_cita,
+         c.hora_cita::text  AS hora_cita,
+         c.estado_cita,
+         c.modalidad,
+         c.motivo_consulta,
+         c.observaciones AS observaciones_cita,
+         c.es_invitado,
+         c.confirmada_asistencia,
+         c.asistio_cita,
+         p.rut AS paciente_rut,
+         COALESCE(up.nombre, c.nombre_invitado, 'Paciente') AS paciente_nombre,
+         COALESCE(up.apellido, c.apellido_invitado, '') AS paciente_apellido,
+         COALESCE(up.correo, c.correo_invitado, '') AS paciente_correo,
+         COALESCE(up.telefono, c.telefono_invitado, '') AS paciente_telefono,
+         e.nombre_especialidad,
+         ((c.fecha_cita + c.hora_cita) <= NOW()) AS cita_ocurrida
+       FROM   citas_medicas  c
+       JOIN   pacientes      p  ON c.id_paciente     = p.id_paciente
+       LEFT JOIN usuarios    up ON p.id_usuario      = up.id_usuario
+       JOIN   especialidades e  ON c.id_especialidad = e.id_especialidad
+       WHERE  c.id_cita   = $1
+         AND  c.id_medico = $2`,
+      [idCita, idMedico]
+    );
+
+    if (citaResult.rowCount === 0) {
+      return res.status(404).json({ message: 'Cita no encontrada o no pertenece a este médico.' });
+    }
+
+    const historialResult = await pool.query(
+      `SELECT
+         id_historial,
+         id_cita,
+         diagnostico,
+         tratamiento,
+         observaciones,
+         fecha_registro
+       FROM historial_atenciones
+       WHERE id_cita = $1`,
+      [idCita]
+    );
+
+    const unreadResult = await pool.query(
+      `SELECT COUNT(*) AS total FROM notificaciones WHERE id_usuario = $1 AND leida = FALSE`,
+      [idUsuario]
+    );
+
+    const cita = citaResult.rows[0];
+    const puedeRegistrarHistorial = Boolean(
+      cita.cita_ocurrida && ['confirmada', 'completada'].includes(cita.estado_cita)
+    );
+
+    return res.json({
+      cita,
+      historial: historialResult.rows[0] ?? null,
+      puedeRegistrarHistorial,
+      noLeidas: parseInt(unreadResult.rows[0].total, 10),
+    });
+  } catch (err) {
+    console.error('Error en getDetalleCitaMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * PUT /api/medico/cita/:idCita/historial
+ * Crea o actualiza el historial clínico de una cita del médico autenticado.
+ */
+async function guardarHistorialCitaMedico(req, res) {
+  const idUsuario = parseInt(req.user.id, 10);
+  const idCita = parseInt(req.params.idCita, 10);
+
+  if (isNaN(idUsuario) || isNaN(idCita) || idCita < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
+  }
+
+  const validacion = validarPayloadHistorialAtencion(req.body);
+  if (validacion.error) {
+    return res.status(400).json({ message: validacion.error });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const medicoResult = await client.query(
+      'SELECT id_medico FROM medicos WHERE id_usuario = $1 AND estado = $2',
+      [idUsuario, 'activo']
+    );
+    if (medicoResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ message: 'No se encontró perfil de médico activo.' });
+    }
+    const idMedico = medicoResult.rows[0].id_medico;
+
+    const citaResult = await client.query(
+      `SELECT
+         id_cita,
+         estado_cita,
+         ((fecha_cita + hora_cita) <= NOW()) AS cita_ocurrida
+       FROM citas_medicas
+       WHERE id_cita = $1
+         AND id_medico = $2
+       FOR UPDATE`,
+      [idCita, idMedico]
+    );
+
+    if (citaResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ message: 'Cita no encontrada o no pertenece a este médico.' });
+    }
+
+    const cita = citaResult.rows[0];
+    if (!cita.cita_ocurrida) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ message: 'El historial clínico solo puede registrarse cuando la cita ya ocurrió.' });
+    }
+
+    if (!['confirmada', 'completada'].includes(cita.estado_cita)) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ message: 'El historial clínico solo puede registrarse en citas confirmadas o completadas.' });
+    }
+
+    const { diagnostico, tratamiento, observaciones } = validacion.data;
+    const historialResult = await client.query(
+      `INSERT INTO historial_atenciones (
+         id_cita,
+         diagnostico,
+         tratamiento,
+         observaciones,
+         fecha_registro
+       )
+       VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+       ON CONFLICT (id_cita)
+       DO UPDATE SET
+         diagnostico = EXCLUDED.diagnostico,
+         tratamiento = EXCLUDED.tratamiento,
+         observaciones = EXCLUDED.observaciones,
+         fecha_registro = CURRENT_TIMESTAMP
+       RETURNING
+         id_historial,
+         id_cita,
+         diagnostico,
+         tratamiento,
+         observaciones,
+         fecha_registro`,
+      [idCita, diagnostico, tratamiento, observaciones]
+    );
+
+    await client.query('COMMIT');
+    return res.json({
+      message: 'Historial clínico guardado correctamente.',
+      historial: historialResult.rows[0],
+    });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error en guardarHistorialCitaMedico:', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  } finally {
+    client.release();
   }
 }
 
@@ -1072,6 +1298,8 @@ module.exports = {
   getDashboardMedico,
   getCitasParaMarcar,
   getCitasProximas,
+  getDetalleCitaMedico,
+  guardarHistorialCitaMedico,
   marcarAsistencia,
   getFichaPaciente,
   getPacientesMedico,
