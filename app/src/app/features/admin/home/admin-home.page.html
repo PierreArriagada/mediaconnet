@@ -33,8 +33,8 @@
           Solicitudes pendientes
         </span>
         <span class="adm-chip" role="listitem">
-          <span class="material-symbols-outlined" aria-hidden="true">policy</span>
-          Auditoría activa
+          <span class="material-symbols-outlined" aria-hidden="true">verified_user</span>
+          Control de roles
         </span>
       </div>
     </section>
@@ -65,25 +65,25 @@
       <h2 class="adm-section__title">Accesos rápidos</h2>
 
       <div class="adm-quick-grid">
-        <button class="adm-quick-card" type="button" aria-label="Ir a gestión de médicos">
+        <button class="adm-quick-card" type="button" (click)="irA('/admin/medicos')" aria-label="Ir a gestión de médicos">
           <span class="material-symbols-outlined adm-quick-card__icon" aria-hidden="true">stethoscope</span>
           <p class="adm-quick-card__label">Médicos</p>
           <p class="adm-quick-card__sub">Alta, estado y perfil profesional</p>
         </button>
 
-        <button class="adm-quick-card" type="button" aria-label="Ir a gestión de pacientes">
+        <button class="adm-quick-card" type="button" (click)="irA('/admin/pacientes')" aria-label="Ir a gestión de pacientes">
           <span class="material-symbols-outlined adm-quick-card__icon" aria-hidden="true">groups</span>
           <p class="adm-quick-card__label">Pacientes</p>
           <p class="adm-quick-card__sub">Ficha administrativa y soporte</p>
         </button>
 
-        <button class="adm-quick-card" type="button" aria-label="Ir a cola de solicitudes">
+        <button class="adm-quick-card" type="button" (click)="irA('/admin/operacion/solicitudes')" aria-label="Ir a cola de solicitudes">
           <span class="material-symbols-outlined adm-quick-card__icon" aria-hidden="true">pending_actions</span>
           <p class="adm-quick-card__label">Solicitudes</p>
           <p class="adm-quick-card__sub">Cola operativa de revisión</p>
         </button>
 
-        <button class="adm-quick-card" type="button" aria-label="Ir a operación global">
+        <button class="adm-quick-card" type="button" (click)="irA('/admin/operacion')" aria-label="Ir a operación global">
           <span class="material-symbols-outlined adm-quick-card__icon" aria-hidden="true">build_circle</span>
           <p class="adm-quick-card__label">Operación</p>
           <p class="adm-quick-card__sub">Citas, horarios y catálogo clínico</p>
