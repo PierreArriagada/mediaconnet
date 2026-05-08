@@ -65,6 +65,12 @@ CREATE TABLE usuarios (
     CONSTRAINT fk_usuarios_roles FOREIGN KEY (id_rol)
         REFERENCES roles(id_rol) ON DELETE RESTRICT
 );
+-- NOTA ARQUITECTÓNICA: cada correo electrónico está vinculado a un único
+-- id_rol. El sistema no soporta perfiles multirrol bajo la misma cuenta.
+-- Si un médico necesita ser atendido como paciente, debe registrarse con
+-- un correo electrónico distinto. Si en el futuro se requiere soporte
+-- multirrol, será necesario rediseñar la relación usuarios-roles
+-- (ej. tabla intermedia usuario_roles con múltiples filas por usuario).
 
 CREATE TABLE especialidades (
     id_especialidad INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
