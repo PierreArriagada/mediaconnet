@@ -1264,10 +1264,10 @@ async function getCitaDetalle(req, res) {
          c.fecha_actualizacion,
          -- Paciente
          pac.id_paciente,
-         up.nombre             AS paciente_nombre,
-         up.apellido           AS paciente_apellido,
-         up.correo             AS paciente_correo,
-         up.telefono           AS paciente_telefono,
+         COALESCE(up.nombre, c.nombre_invitado)       AS paciente_nombre,
+         COALESCE(up.apellido, c.apellido_invitado)   AS paciente_apellido,
+         COALESCE(up.correo, c.correo_invitado)       AS paciente_correo,
+         COALESCE(up.telefono, c.telefono_invitado)   AS paciente_telefono,
          pac.rut               AS paciente_rut,
          -- Médico
          m.id_medico,
@@ -1282,7 +1282,7 @@ async function getCitaDetalle(req, res) {
          e.nombre_especialidad AS especialidad
        FROM citas_medicas c
        JOIN pacientes pac ON pac.id_paciente = c.id_paciente
-       JOIN usuarios up ON up.id_usuario = pac.id_usuario
+       LEFT JOIN usuarios up ON up.id_usuario = pac.id_usuario
        JOIN medicos m ON m.id_medico = c.id_medico
        JOIN usuarios um ON um.id_usuario = m.id_usuario
        JOIN especialidades e ON e.id_especialidad = c.id_especialidad
