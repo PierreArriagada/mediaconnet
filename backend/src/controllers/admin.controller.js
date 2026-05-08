@@ -870,18 +870,203 @@ async function cambiarEstadoLaboral(req, res) {
 
 /**
  * GET /api/admin/especialidades
- * Lista todas las especialidades para selectores del backoffice.
+ * Lista todas las especialidades para selectores y gestión del backoffice.
  */
 async function getEspecialidades(req, res) {
   try {
     const result = await pool.query(
-      `SELECT id_especialidad, nombre_especialidad, estado
-       FROM especialidades
-       ORDER BY nombre_especialidad`,
+      `SELECT
+         e.id_especialidad,
+         e.nombre_especialidad,
+         e.descripcion,
+         e.estado,
+         COUNT(m.id_medico)::int AS total_medicos
+       FROM especialidades e
+       LEFT JOIN medicos m
+         ON m.id_especialidad = e.id_especialidad
+        AND m.estado = 'activo'
+       GROUP BY e.id_especialidad, e.nombre_especialidad, e.descripcion, e.estado
+       ORDER BY e.nombre_especialidad`,
     );
     return res.json({ especialidades: result.rows });
   } catch (err) {
     console.error('Error en getEspecialidades (admin):', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+function validarEspecialidadPayload(body) {
+  const nombre = typeof body?.nombre_especialidad === 'string'
+    ? body.nombre_especialidad.trim()
+    : '';
+  const descripcion = typeof body?.descripcion === 'string'
+    ? body.descripcion.trim()
+    : '';
+
+  if (nombre.length < 2) {
+    return { error: 'El nombre de la especialidad debe tener al menos 2 caracteres.' };
+  }
+  if (nombre.length > 100) {
+    return { error: 'El nombre de la especialidad no puede superar 100 caracteres.' };
+  }
+  if (descripcion.length > 255) {
+    return { error: 'La descripción no puede superar 255 caracteres.' };
+  }
+
+  return {
+    data: {
+      nombre_especialidad: nombre,
+      descripcion: descripcion || null,
+    },
+  };
+}
+
+async function getEspecialidadAdminPorId(idEspecialidad) {
+  const result = await pool.query(
+    `SELECT
+       e.id_especialidad,
+       e.nombre_especialidad,
+       e.descripcion,
+       e.estado,
+       COUNT(m.id_medico)::int AS total_medicos
+     FROM especialidades e
+     LEFT JOIN medicos m
+       ON m.id_especialidad = e.id_especialidad
+      AND m.estado = 'activo'
+     WHERE e.id_especialidad = $1
+     GROUP BY e.id_especialidad, e.nombre_especialidad, e.descripcion, e.estado`,
+    [idEspecialidad]
+  );
+
+  return result.rows[0] || null;
+}
+
+/**
+ * POST /api/admin/especialidades
+ * Crea una especialidad del catálogo clínico.
+ */
+async function crearEspecialidad(req, res) {
+  const validacion = validarEspecialidadPayload(req.body);
+  if (validacion.error) {
+    return res.status(400).json({ message: validacion.error });
+  }
+
+  const { nombre_especialidad, descripcion } = validacion.data;
+
+  try {
+    const duplicada = await pool.query(
+      'SELECT id_especialidad FROM especialidades WHERE LOWER(nombre_especialidad) = LOWER($1)',
+      [nombre_especialidad]
+    );
+    if (duplicada.rowCount > 0) {
+      return res.status(409).json({ message: 'Ya existe una especialidad con ese nombre.' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO especialidades (nombre_especialidad, descripcion, estado)
+       VALUES ($1, $2, 'activa')
+       RETURNING id_especialidad`,
+      [nombre_especialidad, descripcion]
+    );
+
+    const especialidad = await getEspecialidadAdminPorId(result.rows[0].id_especialidad);
+    return res.status(201).json({ especialidad });
+  } catch (err) {
+    if (err.code === '23505') {
+      return res.status(409).json({ message: 'Ya existe una especialidad con ese nombre.' });
+    }
+
+    console.error('Error en crearEspecialidad (admin):', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * PUT /api/admin/especialidades/:id
+ * Actualiza nombre y descripción de una especialidad.
+ */
+async function actualizarEspecialidad(req, res) {
+  const idEspecialidad = parseInt(req.params.id, 10);
+  if (isNaN(idEspecialidad) || idEspecialidad < 1) {
+    return res.status(400).json({ message: 'ID de especialidad inválido.' });
+  }
+
+  const validacion = validarEspecialidadPayload(req.body);
+  if (validacion.error) {
+    return res.status(400).json({ message: validacion.error });
+  }
+
+  const { nombre_especialidad, descripcion } = validacion.data;
+
+  try {
+    const duplicada = await pool.query(
+      `SELECT id_especialidad
+       FROM especialidades
+       WHERE LOWER(nombre_especialidad) = LOWER($1)
+         AND id_especialidad <> $2`,
+      [nombre_especialidad, idEspecialidad]
+    );
+    if (duplicada.rowCount > 0) {
+      return res.status(409).json({ message: 'Ya existe otra especialidad con ese nombre.' });
+    }
+
+    const result = await pool.query(
+      `UPDATE especialidades
+       SET nombre_especialidad = $1,
+           descripcion = $2
+       WHERE id_especialidad = $3
+       RETURNING id_especialidad`,
+      [nombre_especialidad, descripcion, idEspecialidad]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Especialidad no encontrada.' });
+    }
+
+    const especialidad = await getEspecialidadAdminPorId(idEspecialidad);
+    return res.json({ especialidad });
+  } catch (err) {
+    if (err.code === '23505') {
+      return res.status(409).json({ message: 'Ya existe otra especialidad con ese nombre.' });
+    }
+
+    console.error('Error en actualizarEspecialidad (admin):', err);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * PATCH /api/admin/especialidades/:id/estado
+ * Activa o desactiva una especialidad del catálogo.
+ */
+async function cambiarEstadoEspecialidad(req, res) {
+  const idEspecialidad = parseInt(req.params.id, 10);
+  const estado = req.body?.estado;
+
+  if (isNaN(idEspecialidad) || idEspecialidad < 1) {
+    return res.status(400).json({ message: 'ID de especialidad inválido.' });
+  }
+  if (!['activa', 'inactiva'].includes(estado)) {
+    return res.status(400).json({ message: 'Estado de especialidad inválido.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE especialidades
+       SET estado = $1
+       WHERE id_especialidad = $2
+       RETURNING id_especialidad`,
+      [estado, idEspecialidad]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Especialidad no encontrada.' });
+    }
+
+    const especialidad = await getEspecialidadAdminPorId(idEspecialidad);
+    return res.json({ especialidad });
+  } catch (err) {
+    console.error('Error en cambiarEstadoEspecialidad (admin):', err);
     return res.status(500).json({ message: 'Error interno del servidor.' });
   }
 }
@@ -1678,6 +1863,9 @@ module.exports = {
   editarPerfilMedico,
   cambiarEstadoLaboral,
   getEspecialidades,
+  crearEspecialidad,
+  actualizarEspecialidad,
+  cambiarEstadoEspecialidad,
   // gestión de pacientes
   getPacientes,
   getPacienteDetalle,

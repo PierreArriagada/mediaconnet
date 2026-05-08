@@ -12,6 +12,9 @@ const {
   editarPerfilMedico,
   cambiarEstadoLaboral,
   getEspecialidades,
+  crearEspecialidad,
+  actualizarEspecialidad,
+  cambiarEstadoEspecialidad,
   getPacientes,
   getPacienteDetalle,
   getCitaDetalle,
@@ -52,6 +55,9 @@ router.delete('/disponibilidad/:id', eliminarDisponibilidadMedico);
 
 // ── Catálogos ───────────────────────────────────────────────────────────────
 router.get('/especialidades', getEspecialidades);
+router.post('/especialidades', crearEspecialidad);
+router.put('/especialidades/:id', actualizarEspecialidad);
+router.patch('/especialidades/:id/estado', cambiarEstadoEspecialidad);
 
 // ── Pacientes ───────────────────────────────────────────────────────────────
 router.get('/pacientes', getPacientes);

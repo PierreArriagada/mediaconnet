@@ -94,7 +94,14 @@ export interface MedicoDetalleResponse {
 export interface EspecialidadItem {
   id_especialidad: number;
   nombre_especialidad: string;
-  estado: string;
+  descripcion: string | null;
+  estado: 'activa' | 'inactiva';
+  total_medicos: number;
+}
+
+export interface EspecialidadPayload {
+  nombre_especialidad: string;
+  descripcion?: string | null;
 }
 
 // ── Pacientes ────────────────────────────────────────────────────────────────
@@ -442,6 +449,24 @@ export class AdminService {
     return this.http
       .get<{ especialidades: EspecialidadItem[] }>(`${this.API}/especialidades`)
       .pipe(map((r) => r.especialidades));
+  }
+
+  crearEspecialidad(payload: EspecialidadPayload): Observable<EspecialidadItem> {
+    return this.http
+      .post<{ especialidad: EspecialidadItem }>(`${this.API}/especialidades`, payload)
+      .pipe(map((r) => r.especialidad));
+  }
+
+  actualizarEspecialidad(id: number, payload: EspecialidadPayload): Observable<EspecialidadItem> {
+    return this.http
+      .put<{ especialidad: EspecialidadItem }>(`${this.API}/especialidades/${id}`, payload)
+      .pipe(map((r) => r.especialidad));
+  }
+
+  cambiarEstadoEspecialidad(id: number, estado: 'activa' | 'inactiva'): Observable<EspecialidadItem> {
+    return this.http
+      .patch<{ especialidad: EspecialidadItem }>(`${this.API}/especialidades/${id}/estado`, { estado })
+      .pipe(map((r) => r.especialidad));
   }
 
   // ── Pacientes ──────────────────────────────────────────────────────────────

@@ -178,6 +178,163 @@ ion-content {
   &::placeholder { color: var(--mc-on-surface-variant); }
 }
 
+.esp-feedback {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--mc-radius-md);
+  background: var(--mc-surface-container-low);
+  color: var(--mc-on-surface);
+  font-family: var(--mc-font-utility);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.esp-form-panel {
+  background: var(--mc-surface-container-lowest);
+  border: 1px solid var(--mc-outline-variant);
+  border-radius: var(--mc-radius-lg);
+  padding: 1rem;
+}
+
+.esp-form-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    color: var(--mc-on-surface);
+    font-family: var(--mc-font-authority);
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+}
+
+.esp-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--mc-on-surface-variant);
+  cursor: pointer;
+
+  &:hover:not(:disabled) { background: var(--mc-surface-container); }
+  &:disabled { cursor: not-allowed; opacity: 0.5; }
+
+  .material-symbols-outlined { font-size: 1.1rem; }
+}
+
+.esp-form {
+  display: grid;
+  gap: 0.875rem;
+
+  @media (min-width: 720px) {
+    grid-template-columns: minmax(12rem, 0.8fr) minmax(18rem, 1.2fr);
+    align-items: end;
+  }
+}
+
+.esp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--mc-on-surface);
+  font-family: var(--mc-font-utility);
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  input,
+  textarea {
+    width: 100%;
+    border: 1px solid var(--mc-outline-variant);
+    border-radius: var(--mc-radius-md);
+    background: var(--mc-surface-container-lowest);
+    color: var(--mc-on-surface);
+    font-family: var(--mc-font-utility);
+    font-size: 0.9rem;
+    font-weight: 500;
+    outline: none;
+    padding: 0.75rem 0.85rem;
+    resize: vertical;
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+    &:focus {
+      border-color: var(--mc-primary);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--mc-primary) 18%, transparent);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+  }
+}
+
+.esp-form__error {
+  margin: 0;
+  color: var(--mc-error);
+  font-family: var(--mc-font-utility);
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  @media (min-width: 720px) {
+    grid-column: 1 / -1;
+  }
+}
+
+.esp-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+
+  @media (min-width: 720px) {
+    grid-column: 1 / -1;
+  }
+}
+
+.esp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.4rem;
+  border: none;
+  border-radius: var(--mc-radius-md);
+  cursor: pointer;
+  font-family: var(--mc-font-utility);
+  font-size: 0.88rem;
+  font-weight: 800;
+  padding: 0.65rem 0.95rem;
+  transition: background 0.15s, opacity 0.15s;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .material-symbols-outlined { font-size: 1.05rem; }
+}
+
+.esp-btn--ghost {
+  background: transparent;
+  color: var(--mc-on-surface-variant);
+
+  &:hover:not(:disabled) { background: var(--mc-surface-container); }
+}
+
+.esp-btn--primary {
+  background: var(--mc-primary);
+  color: var(--mc-on-primary);
+
+  &:hover:not(:disabled) { background: var(--mc-primary-container); }
+}
+
 // ── Grid de tarjetas ─────────────────────────────────────────────────────────
 .esp-grid {
   display: grid;
@@ -251,7 +408,7 @@ ion-content {
 .esp-card__actions {
   display: flex;
   gap: 0.25rem;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.18s;
 }
 
@@ -271,6 +428,7 @@ ion-content {
   .material-symbols-outlined { font-size: 1.1rem; }
 
   &:hover { background: var(--mc-surface-container-low); }
+  &:disabled { cursor: not-allowed; opacity: 0.5; }
 
   &--toggle {
     color: var(--mc-primary);
@@ -392,6 +550,7 @@ ion-content {
   }
 
   &:active { transform: scale(0.96); }
+  &:disabled { cursor: not-allowed; opacity: 0.6; }
 }
 
 .esp-fab__icon {

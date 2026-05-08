@@ -60,65 +60,136 @@
 
     </section>
 
+    @if (feedbackMessage) {
+      <p class="esp-feedback" role="status">{{ feedbackMessage }}</p>
+    }
+
+    @if (formVisible) {
+      <section class="esp-form-panel" aria-label="Formulario de especialidad">
+        <div class="esp-form-panel__header">
+          <h2>{{ formTitulo }}</h2>
+          <button
+            class="esp-icon-btn"
+            type="button"
+            (click)="cancelarFormulario()"
+            [disabled]="guardando"
+            aria-label="Cerrar formulario"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+        </div>
+
+        <form class="esp-form" (ngSubmit)="guardarEspecialidad()">
+          <label class="esp-field">
+            <span>Nombre</span>
+            <input
+              type="text"
+              name="nombreEspecialidad"
+              [(ngModel)]="formNombre"
+              [disabled]="guardando"
+              maxlength="100"
+              required
+            />
+          </label>
+
+          <label class="esp-field">
+            <span>Descripción</span>
+            <textarea
+              name="descripcionEspecialidad"
+              [(ngModel)]="formDescripcion"
+              [disabled]="guardando"
+              maxlength="255"
+              rows="3"
+            ></textarea>
+          </label>
+
+          @if (formError) {
+            <p class="esp-form__error" role="alert">{{ formError }}</p>
+          }
+
+          <div class="esp-form__actions">
+            <button class="esp-btn esp-btn--ghost" type="button" (click)="cancelarFormulario()" [disabled]="guardando">
+              Cancelar
+            </button>
+            <button class="esp-btn esp-btn--primary" type="submit" [disabled]="guardando">
+              <span class="material-symbols-outlined" aria-hidden="true">{{ editandoId ? 'save' : 'add' }}</span>
+              {{ guardando ? 'Guardando…' : submitTexto }}
+            </button>
+          </div>
+        </form>
+      </section>
+    }
+
     <!-- Grid de tarjetas -->
     <section class="esp-grid" aria-label="Lista de especialidades">
 
-      @for (esp of especialidadesFiltradas; track esp.id_especialidad) {
-        <article
-          class="esp-card"
-          [class.esp-card--inactiva]="esp.estado === 'inactiva'"
-          [attr.aria-label]="esp.nombre + ', ' + esp.totalMedicos + ' profesionales'"
-        >
-          <!-- Cabecera de tarjeta: icono + acciones -->
-          <div class="esp-card__top">
-            <div class="esp-card__icon-wrap esp-card__icon-wrap--{{ esp.colorVariant }}" aria-hidden="true">
-              <span class="material-symbols-outlined esp-card__icon">{{ esp.icono }}</span>
-            </div>
-
-            <div class="esp-card__actions" role="group" [attr.aria-label]="'Acciones para ' + esp.nombre">
-              <button
-                class="esp-card__action-btn"
-                type="button"
-                (click)="editarEspecialidad(esp.id_especialidad)"
-                [attr.aria-label]="'Editar ' + esp.nombre"
-              >
-                <span class="material-symbols-outlined" aria-hidden="true">edit</span>
-              </button>
-              <button
-                class="esp-card__action-btn esp-card__action-btn--toggle"
-                type="button"
-                (click)="cambiarEstado(esp)"
-                [attr.aria-label]="(esp.estado === 'activa' ? 'Desactivar ' : 'Activar ') + esp.nombre"
-              >
-                <span class="material-symbols-outlined" aria-hidden="true">
-                  {{ esp.estado === 'activa' ? 'toggle_on' : 'toggle_off' }}
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Nombre y estado -->
-          <h3 class="esp-card__nombre">{{ esp.nombre }}</h3>
-          <p class="esp-card__desc">{{ esp.descripcion }}</p>
-
-          <!-- Pie: conteo de médicos + estado -->
-          <div class="esp-card__footer">
-            <div class="esp-card__count">
-              <span class="esp-card__count-dot esp-card__count-dot--{{ esp.colorVariant }}" aria-hidden="true"></span>
-              <span class="esp-card__count-label">{{ esp.totalMedicos }} profesional{{ esp.totalMedicos !== 1 ? 'es' : '' }}</span>
-            </div>
-            @if (esp.estado === 'inactiva') {
-              <span class="esp-card__badge-inactiva" role="status">Inactiva</span>
-            }
-          </div>
-        </article>
-      }
-
-      @empty {
+      @if (isLoading) {
         <div class="esp-empty" role="status" aria-live="polite">
-          <span class="material-symbols-outlined esp-empty__icon" aria-hidden="true">search_off</span>
-          <p class="esp-empty__text">Sin resultados para "{{ terminoBusqueda }}"</p>
+          <span class="material-symbols-outlined esp-empty__icon" aria-hidden="true">progress_activity</span>
+          <p class="esp-empty__text">Cargando especialidades…</p>
         </div>
+      } @else {
+        @for (esp of especialidadesFiltradas; track esp.id_especialidad) {
+          <article
+            class="esp-card"
+            [class.esp-card--inactiva]="esp.estado === 'inactiva'"
+            [attr.aria-label]="esp.nombre + ', ' + esp.totalMedicos + ' profesionales'"
+          >
+            <!-- Cabecera de tarjeta: icono + acciones -->
+            <div class="esp-card__top">
+              <div class="esp-card__icon-wrap esp-card__icon-wrap--{{ esp.colorVariant }}" aria-hidden="true">
+                <span class="material-symbols-outlined esp-card__icon">{{ esp.icono }}</span>
+              </div>
+
+              <div class="esp-card__actions" role="group" [attr.aria-label]="'Acciones para ' + esp.nombre">
+                <button
+                  class="esp-card__action-btn"
+                  type="button"
+                  (click)="editarEspecialidad(esp.id_especialidad)"
+                  [disabled]="guardando"
+                  [attr.aria-label]="'Editar ' + esp.nombre"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+                </button>
+                <button
+                  class="esp-card__action-btn esp-card__action-btn--toggle"
+                  type="button"
+                  (click)="cambiarEstado(esp)"
+                  [disabled]="guardando"
+                  [attr.aria-label]="(esp.estado === 'activa' ? 'Desactivar ' : 'Activar ') + esp.nombre"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">
+                    {{ esp.estado === 'activa' ? 'toggle_on' : 'toggle_off' }}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Nombre y estado -->
+            <h3 class="esp-card__nombre">{{ esp.nombre }}</h3>
+            <p class="esp-card__desc">{{ esp.descripcion }}</p>
+
+            <!-- Pie: conteo de médicos + estado -->
+            <div class="esp-card__footer">
+              <div class="esp-card__count">
+                <span class="esp-card__count-dot esp-card__count-dot--{{ esp.colorVariant }}" aria-hidden="true"></span>
+                <span class="esp-card__count-label">{{ esp.totalMedicos }} profesional{{ esp.totalMedicos !== 1 ? 'es' : '' }}</span>
+              </div>
+              @if (esp.estado === 'inactiva') {
+                <span class="esp-card__badge-inactiva" role="status">Inactiva</span>
+              }
+            </div>
+          </article>
+        }
+
+        @empty {
+          <div class="esp-empty" role="status" aria-live="polite">
+            <span class="material-symbols-outlined esp-empty__icon" aria-hidden="true">search_off</span>
+            <p class="esp-empty__text">
+              {{ terminoBusqueda ? 'Sin resultados para "' + terminoBusqueda + '"' : 'No hay especialidades registradas.' }}
+            </p>
+          </div>
+        }
       }
 
     </section>
@@ -130,6 +201,7 @@
     class="esp-fab"
     type="button"
     (click)="agregarEspecialidad()"
+    [disabled]="guardando"
     aria-label="Agregar nueva especialidad"
   >
     <span class="material-symbols-outlined esp-fab__icon" aria-hidden="true">add</span>
