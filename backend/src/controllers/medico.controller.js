@@ -480,9 +480,9 @@ async function getCitasProximas(req, res) {
        JOIN   usuarios       up ON p.id_usuario     = up.id_usuario
        JOIN   especialidades e  ON c.id_especialidad = e.id_especialidad
        WHERE  c.id_medico   = $1
-         -- Edu: mostrar próximas solicitudes/citas pendientes o confirmadas desde hoy en adelante
+         -- Edu: mostrar próximas solicitudes/citas pendientes o confirmadas desde ahora en adelante.
          AND  c.estado_cita IN ('pendiente', 'confirmada')
-         AND  c.fecha_cita  >= CURRENT_DATE
+         AND  (c.fecha_cita + c.hora_cita) > NOW()
        ORDER  BY c.fecha_cita ASC, c.hora_cita ASC`,
       [idMedico]
     );
@@ -834,7 +834,7 @@ async function getDashboardMedico(req, res) {
     // Citas de hoy
     const citasHoyResult = await pool.query(
       `SELECT
-         c.id_cita, c.hora_cita, c.estado_cita, c.modalidad,
+         c.id_cita, c.id_paciente, c.fecha_cita, c.hora_cita, c.estado_cita, c.modalidad,
          c.motivo_consulta, c.confirmada_asistencia, c.asistio_cita,
          up.nombre AS paciente_nombre, up.apellido AS paciente_apellido,
          e.nombre_especialidad
@@ -855,7 +855,7 @@ async function getDashboardMedico(req, res) {
        FROM   citas_medicas
        WHERE  id_medico   = $1
          AND  estado_cita = 'confirmada'
-         AND  fecha_cita  <= CURRENT_DATE
+         AND  (fecha_cita + hora_cita) <= NOW()
          AND  asistio_cita IS NULL`,
       [idMedico]
     );
@@ -872,7 +872,7 @@ async function getDashboardMedico(req, res) {
        JOIN   especialidades e  ON c.id_especialidad = e.id_especialidad
        WHERE  c.id_medico   = $1
          AND  c.estado_cita = 'confirmada'
-         AND  c.fecha_cita  > CURRENT_DATE
+         AND  (c.fecha_cita + c.hora_cita) > NOW()
        ORDER  BY c.fecha_cita ASC, c.hora_cita ASC
        LIMIT  1`,
       [idMedico]

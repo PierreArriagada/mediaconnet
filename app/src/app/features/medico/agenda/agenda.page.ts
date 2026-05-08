@@ -236,8 +236,8 @@ export class AgendaPage implements OnInit {
     const busqueda = this.terminoBusqueda.trim().toLowerCase();
 
     return this.citasAgenda.filter((cita) => {
-      // Edu: en "Próximas Citas" ya no filtramos por el día seleccionado, mostramos todas las futuras
-      const coincideFecha = this.fechaCita(cita) >= this.toISODate(new Date());
+      // Edu: en "Próximas Citas" filtramos por fecha y hora exactas para no mostrar citas de hoy ya vencidas.
+      const coincideFecha = this.citaEsFutura(cita);
 
       // Formamos el string por si buscaron combinando nombre y apellido
       const nombrePaciente = `${cita.paciente_nombre} ${cita.paciente_apellido}`.toLowerCase();
@@ -628,6 +628,14 @@ export class AgendaPage implements OnInit {
   // Retorna solo la parte año-mes-día en bruto, sin colas de TimeZone. EJ: 2026-05-01.
   fechaCita(cita: CitaMedico): string {
     return cita.fecha_cita.split('T')[0];
+  }
+
+  private citaEsFutura(cita: CitaMedico): boolean {
+    return this.fechaHoraCita(cita).getTime() > Date.now();
+  }
+
+  private fechaHoraCita(cita: CitaMedico): Date {
+    return new Date(`${this.fechaCita(cita)}T${cita.hora_cita.slice(0, 5)}`);
   }
 
   formatFechaSlot(fechaISO: string | null | undefined): string {
