@@ -93,7 +93,7 @@ async function crearCitaInvitado(req, res) {
     // ── 2. Encontrar el slot disponible más cercano de la especialidad ─
     // Se usa FOR UPDATE para bloquear la fila y evitar doble reserva.
     const slotResult = await client.query(
-      `SELECT d.id_disponibilidad, d.id_medico, d.fecha::text, d.hora_inicio::text, d.hora_fin::text
+      `SELECT d.id_disponibilidad, d.id_medico, d.fecha::text, d.hora_inicio::text, d.hora_fin::text, m.id_usuario AS id_usuario_medico
        FROM disponibilidad_medica d
        JOIN medicos m ON m.id_medico = d.id_medico
        WHERE m.id_especialidad = $1
@@ -160,6 +160,13 @@ async function crearCitaInvitado(req, res) {
         ]
       );
     }
+
+    // Notificar al médico pre-asignado
+    await client.query(
+      `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+       VALUES ($1, 'Solicitud de invitado pre-asignada', 'Se ha pre-asignado la solicitud #' || $2 || ' de un invitado en tu agenda. Queda pendiente de confirmación administrativa.', 'general', FALSE)`,
+      [slot.id_usuario_medico, citaResult.rows[0].id_cita]
+    );
 
     await client.query('COMMIT');
 

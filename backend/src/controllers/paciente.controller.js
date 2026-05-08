@@ -416,7 +416,7 @@ async function crearCitaPaciente(req, res) {
 
     // Bloquear fila de disponibilidad para evitar doble reserva (race condition)
     const dispResult = await client.query(
-      `SELECT d.id_disponibilidad, d.fecha::text, d.hora_inicio::text, m.id_especialidad
+      `SELECT d.id_disponibilidad, d.fecha::text, d.hora_inicio::text, m.id_especialidad, m.id_usuario AS id_usuario_medico
        FROM   disponibilidad_medica d
        JOIN   medicos m ON d.id_medico = m.id_medico
        WHERE  d.id_disponibilidad = $1
@@ -460,11 +460,18 @@ async function crearCitaPaciente(req, res) {
       [idPaciente, idMedico, slot.id_especialidad, idDisp, modalidad.trim(), slot.fecha, slot.hora_inicio, motivo_consulta.trim()]
     );
 
-    // Crear notificación de confirmación
+    // Crear notificación de confirmación para el paciente
     await client.query(
       `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
        VALUES ($1, 'Cita reservada', 'Tu cita médica fue registrada correctamente.', 'confirmacion', FALSE)`,
       [idUsuario]
+    );
+
+    // Crear notificación para el médico
+    await client.query(
+      `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+       VALUES ($1, 'Nueva reserva de cita', 'Un paciente ha reservado la cita #' || $2 || ' en tu agenda.', 'confirmacion', FALSE)`,
+      [slot.id_usuario_medico, citaResult.rows[0].id_cita]
     );
 
     await client.query('COMMIT');
@@ -673,7 +680,7 @@ async function reagendarCita(req, res) {
 
     // Bloquear y verificar nuevo slot disponible (mismo médico)
     const nuevoSlot = await client.query(
-      `SELECT d.id_disponibilidad, d.fecha::text, d.hora_inicio::text, m.id_especialidad
+      `SELECT d.id_disponibilidad, d.fecha::text, d.hora_inicio::text, m.id_especialidad, m.id_usuario AS id_usuario_medico
        FROM   disponibilidad_medica d
        JOIN   medicos m ON d.id_medico = m.id_medico
        WHERE  d.id_disponibilidad = $1
@@ -720,11 +727,18 @@ async function reagendarCita(req, res) {
       [nuevoIdDisp, slot.fecha, slot.hora_inicio, slot.id_especialidad, idCita]
     );
 
-    // Notificación de reprogramación
+    // Notificación de reprogramación al paciente
     await client.query(
       `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
        VALUES ($1, 'Cita reagendada', 'Tu cita médica fue reprogramada correctamente.', 'reprogramacion', FALSE)`,
       [idUsuario]
+    );
+
+    // Notificación de reprogramación al médico
+    await client.query(
+      `INSERT INTO notificaciones (id_usuario, titulo, mensaje, tipo, leida)
+       VALUES ($1, 'Cita reagendada', 'Un paciente ha reagendado la cita #' || $2 || ' en tu agenda.', 'reprogramacion', FALSE)`,
+      [slot.id_usuario_medico, idCita]
     );
 
     await client.query('COMMIT');
