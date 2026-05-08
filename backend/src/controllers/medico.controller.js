@@ -243,7 +243,7 @@ async function getCitasParaMarcar(req, res) {
     }
     const idMedico = medicoResult.rows[0].id_medico;
 
-    // Citas confirmadas cuya fecha ya pasó o es hoy, sin asistencia marcada
+    // Citas confirmadas cuya fecha y hora ya pasaron, sin asistencia marcada
     const citasResult = await pool.query(
       `SELECT
          c.id_cita,
@@ -263,7 +263,7 @@ async function getCitasParaMarcar(req, res) {
        JOIN   especialidades e  ON c.id_especialidad = e.id_especialidad
        WHERE  c.id_medico   = $1
          AND  c.estado_cita IN ('confirmada', 'completada')
-         AND  c.fecha_cita  <= CURRENT_DATE
+         AND  (c.fecha_cita + c.hora_cita) <= NOW()
          -- Evita mostrar citas que ya fueron marcadas como asistidas o inasistidas
          AND  c.asistio_cita IS NULL
        ORDER  BY c.fecha_cita DESC, c.hora_cita DESC`,
