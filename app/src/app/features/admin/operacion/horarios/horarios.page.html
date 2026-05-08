@@ -257,7 +257,13 @@
                       <span class="ag-slot__estado">{{ slot.estado }}</span>
                     </div>
                     <div class="ag-slot__acciones">
-                      <button type="button" class="ag-icon-btn" (click)="editarBloque(slot)" aria-label="Editar bloque">
+                      <button
+                        type="button"
+                        class="ag-icon-btn"
+                        (click)="editarBloque(slot)"
+                        [disabled]="slot.estado === 'reservada'"
+                        aria-label="Editar bloque"
+                      >
                         <span class="material-symbols-outlined">edit</span>
                       </button>
                       <button
@@ -305,5 +311,4 @@
 </ion-content>
 
 <app-admin-bottom-nav slot="fixed" activeTab="operacion"></app-admin-bottom-nav>
-
 

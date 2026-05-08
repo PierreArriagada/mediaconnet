@@ -69,6 +69,7 @@ export class HorariosPage implements OnInit {
   cargandoDisponibilidad = false;
   feedbackMessage = '';
   bloqueEditandoId: number | null = null;
+  bloqueEditandoOriginal: DisponibilidadAdminBloque | null = null;
 
   // ── Calendario ─────────────────────────────────────────────────────────────
   vistaActiva: VistaAgenda = 'semana';
@@ -132,6 +133,7 @@ export class HorariosPage implements OnInit {
     this.terminoBusqueda = '';
     this.disponibilidad = [];
     this.feedbackMessage = '';
+    this.cancelarEdicion();
     this.cargarDisponibilidad();
   }
 
@@ -178,6 +180,7 @@ export class HorariosPage implements OnInit {
     this.fechaSeleccionada = fecha;
     this.bloquesForm = [{ horaInicio: '08:00', horaFin: '10:30' }];
     this.bloqueEditandoId = null;
+    this.bloqueEditandoOriginal = null;
     this.feedbackMessage = '';
   }
 
@@ -214,6 +217,12 @@ export class HorariosPage implements OnInit {
       this.feedbackMessage = 'La hora fin debe ser posterior a la hora inicio en cada bloque.';
       return;
     }
+
+    if (this.bloqueEditandoId) {
+      this.actualizarBloqueEditado();
+      return;
+    }
+
     const fechas = this.fechasParaCrear();
     const nuevos: Partial<DisponibilidadAdminBloque>[] = [];
     fechas.forEach((fecha) => {
@@ -232,19 +241,27 @@ export class HorariosPage implements OnInit {
         this.disponibilidad = [...this.disponibilidad, ...creados];
         this.feedbackMessage = `${creados.length} bloque(s) creados correctamente.`;
         this.bloqueEditandoId = null;
+        this.bloqueEditandoOriginal = null;
       },
       error: () => { this.feedbackMessage = 'No fue posible guardar los bloques.'; },
     });
   }
 
   editarBloque(slot: DisponibilidadAdminBloque): void {
+    if (slot.estado === 'reservada') {
+      this.feedbackMessage = 'No se puede editar una disponibilidad con cita reservada.';
+      return;
+    }
+
     this.bloqueEditandoId = slot.id_disponibilidad;
+    this.bloqueEditandoOriginal = slot;
     this.bloquesForm = [{ horaInicio: slot.hora_inicio, horaFin: slot.hora_fin }];
     this.feedbackMessage = 'Editando bloque existente. Ajusta el rango y guarda.';
   }
 
   cancelarEdicion(): void {
     this.bloqueEditandoId = null;
+    this.bloqueEditandoOriginal = null;
     this.feedbackMessage = '';
     this.bloquesForm = [{ horaInicio: '08:00', horaFin: '10:30' }];
   }
@@ -348,9 +365,42 @@ export class HorariosPage implements OnInit {
     return h * 60 + m;
   }
 
-  private existeBloque(fecha: string, horaInicio: string, horaFin: string): boolean {
+  private actualizarBloqueEditado(): void {
+    if (!this.bloqueEditandoId || !this.bloqueEditandoOriginal) {
+      this.feedbackMessage = 'No hay un bloque seleccionado para actualizar.';
+      return;
+    }
+
+    const [bloque] = this.bloquesForm;
+    if (this.existeBloque(this.fechaSeleccionada, bloque.horaInicio, bloque.horaFin, this.bloqueEditandoId)) {
+      this.feedbackMessage = 'Ya existe otro bloque con ese mismo rango horario.';
+      return;
+    }
+
+    this.adminService.actualizarDisponibilidad(this.bloqueEditandoId, {
+      fecha:      this.fechaSeleccionada,
+      hora_inicio: bloque.horaInicio,
+      hora_fin:    bloque.horaFin,
+      estado:      this.bloqueEditandoOriginal.estado,
+    }).subscribe({
+      next: (actualizado) => {
+        this.disponibilidad = this.disponibilidad.map((item) =>
+          item.id_disponibilidad !== actualizado.id_disponibilidad ? item : actualizado
+        );
+        this.cancelarEdicion();
+        this.feedbackMessage = 'Bloque actualizado correctamente.';
+      },
+      error: () => { this.feedbackMessage = 'No fue posible actualizar el bloque.'; },
+    });
+  }
+
+  private existeBloque(fecha: string, horaInicio: string, horaFin: string, excluirId?: number): boolean {
     return this.disponibilidad.some(
-      (s) => s.fecha === fecha && s.hora_inicio === horaInicio && s.hora_fin === horaFin
+      (s) =>
+        s.id_disponibilidad !== excluirId &&
+        s.fecha === fecha &&
+        s.hora_inicio === horaInicio &&
+        s.hora_fin === horaFin
     );
   }
 
