@@ -5,6 +5,12 @@ const { parsePagination } = require('../utils/pagination');
 const pool = require('../db/pool');
 
 const MAX_TEXTO_CLINICO = 5000;
+const MAX_NOTA_DISPONIBILIDAD = 255;
+const MAX_BLOQUES_DISPONIBILIDAD = 200;
+const MAX_DIAS_FUTURO_DISPONIBILIDAD = 365;
+const ESTADOS_DISPONIBILIDAD_MEDICO = new Set(['disponible', 'bloqueada']);
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?$/;
 
 function validarPayloadHistorialAtencion(body = {}) {
   const campos = ['diagnostico', 'tratamiento', 'observaciones'];
@@ -35,6 +41,123 @@ function validarPayloadHistorialAtencion(body = {}) {
   }
 
   return { data };
+}
+
+function normalizarFechaISO(valor) {
+  if (typeof valor !== 'string') return null;
+  const fecha = valor.trim();
+  if (!ISO_DATE_RE.test(fecha)) return null;
+
+  const [year, month, day] = fecha.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return fecha;
+}
+
+function normalizarHora(valor) {
+  if (typeof valor !== 'string') return null;
+  const match = valor.trim().match(TIME_RE);
+  if (!match) return null;
+
+  const hora = `${match[1]}:${match[2]}`;
+  const minutos = Number(match[1]) * 60 + Number(match[2]);
+  return { hora, minutos };
+}
+
+function fechaHoraLocal(fecha, hora) {
+  const [year, month, day] = fecha.split('-').map(Number);
+  const [hours, minutes] = hora.split(':').map(Number);
+  return new Date(year, month - 1, day, hours, minutes);
+}
+
+function validarNotaDisponibilidad(nota) {
+  if (nota === undefined || nota === null) return { data: null };
+  if (typeof nota !== 'string') return { error: 'La nota debe ser texto.' };
+
+  const limpia = nota.trim();
+  if (limpia.length > MAX_NOTA_DISPONIBILIDAD) {
+    return { error: `La nota no puede superar ${MAX_NOTA_DISPONIBILIDAD} caracteres.` };
+  }
+
+  return { data: limpia || null };
+}
+
+function validarBloqueDisponibilidad(bloque, opciones = {}) {
+  const { requerirFuturo = true } = opciones;
+  const fecha = normalizarFechaISO(bloque?.fecha);
+  if (!fecha) return { error: 'La fecha debe tener formato YYYY-MM-DD y ser válida.' };
+
+  const inicio = normalizarHora(bloque?.hora_inicio);
+  if (!inicio) return { error: 'La hora de inicio debe tener formato HH:MM.' };
+
+  const fin = normalizarHora(bloque?.hora_fin);
+  if (!fin) return { error: 'La hora de término debe tener formato HH:MM.' };
+
+  if (fin.minutos <= inicio.minutos) {
+    return { error: 'La hora de término debe ser posterior a la hora de inicio.' };
+  }
+
+  const estado = bloque?.estado ?? 'disponible';
+  if (typeof estado !== 'string' || !ESTADOS_DISPONIBILIDAD_MEDICO.has(estado)) {
+    return { error: 'El estado debe ser disponible o bloqueada.' };
+  }
+
+  const inicioDate = fechaHoraLocal(fecha, inicio.hora);
+  if (requerirFuturo && inicioDate <= new Date()) {
+    return { error: 'La disponibilidad debe comenzar en una fecha y hora futura.' };
+  }
+
+  const maxDate = new Date();
+  maxDate.setDate(maxDate.getDate() + MAX_DIAS_FUTURO_DISPONIBILIDAD);
+  if (inicioDate > maxDate) {
+    return { error: `La disponibilidad no puede superar ${MAX_DIAS_FUTURO_DISPONIBILIDAD} días hacia el futuro.` };
+  }
+
+  return {
+    data: {
+      fecha,
+      hora_inicio: inicio.hora,
+      hora_fin: fin.hora,
+      estado,
+    },
+  };
+}
+
+async function existeSolapamientoDisponibilidad(queryable, {
+  idMedico,
+  fecha,
+  horaInicio,
+  horaFin,
+  excluirId = null,
+}) {
+  const params = [idMedico, fecha, horaInicio, horaFin];
+  let excluir = '';
+
+  if (excluirId !== null) {
+    params.push(excluirId);
+    excluir = `AND id_disponibilidad <> $${params.length}`;
+  }
+
+  const result = await queryable.query(
+    `SELECT 1
+     FROM disponibilidad_medica
+     WHERE id_medico = $1
+       AND fecha = $2::date
+       AND hora_inicio < $4::time
+       AND hora_fin > $3::time
+       ${excluir}
+     LIMIT 1`,
+    params
+  );
+
+  return result.rowCount > 0;
 }
 
 /**
@@ -997,46 +1120,85 @@ async function crearDisponibilidad(req, res) {
   const idUsuario = parseInt(req.user.id, 10);
   const { bloques } = req.body;
 
+  if (isNaN(idUsuario)) {
+    return res.status(400).json({ message: 'Token inválido.' });
+  }
+
   if (!Array.isArray(bloques) || bloques.length === 0) {
     return res.status(400).json({ message: 'El campo bloques debe ser un arreglo con al menos un elemento.' });
   }
 
+  if (bloques.length > MAX_BLOQUES_DISPONIBILIDAD) {
+    return res.status(400).json({ message: `No se pueden crear más de ${MAX_BLOQUES_DISPONIBILIDAD} bloques por solicitud.` });
+  }
+
+  const client = await pool.connect();
   try {
-    const medicoResult = await pool.query(
+    await client.query('BEGIN');
+
+    const medicoResult = await client.query(
       'SELECT id_medico FROM medicos WHERE id_usuario = $1 AND estado = $2',
       [idUsuario, 'activo']
     );
     if (medicoResult.rowCount === 0) {
+      await client.query('ROLLBACK');
       return res.status(403).json({ message: 'No se encontró perfil de médico activo.' });
     }
     const idMedico = medicoResult.rows[0].id_medico;
 
     const creados = [];
 
-    for (const bloque of bloques) {
-      const { fecha, hora_inicio, hora_fin, estado = 'disponible', nota = null } = bloque;
-
-      if (!fecha || !hora_inicio || !hora_fin) {
-        continue;
+    for (let i = 0; i < bloques.length; i += 1) {
+      const bloque = bloques[i];
+      const validacionBloque = validarBloqueDisponibilidad(bloque, { requerirFuturo: true });
+      if (validacionBloque.error) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ message: `Bloque ${i + 1}: ${validacionBloque.error}` });
       }
 
-      const result = await pool.query(
+      const validacionNota = validarNotaDisponibilidad(bloque?.nota);
+      if (validacionNota.error) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ message: `Bloque ${i + 1}: ${validacionNota.error}` });
+      }
+
+      const { fecha, hora_inicio, hora_fin, estado } = validacionBloque.data;
+      const tieneSolapamiento = await existeSolapamientoDisponibilidad(client, {
+        idMedico,
+        fecha,
+        horaInicio: hora_inicio,
+        horaFin: hora_fin,
+      });
+
+      if (tieneSolapamiento) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({ message: `Bloque ${i + 1}: existe una disponibilidad que se solapa con ese rango horario.` });
+      }
+
+      const result = await client.query(
         `INSERT INTO disponibilidad_medica (id_medico, fecha, hora_inicio, hora_fin, estado, observacion)
          VALUES ($1, $2, $3, $4, $5, $6)
          ON CONFLICT (id_medico, fecha, hora_inicio, hora_fin) DO NOTHING
          RETURNING id_disponibilidad, fecha::text, hora_inicio::text, hora_fin::text, estado, observacion AS nota`,
-        [idMedico, fecha, hora_inicio, hora_fin, estado, nota]
+        [idMedico, fecha, hora_inicio, hora_fin, estado, validacionNota.data]
       );
 
-      if (result.rowCount > 0) {
-        creados.push(result.rows[0]);
+      if (result.rowCount === 0) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({ message: `Bloque ${i + 1}: ya existe una disponibilidad con ese mismo rango.` });
       }
+
+      creados.push(result.rows[0]);
     }
 
+    await client.query('COMMIT');
     return res.status(201).json(creados);
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error('Error en crearDisponibilidad:', err);
     return res.status(500).json({ message: 'Error interno del servidor.' });
+  } finally {
+    client.release();
   }
 }
 
@@ -1050,8 +1212,8 @@ async function actualizarDisponibilidad(req, res) {
   const idDisponibilidad = parseInt(req.params.id, 10);
   const { estado, hora_inicio, hora_fin, nota } = req.body;
 
-  if (isNaN(idDisponibilidad)) {
-    return res.status(400).json({ message: 'ID de disponibilidad inválido.' });
+  if (isNaN(idUsuario) || isNaN(idDisponibilidad) || idDisponibilidad < 1) {
+    return res.status(400).json({ message: 'Parámetros inválidos.' });
   }
 
   try {
@@ -1067,6 +1229,9 @@ async function actualizarDisponibilidad(req, res) {
     // Verificar que el bloque pertenece al médico autenticado
     const bloqueResult = await pool.query(
       `SELECT
+         d.fecha::text AS fecha,
+         d.hora_inicio::text AS hora_inicio,
+         d.hora_fin::text AS hora_fin,
          d.estado,
          EXISTS (
            SELECT 1
@@ -1087,14 +1252,60 @@ async function actualizarDisponibilidad(req, res) {
       return res.status(409).json({ message: 'No se puede modificar un bloque con cita reservada.' });
     }
 
+    const bloqueActual = bloqueResult.rows[0];
+    const actualizaRango = hora_inicio !== undefined || hora_fin !== undefined;
+    let bloqueValidado = null;
+    let notaValidada = null;
+
+    if (estado !== undefined || actualizaRango) {
+      const validacionBloque = validarBloqueDisponibilidad(
+        {
+          fecha: bloqueActual.fecha,
+          hora_inicio: hora_inicio ?? bloqueActual.hora_inicio,
+          hora_fin: hora_fin ?? bloqueActual.hora_fin,
+          estado: estado ?? bloqueActual.estado,
+        },
+        { requerirFuturo: actualizaRango }
+      );
+
+      if (validacionBloque.error) {
+        return res.status(400).json({ message: validacionBloque.error });
+      }
+
+      bloqueValidado = validacionBloque.data;
+
+      if (actualizaRango) {
+        const tieneSolapamiento = await existeSolapamientoDisponibilidad(pool, {
+          idMedico,
+          fecha: bloqueValidado.fecha,
+          horaInicio: bloqueValidado.hora_inicio,
+          horaFin: bloqueValidado.hora_fin,
+          excluirId: idDisponibilidad,
+        });
+
+        if (tieneSolapamiento) {
+          return res.status(409).json({ message: 'Existe una disponibilidad que se solapa con ese rango horario.' });
+        }
+      }
+    }
+
+    if (nota !== undefined) {
+      const validacionNota = validarNotaDisponibilidad(nota);
+      if (validacionNota.error) {
+        return res.status(400).json({ message: validacionNota.error });
+      }
+
+      notaValidada = validacionNota.data;
+    }
+
     const campos = [];
     const valores = [];
     let idx = 1;
 
-    if (estado !== undefined) { campos.push(`estado = $${idx++}`); valores.push(estado); }
-    if (hora_inicio !== undefined) { campos.push(`hora_inicio = $${idx++}`); valores.push(hora_inicio); }
-    if (hora_fin !== undefined) { campos.push(`hora_fin = $${idx++}`); valores.push(hora_fin); }
-    if (nota !== undefined) { campos.push(`observacion = $${idx++}`); valores.push(nota); }
+    if (estado !== undefined) { campos.push(`estado = $${idx++}`); valores.push(bloqueValidado.estado); }
+    if (hora_inicio !== undefined) { campos.push(`hora_inicio = $${idx++}`); valores.push(bloqueValidado.hora_inicio); }
+    if (hora_fin !== undefined) { campos.push(`hora_fin = $${idx++}`); valores.push(bloqueValidado.hora_fin); }
+    if (nota !== undefined) { campos.push(`observacion = $${idx++}`); valores.push(notaValidada); }
 
     if (campos.length === 0) {
       return res.status(400).json({ message: 'No se proporcionaron campos a actualizar.' });

@@ -416,9 +416,6 @@ export class AgendaPage implements OnInit {
     const nuevoEstado: EstadoDisponibilidad = slot.estado === 'bloqueada' ? 'disponible' : 'bloqueada';
 
     this.medicoService.actualizarDisponibilidad(slot.id_disponibilidad, {
-      fecha: slot.fecha,
-      hora_inicio: slot.hora_inicio,
-      hora_fin: slot.hora_fin,
       estado: nuevoEstado,
     }).subscribe({
       next: (actualizado: DisponibilidadBloque) => {
@@ -627,6 +624,5 @@ export class AgendaPage implements OnInit {
     return `${year}-${month}-${day}`;
   }
 }
-
 
 
