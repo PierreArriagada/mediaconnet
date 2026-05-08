@@ -26,10 +26,12 @@ export class NotificacionesPage implements OnInit {
   errorMessage: string | null = null;
   sincronizandoLectura = false;
 
+  totalNoLeidas = 0;
+
   // Sincroniza el contador de la campanita con las notificaciones no leídas
-  private actualizarContadorNoLeidas(): void {
-    const totalNoLeidas = this.notificaciones.filter((item) => !item.leida).length;
-    this.notificacionesState.setNoLeidas(totalNoLeidas);
+  private actualizarContadorNoLeidas(diferencia: number = 0): void {
+    this.totalNoLeidas = Math.max(0, this.totalNoLeidas + diferencia);
+    this.notificacionesState.setNoLeidas(this.totalNoLeidas);
   }
 
   volver(): void {
@@ -49,6 +51,7 @@ export class NotificacionesPage implements OnInit {
     this.medicoService.getNotificaciones().subscribe({
       next: (data: NotificacionesMedicoData) => {
         this.notificaciones = data.notificaciones;
+        this.totalNoLeidas = data.noLeidas;
         this.notificacionesState.setNoLeidas(data.noLeidas);
         this.isLoading = false;
         this.marcarComoLeidasSiCorresponde(data);
@@ -99,7 +102,7 @@ export class NotificacionesPage implements OnInit {
             ? resp.notificacion
             : item
         );
-        this.actualizarContadorNoLeidas();
+        this.actualizarContadorNoLeidas(nuevoEstado ? -1 : 1);
       },
       error: (err) => {
         console.error('Error actualizando notificación:', err);
@@ -114,7 +117,9 @@ export class NotificacionesPage implements OnInit {
         this.notificaciones = this.notificaciones.filter(
           (item) => item.id_notificacion !== notificacion.id_notificacion
         );
-        this.actualizarContadorNoLeidas();
+        if (!notificacion.leida) {
+          this.actualizarContadorNoLeidas(-1);
+        }
       },
       error: (err) => {
         console.error('Error eliminando notificación:', err);
@@ -124,9 +129,14 @@ export class NotificacionesPage implements OnInit {
   }
 
   limpiarTodo(): void {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar todas tus notificaciones? Esta acción no se puede deshacer y borrará todo tu historial de avisos.')) {
+      return;
+    }
+
     this.medicoService.limpiarNotificaciones().subscribe({
       next: () => {
         this.notificaciones = [];
+        this.totalNoLeidas = 0;
         this.notificacionesState.setNoLeidas(0);
       },
       error: (err) => {
