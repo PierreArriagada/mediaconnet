@@ -52,10 +52,10 @@ La vista Inicio del modulo medico ya reemplaza la pantalla de pruebas anterior. 
 ## Estado real de implementacion
 - El Inicio ya esta conectado a datos reales del backend.
 - El bloque de solicitudes del flujo invitado sigue presente como TODO y hoy no se renderiza.
-- El boton `Ver detalle` aun no abre una vista clinica real: redirige a `/medico/citas`, que sigue siendo placeholder.
-- El badge de notificaciones del header depende del estado compartido del modulo y hoy se alimenta principalmente desde la bandeja de notificaciones.
+- El boton `Ver detalle` abre `/medico/citas/:idCita`, con detalle anti-IDOR de la cita y formulario de historial clinico.
+- El badge de notificaciones del header depende del estado compartido del modulo y se alimenta desde dashboard, tabs de citas y bandeja; las subpantallas profundas que pasan `0` pueden seguir iniciando sin contador real si se abren directo.
 
 ## Proximos ajustes naturales
 - Separar solicitudes pendientes del flujo invitado frente a reservas confirmadas.
-- Reemplazar `/medico/citas` por una vista real de detalle de cita.
+- Definir el flujo de documentos clinicos antes de agregar adjuntos al detalle de cita.
 - Integrar el contador de no leidas desde el dashboard o una carga global para no depender de abrir la bandeja.

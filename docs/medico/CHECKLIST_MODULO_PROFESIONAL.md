@@ -2,12 +2,12 @@
 * **Objetivo:** Permitir seguimiento claro del desarrollo del rol profesional, marcando lo que ya fue implementado y lo que todavia falta resolver.
 * **Regla de uso:** Cada punto se marca solo cuando la funcionalidad queda operativa con datos reales, seguridad aplicada, rutas conectadas y documentacion actualizada.
 * **Relacion documental:** Este checklist aterriza el alcance definido en ROADMAP_MODULO_PROFESIONAL.md y debe mantenerse sincronizado con ese documento.
-* **Estado sincronizado:** Validado contra rutas, servicios y backend reales del repositorio al 2026-05-03.
+* **Estado sincronizado:** Validado contra rutas, servicios y backend reales del repositorio al 2026-05-07 durante la auditoria de codigo medico.
 * **Fase 0 - Definiciones bloqueantes**
 * [ ] Definir si las solicitudes de invitado se aceptan, rechazan, reasignan o solo se visualizan desde el modulo profesional.
 * [ ] Definir si los documentos clinicos seran visibles para el paciente, solo para el profesional autor o compartidos entre profesionales autorizados.
 * [ ] Definir si las notificaciones del profesional necesitan abrir una cita o una ficha de paciente mediante referencias navegables persistidas en base de datos.
-* [ ] Definir si el perfil profesional tendra avatar o foto persistente.
+* [x] Definir si el perfil profesional tendra avatar o foto persistente. Estado actual: existe foto persistente via `usuarios.foto_perfil_url` y `POST /api/medico/perfil/foto`.
 * **Fase 1 - Shell base del modulo profesional**
 * [x] Crear header profesional reutilizable con nombre, identidad visual clinica, badge de notificaciones y acceso a la bandeja.
 * [x] Crear barra de navegacion profesional con Inicio, Agenda, Pacientes y Perfil.
@@ -23,7 +23,7 @@
 * [x] Mantener la accion de marcar asistencia con confirmacion modal dentro del Inicio.
 * [x] Agregar accesos rapidos a Agenda, Pacientes y Notificaciones.
 * [ ] Mostrar solicitudes pendientes del flujo invitado como bloque separado de las reservas confirmadas.
-* [ ] Abrir un detalle clinico real desde cada tarjeta; hoy `Ver detalle` redirige a `/medico/citas`, que sigue como placeholder.
+* [x] Abrir un detalle clinico real desde cada tarjeta mediante `/medico/citas/:idCita`.
 * [x] Documentar la vista Inicio del profesional en `docs/medico`.
 * **Fase 3 - Notificaciones del profesional**
 * [x] Crear endpoint para listar notificaciones del profesional autenticado.
@@ -32,7 +32,7 @@
 * [x] Crear vista `/medico/notificaciones` con carga real, error, toggle de lectura y eliminacion individual.
 * [x] Sincronizar el contador del header con un estado compartido al operar desde la bandeja.
 * [ ] Precargar el badge de no leidas en todo el modulo sin depender de abrir la bandeja primero.
-* [ ] Crear endpoint para limpieza total de la bandeja del profesional.
+* [x] Crear endpoint para limpieza total de la bandeja del profesional.
 * [ ] Generar notificaciones faltantes para reserva autenticada, solicitud de invitado y reagendamiento.
 * [ ] Definir e implementar metadatos navegables si la bandeja debe abrir pantallas especificas.
 * [ ] Documentar la vista Notificaciones del profesional en `docs/medico`.
@@ -45,16 +45,16 @@
 * [x] Crear endpoint para bloquear y desbloquear slots existentes mediante cambio de estado.
 * [x] Crear endpoint para eliminar disponibilidad cuando no exista una reserva asociada.
 * [ ] Terminar la experiencia de vista `dia`; hoy la operacion real esta centrada en semana y mes.
-* [ ] Separar visualmente solicitudes pendientes sin `id_disponibilidad` de las reservas confirmadas con slot real.
-* [ ] Permitir abrir un detalle clinico real de la cita desde la agenda.
+* [ ] Separar visualmente solicitudes de invitado pendientes de reservas confirmadas, aunque ambas puedan tener `id_disponibilidad`.
+* [x] Permitir abrir un detalle clinico real de la cita desde la agenda.
 * [ ] Documentar la vista Agenda del profesional en `docs/medico`.
 * **Fase 5 - Detalle de cita e historial clinico**
-* [ ] Implementar una ruta y pagina real de detalle de cita para el profesional.
-* [ ] Crear endpoint de detalle de cita del profesional con validacion de pertenencia por medico autenticado.
-* [ ] Crear flujo para registrar o editar `historial_atenciones` desde el modulo medico.
-* [ ] Mostrar si la cita ya tiene historial clinico cargado o sigue pendiente.
+* [x] Implementar una ruta y pagina real de detalle de cita para el profesional.
+* [x] Crear endpoint de detalle de cita del profesional con validacion de pertenencia por medico autenticado.
+* [x] Crear flujo para registrar o editar `historial_atenciones` desde el modulo medico.
+* [x] Mostrar si la cita ya tiene historial clinico cargado o sigue pendiente.
 * [ ] Definir si se necesita auditoria clinica de cambios sobre historial_atenciones.
-* [ ] Documentar la vista de detalle de cita del profesional en `docs/medico`.
+* [x] Documentar la vista de detalle de cita del profesional en `docs/medico`.
 * **Fase 6 - Pacientes y ficha individual**
 * [x] Crear endpoint para listar pacientes vinculados al profesional por citas reales.
 * [x] Crear endpoint de ficha individual del paciente restringido a pacientes realmente asignados al profesional.
@@ -69,9 +69,9 @@
 * [x] Crear endpoint de perfil del profesional con datos reales de usuarios, medicos y especialidades.
 * [x] Construir la vista `/medico/perfil` con datos reales del profesional.
 * [x] Incorporar cierre de sesion desde la vista Perfil.
-* [ ] Mover la carga del perfil a `MedicoService` y `environment.apiUrl`; hoy la pagina usa `HttpClient` con URL fija.
-* [ ] Incorporar cambio de contrasena, soporte y preferencias de notificacion.
-* [ ] Incorporar avatar persistente o definicion equivalente segun la fase 0.
+* [x] Mover la carga del perfil a `MedicoService` y `environment.apiUrl`.
+* [x] Incorporar cambio de contrasena, soporte y preferencias basicas de notificacion local.
+* [x] Incorporar avatar persistente o definicion equivalente segun la fase 0.
 * [ ] Documentar la vista Perfil del profesional en `docs/medico`.
 * **Fase 8 - Documentos clinicos**
 * [ ] Definir almacenamiento persistente para adjuntos fuera del ciclo efimero del contenedor.
