@@ -10,7 +10,6 @@ import { AuthService } from '../../../../core/services/auth.service';
 import {
   esHoy,
   formatFechaLargaConDia,
-  formatMesAnio,
   formatFechaCorta,
   formatFechaDiaMesAnio,
   formatHoraCorta,
@@ -21,7 +20,6 @@ import {
   DisponibilidadAdminBloque,
 } from '../../../../core/services/admin.service';
 
-type VistaAgenda = 'semana' | 'mes';
 type EstadoDisponibilidad = 'disponible' | 'reservada' | 'bloqueada';
 
 interface DiaAgenda {
@@ -72,7 +70,6 @@ export class HorariosPage implements OnInit {
   bloqueEditandoOriginal: DisponibilidadAdminBloque | null = null;
 
   // ── Calendario ─────────────────────────────────────────────────────────────
-  vistaActiva: VistaAgenda = 'semana';
   fechaSeleccionada = this.toISODate(new Date());
 
   // ── Editor de bloques (visible al seleccionar un día) ──────────────────────
@@ -141,9 +138,6 @@ export class HorariosPage implements OnInit {
 
   get periodoTitulo(): string {
     const fecha = this.parseISODate(this.fechaSeleccionada);
-    if (this.vistaActiva === 'mes') {
-      return formatMesAnio(fecha);
-    }
     const inicio = this.inicioSemana(fecha);
     const fin = this.sumarDias(inicio, 6);
     return `${formatFechaCorta(this.toISODate(inicio))} - ${formatFechaDiaMesAnio(this.toISODate(fin))}`;
@@ -171,11 +165,6 @@ export class HorariosPage implements OnInit {
       .sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio));
   }
 
-  cambiarVista(vista: VistaAgenda): void {
-    this.vistaActiva = vista;
-    this.cargarDisponibilidad();
-  }
-
   seleccionarDia(fecha: string): void {
     this.fechaSeleccionada = fecha;
     this.bloquesForm = [{ horaInicio: '08:00', horaFin: '10:30' }];
@@ -186,8 +175,7 @@ export class HorariosPage implements OnInit {
 
   moverPeriodo(direccion: -1 | 1): void {
     const fecha = this.parseISODate(this.fechaSeleccionada);
-    const salto = this.vistaActiva === 'mes' ? 30 : 7;
-    this.fechaSeleccionada = this.toISODate(this.sumarDias(fecha, salto * direccion));
+    this.fechaSeleccionada = this.toISODate(this.sumarDias(fecha, 7 * direccion));
     this.cargarDisponibilidad();
   }
 
@@ -304,7 +292,7 @@ export class HorariosPage implements OnInit {
   cargarDisponibilidad(): void {
     if (!this.medicoSeleccionadoId) { return; }
     const inicio = this.toISODate(this.inicioSemana(this.parseISODate(this.fechaSeleccionada)));
-    const fin    = this.toISODate(this.sumarDias(this.parseISODate(inicio), this.vistaActiva === 'mes' ? 29 : 6));
+    const fin    = this.toISODate(this.sumarDias(this.parseISODate(inicio), 6));
     this.cargandoDisponibilidad = true;
     this.adminService.getDisponibilidad(this.medicoSeleccionadoId, inicio, fin).subscribe({
       next: (data) => {

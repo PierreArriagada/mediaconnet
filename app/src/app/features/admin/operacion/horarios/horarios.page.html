@@ -84,10 +84,6 @@
               <span class="material-symbols-outlined">chevron_right</span>
             </button>
           </div>
-          <div class="ag-cal__views">
-            <button type="button" class="ag-view-pill" [class.ag-view-pill--active]="vistaActiva === 'semana'" (click)="cambiarVista('semana')">Semana</button>
-            <button type="button" class="ag-view-pill" [class.ag-view-pill--active]="vistaActiva === 'mes'" (click)="cambiarVista('mes')">Mes</button>
-          </div>
         </div>
 
         <div class="ag-week-strip" aria-label="Semana visible">
@@ -311,4 +307,3 @@
 </ion-content>
 
 <app-admin-bottom-nav slot="fixed" activeTab="operacion"></app-admin-bottom-nav>
-

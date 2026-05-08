@@ -295,37 +295,6 @@ ion-content {
   }
 }
 
-.ag-cal__views {
-  display: none;
-  gap: 0.5rem;
-
-  @media (min-width: 640px) {
-    display: flex;
-  }
-}
-
-.ag-view-pill {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--mc-text-secondary, var(--mc-on-surface));
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--mc-font-utility);
-  transition: background 0.15s;
-
-  &:hover {
-    background: var(--mc-surface-container);
-  }
-
-  &.ag-view-pill--active {
-    background: var(--mc-primary-fixed, #d3e4ff);
-    color: var(--mc-on-primary-fixed, #001c38);
-  }
-}
-
 /* ── Tira semanal ─────────────────────────────────────────────────────────── */
 
 .ag-week-strip {
