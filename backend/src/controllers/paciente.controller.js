@@ -859,11 +859,11 @@ async function getHistorialCitas(req, res) {
     return res.status(400).json({ message: 'Token inválido.' });
   }
 
-  const tab = req.query.tab ?? '';
+  const tab = req.query.tab;
 
   const tabsPermitidos = ['pendientes', 'confirmadas', 'pasadas'];
-  if (tab !== '' && !tabsPermitidos.includes(tab)) {
-    return res.status(400).json({ message: 'El parámetro tab no es válido.' });
+  if (!tabsPermitidos.includes(tab)) {
+    return res.status(400).json({ message: 'El parámetro tab es obligatorio y debe ser pendientes, confirmadas o pasadas.' });
   }
 
   // Mapa de tab a regla cerrada de estados + temporalidad.
