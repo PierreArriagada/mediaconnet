@@ -34,9 +34,10 @@ export class AdminHomePage implements OnInit {
   }
 
   ngOnInit(): void {
-    // Verificación defensiva de rol en el cliente
+    // Verificación defensiva de rol en el cliente.
     if (this.user?.role !== 'Administrador') {
-      this.router.navigate(['/dashboard'], { replaceUrl: true });
+      this.auth.logout();
+      this.router.navigate(['/auth/login'], { replaceUrl: true });
       return;
     }
   }
