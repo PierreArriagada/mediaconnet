@@ -1,4 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 import { IonContent, IonRefresher, IonRefresherContent, ModalController, ToastController } from '@ionic/angular/standalone';
 
 import { AuthService } from '../../../core/services/auth.service';
@@ -33,6 +34,7 @@ export class NotificacionesPage implements OnInit {
   private readonly modalCtrl = inject(ModalController);
   private readonly toastCtrl = inject(ToastController);
   private readonly notificacionesState = inject(NotificacionesPacienteStateService);
+  private readonly location = inject(Location);
 
   readonly user = this.auth.getCurrentUser();
 
@@ -48,6 +50,10 @@ export class NotificacionesPage implements OnInit {
 
   ngOnInit(): void {
     this.cargarNotificaciones();
+  }
+
+  volver(): void {
+    this.location.back();
   }
 
   cargarNotificaciones(event?: { target: { complete: () => void } }): void {

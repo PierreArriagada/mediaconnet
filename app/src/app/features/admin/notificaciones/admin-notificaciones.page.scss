@@ -1,5 +1,53 @@
 @use '../../../shared/styles/notificaciones-bandeja';
 
+.nf-back-btn {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin: 0 0 1.25rem;
+  border: 1px solid var(--mc-border-ghost);
+  border-radius: 999px;
+  background: var(--mc-surface-container-lowest);
+  color: var(--mc-primary);
+  font-family: var(--mc-font-utility);
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.7rem 1rem;
+  box-shadow: 0 8px 18px rgba(15, 76, 117, 0.12);
+  cursor: pointer;
+  position: relative;
+  z-index: 5;
+  align-self: flex-start;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    background: var(--mc-surface-container-low);
+    transform: translateX(-1px);
+    box-shadow: 0 10px 22px rgba(15, 76, 117, 0.14);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mc-primary);
+    outline-offset: 2px;
+  }
+
+  .material-symbols-outlined {
+    font-size: 1.125rem;
+  }
+}
+
+.nf-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .nf-item {
   &--accionable {
     &:hover {
