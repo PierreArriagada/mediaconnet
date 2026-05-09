@@ -59,8 +59,9 @@
                   id="email"
                   type="email"
                   formControlName="email"
+                  name="username"
+                  autocomplete="username"
                   placeholder="ejemplo@mediconnect.com"
-                  autocomplete="email"
                   inputmode="email"
                   [class.field__input--error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
                 />
@@ -85,6 +86,7 @@
                   id="password"
                   [type]="showPassword ? 'text' : 'password'"
                   formControlName="password"
+                  name="password"
                   placeholder="••••••••"
                   autocomplete="current-password"
                   [class.field__input--error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"

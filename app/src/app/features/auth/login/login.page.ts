@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonContent, IonSpinner, ToastController } from '@ionic/angular/standalone';
@@ -14,7 +14,7 @@ import { AuthService } from '../../../core/services/auth.service';
     IonContent, IonSpinner,
   ],
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -31,6 +31,16 @@ export class LoginPage {
     });
   }
 
+  ngOnInit(): void {
+    const usuarioActual = this.authService.getCurrentUser();
+
+    if (!this.authService.isAuthenticated() || !usuarioActual) {
+      return;
+    }
+
+    this.redirigirSegunRol(usuarioActual.role);
+  }
+
   async onLogin() {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
@@ -43,21 +53,7 @@ export class LoginPage {
     this.authService.login({ email, password }).subscribe({
       next: (res) => {
         this.isLoading = false;
-        // Redirigir al módulo correcto según rol canónico de base de datos
-        switch (res.user.role) {
-          case 'Paciente':
-            this.router.navigate(['/paciente/home'], { replaceUrl: true });
-            break;
-          case 'Medico':
-            this.router.navigate(['/medico/home'], { replaceUrl: true });
-            break;
-          case 'Administrador':
-            this.router.navigate(['/admin/home'], { replaceUrl: true });
-            break;
-          default:
-            this.router.navigate(['/auth/login'], { replaceUrl: true });
-            break;
-        }
+        this.redirigirSegunRol(res.user.role);
       },
       error: async (err) => {
         this.isLoading = false;
@@ -70,6 +66,23 @@ export class LoginPage {
         await toast.present();
       },
     });
+  }
+
+  private redirigirSegunRol(role: string): void {
+    switch (role) {
+      case 'Paciente':
+        this.router.navigate(['/paciente/home'], { replaceUrl: true });
+        break;
+      case 'Medico':
+        this.router.navigate(['/medico/home'], { replaceUrl: true });
+        break;
+      case 'Administrador':
+        this.router.navigate(['/admin/home'], { replaceUrl: true });
+        break;
+      default:
+        this.router.navigate(['/auth/login'], { replaceUrl: true });
+        break;
+    }
   }
 
   navigateToRegister() {
